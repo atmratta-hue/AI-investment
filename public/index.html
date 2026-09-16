@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Real-time Dynamic S/R, Order Block & Technical Analysis</title>
+    <title>KU TRADER — MACD Overlay & Smart Order Block Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
         .tf-btn.primary-tf { border: 1px solid var(--gold2); color: var(--gold2); }
 
-        /* Signal & S/R Panel Box */
+        /* Signal Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
         .sr-header-group { flex: 1; min-width: 280px; }
         .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
@@ -75,7 +75,7 @@
         .sig-tag.negative, .sig-tag.sell, .sig-tag.strong-sell { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .sig-tag.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
-        /* Analytics Cards */
+        /* Analytics Grid */
         .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
         .ana-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
         .ana-title { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
@@ -133,11 +133,11 @@
 </head>
 <body>
 <div class="wrap">
-    <!-- Hero Section (KU TRADER) -->
+    <!-- Hero Section -->
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Real-time Dynamic S/R, Order Block & Technical Analysis</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">MACD Focus + Smart Order Block (Pine Script v5 Logic)</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -156,37 +156,37 @@
         </div>
     </div>
 
-    <!-- Signal Box (เชื่อมโยงราคา Real-time TradingView) -->
+    <!-- Signal Box ( Pine Script v5 Smart Order Block ) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div style="font-size:13px; color:var(--dim)">
-                แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — TradingView Live Price)
+                แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — Dynamic Price Sync)
             </div>
             <div style="font-size:22px; font-weight:700; color:var(--gold2); margin-top:4px">
                 ราคาปัจจุบัน: <span id="val-realtime-price">กำลังเชื่อมต่อ...</span>
             </div>
             <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">
-                กำลังคำนวณแนวรับ-แนวต้านและ Order Block สัมพันธ์กับราคาสด
+                กำลังคำนวณ Smart Order Block และ Trade Zone สัมพันธ์กับราคาสด
             </div>
         </div>
 
         <div class="sr-levels-container">
             <div class="sr-group resistance">
-                <div class="sr-title">แนวต้าน (Resistance)</div>
+                <div class="sr-title">Zone High (Resistance)</div>
                 <div class="sr-item">
                     <span class="sr-label">แนวต้าน 2 (R2):</span>
                     <span class="sr-val" id="val-r2">--</span>
                 </div>
                 <div class="sr-item">
-                    <span class="sr-label">แนวต้าน 1 (R1):</span>
+                    <span class="sr-label">Zone High:</span>
                     <span class="sr-val" id="val-r1">--</span>
                 </div>
             </div>
 
             <div class="sr-group support">
-                <div class="sr-title">แนวรับ (Support)</div>
+                <div class="sr-title">Zone Low (Support)</div>
                 <div class="sr-item">
-                    <span class="sr-label">แนวรับ 1 (S1):</span>
+                    <span class="sr-label">Zone Low:</span>
                     <span class="sr-val" id="val-s1">--</span>
                 </div>
                 <div class="sr-item">
@@ -196,7 +196,7 @@
             </div>
 
             <div class="sr-group ob-box">
-                <div class="sr-title">โซน Order Block (SMC)</div>
+                <div class="sr-title">Smart Order Block (OB)</div>
                 <div class="sr-item">
                     <span class="sr-label">Bearish OB:</span>
                     <span class="sr-val" id="val-bearish-ob">--</span>
@@ -215,18 +215,18 @@
         <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
     </div>
 
-    <!-- Indicator Analytics Cards -->
+    <!-- Analytics Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
-            <div class="ana-title">1. สถานะโซน Stochastic (<span class="txt-tf-display">TF 1H</span>)</div>
-            <div class="ana-value positive" id="val-card1-status">กำลังคำนวณ...</div>
-            <div class="ana-desc" id="desc-card1-sub">เกณฑ์โซน: ซื้อ (0-20) / ขาย (80-100)</div>
+            <div class="ana-title">1. MACD Trend Focus (<span class="txt-tf-display">TF 1H</span>)</div>
+            <div class="ana-value positive" id="val-macd-focus">Bull Focus</div>
+            <div class="ana-desc" id="desc-macd-focus">เกณฑ์: MACD > Signal & Hist > 0</div>
         </div>
 
         <div class="ana-card">
-            <div class="ana-title">2. SMC Price Zone</div>
-            <div class="ana-value neutral" id="val-smc-zone">--</div>
-            <div class="ana-desc" id="desc-smc-zone">คำนวณ Premium / Discount</div>
+            <div class="ana-title">2. Trade Zone Status</div>
+            <div class="ana-value neutral" id="val-trade-zone">BUY ZONE</div>
+            <div class="ana-desc" id="desc-trade-zone">กรอบสะสม Lookback 50 Bars</div>
         </div>
 
         <div class="ana-card">
@@ -294,7 +294,7 @@
         </div>
     </section>
 
-    <!-- แหล่งที่มาของข้อมูลทั้งหมด (ครบถ้วนทุกหมวดหมู่) -->
+    <!-- แหล่งที่มาของข้อมูลทั้งหมด -->
     <section>
         <h2>แหล่งที่มาของข้อมูล (Data Sources & References)</h2>
         
@@ -367,15 +367,12 @@ let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 2740.50;
 let wsStream = null;
 
-// แปลงรูปแบบ Timeframe ให้เข้ากับระบบของ Technical Analysis Widget
 function getTaInterval(tf) {
     const map = { '1m': '1m', '5m': '5m', '1h': '1h', '4h': '4h', '1d': '1D' };
     return map[(tf || '1h').toLowerCase()] || '1h';
 }
 
-// ==========================================
-// 1. ระบบ Real-time Price Stream & Dynamic S/R Math
-// ==========================================
+// 1. WebSocket Real-time Stream
 function initRealtimeStream() {
     const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
     if (wsStream) wsStream.close();
@@ -401,43 +398,47 @@ function updateDynamicCalculations(price) {
         priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    const multMap = { '1m': 0.001, '5m': 0.003, '1h': 0.008, '4h': 0.018, '1d': 0.035 };
-    const mult = multMap[currentTimeframe] || 0.008;
+    const multMap = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
+    const mult = multMap[currentTimeframe] || 0.012;
+    const atr14 = price * mult * 0.4;
 
-    const r1 = (price * (1 + mult)).toFixed(2);
-    const r2 = (price * (1 + mult * 2)).toFixed(2);
-    const s1 = (price * (1 - mult)).toFixed(2);
-    const s2 = (price * (1 - mult * 2)).toFixed(2);
+    const zoneHigh = price * (1 + mult * 1.5);
+    const zoneLow  = price * (1 - mult * 1.5);
 
-    const bullishOB = `${(price * (1 - mult * 0.95)).toFixed(2)} - ${s1}`;
-    const bearishOB = `${r1} - ${(price * (1 + mult * 0.95)).toFixed(2)}`;
+    // Pine Script OB Formula:
+    // Bullish OB = [ZoneLow - ATR*0.5, ZoneLow]
+    // Bearish OB = [ZoneHigh, ZoneHigh + ATR*0.5]
+    const bullObBot = zoneLow - (atr14 * 0.5);
+    const bullObTop = zoneLow;
 
-    const bsl = (price * (1 + mult * 0.45)).toFixed(2);
-    const ssl = (price * (1 - mult * 0.45)).toFixed(2);
+    const bearObBot = zoneHigh;
+    const bearObTop = zoneHigh + (atr14 * 0.5);
 
-    document.getElementById('val-r1').textContent = r1;
-    document.getElementById('val-r2').textContent = r2;
-    document.getElementById('val-s1').textContent = s1;
-    document.getElementById('val-s2').textContent = s2;
-    document.getElementById('val-bullish-ob').textContent = bullishOB;
-    document.getElementById('val-bearish-ob').textContent = bearishOB;
+    const bsl = (price + (zoneHigh - price) * 0.5).toFixed(2);
+    const ssl = (price - (price - zoneLow) * 0.5).toFixed(2);
+
+    document.getElementById('val-r1').textContent = zoneHigh.toFixed(2);
+    document.getElementById('val-r2').textContent = (zoneHigh * 1.005).toFixed(2);
+    document.getElementById('val-s1').textContent = zoneLow.toFixed(2);
+    document.getElementById('val-s2').textContent = (zoneLow * 0.995).toFixed(2);
+
+    document.getElementById('val-bullish-ob').textContent = `$${bullObBot.toFixed(2)} - $${bullObTop.toFixed(2)}`;
+    document.getElementById('val-bearish-ob').textContent = `$${bearObBot.toFixed(2)} - $${bearObTop.toFixed(2)}`;
 
     document.getElementById('val-irl-summary').textContent = `BSL $${bsl}`;
     document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${bsl} | รับย่อย (SSL): $${ssl}`;
 
     const obBox = document.getElementById('ob-recommendation');
-    if (price <= parseFloat(s1) * 1.001) {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY ($${bullishOB})</span> | SL: หลุด $${s2}`;
-    } else if (price >= parseFloat(r1) * 0.999) {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--down)">โซนเข้า SELL ($${bearishOB})</span> | SL: พ้น $${r2}`;
+    if (price <= zoneLow * 1.001) {
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY (Bullish OB $${bullObBot.toFixed(2)} - $${bullObTop.toFixed(2)})</span> | SL: หลุด $${(zoneLow*0.995).toFixed(2)}`;
+    } else if (price >= zoneHigh * 0.999) {
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--down)">โซนเข้า SELL (Bearish OB $${bearObBot.toFixed(2)} - $${bearObTop.toFixed(2)})</span> | SL: พ้น $${(zoneHigh*1.005).toFixed(2)}`;
     } else {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> ราคาวิ่งกลางกรอบ รอย่อทดสอบ Bullish OB ($${bullishOB}) หรือขึ้นทดสอบ Bearish OB ($${bearishOB})`;
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> ราคาวิ่งกลางกรอบ รอย่อทดสอบ Bullish OB ($${bullObTop.toFixed(2)}) หรือขึ้นทดสอบ Bearish OB ($${bearObBot.toFixed(2)})`;
     }
 }
 
-// ==========================================
-// 2. ระบบ TradingView Widget Mount
-// ==========================================
+// 2. TradingView Widget Mount
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
@@ -470,7 +471,6 @@ function refreshWidget(symbol, tvInterval = '60'){
         locale: "th"
     });
 
-    // เพิ่ม STD;Pivot_Points_High_Low เพื่อแสดงจุดสูงสุด/ต่ำสุดที่ก่อตัวเป็น Order Block บนกราฟ
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true,
         symbol: symbol,
@@ -482,11 +482,10 @@ function refreshWidget(symbol, tvInterval = '60'){
         backgroundColor: 'rgba(23,29,39,1)',
         hide_top_toolbar: false,
         allow_symbol_change: true,
-        studies: ['STD;EMA', 'STD;Stochastic', 'STD;Pivot_Points_High_Low'],
+        studies: ['STD;EMA', 'STD;MACD', 'STD;Pivot_Points_High_Low'],
         support_host: 'https://www.tradingview.com'
     });
 
-    // แก้ไขการส่งค่า interval ให้ตรงตามข้อกำหนดของ Technical Analysis Widget
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: getTaInterval(currentTimeframe),
         width: '100%',
@@ -540,9 +539,7 @@ document.getElementById('symbol-input').onkeydown = e => { if(e.key === 'Enter')
 refreshWidget('OANDA:XAUUSD', '60');
 initRealtimeStream();
 
-// ==========================================
-// 3. ระบบดึงข่าวและข้อมูลวิเคราะห์จาก Backend
-// ==========================================
+// 3. Backend Data Sync
 async function loadBackendData(){
     try {
         const res = await fetch(`/api/dashboard-data?tf=${currentTimeframe}&symbol=${encodeURIComponent(currentSymbol)}`);
@@ -551,30 +548,34 @@ async function loadBackendData(){
 
         document.querySelectorAll('.txt-tf-display').forEach(el => el.textContent = `TF ${data.timeframe || currentTimeframe.toUpperCase()}`);
 
+        if(data.signal){
+            document.getElementById('sig-detail').textContent = data.signal.detail || '';
+            
+            const sigBadge = document.getElementById('sig-badge');
+            const badgeTxt = (data.signal.badge || 'neutral').toLowerCase();
+            sigBadge.textContent = badgeTxt.toUpperCase();
+            sigBadge.className = `sig-tag ${data.signal.badgeClass || 'neutral'}`;
+        }
+
+        if(data.macdFocus){
+            const macdEl = document.getElementById('val-macd-focus');
+            macdEl.textContent = data.macdFocus;
+            macdEl.className = `ana-value ${data.macdFocus.includes('Bull') ? 'positive' : 'negative'}`;
+        }
+
+        if(data.tradeZone){
+            const zoneEl = document.getElementById('val-trade-zone');
+            zoneEl.textContent = data.tradeZone;
+            zoneEl.className = `ana-value ${data.tradeZone.includes('BUY') ? 'positive' : 'negative'}`;
+        }
+
         if(data.marketTrend){
-            document.getElementById('market-overall-trend').textContent = data.marketTrend.text || 'Sideway / รอปัจจัยใหม่';
+            document.getElementById('market-overall-trend').textContent = data.marketTrend.text || 'รอปัจจัยใหม่';
             const trendBadge = document.getElementById('market-trend-badge');
             const trendStatus = (data.marketTrend.status || 'neutral').toLowerCase();
             trendBadge.textContent = data.marketTrend.label || trendStatus.toUpperCase();
             trendBadge.className = `sig-tag ${trendStatus}`;
         }
-
-        const kVal = (Math.random() * 80 + 10).toFixed(1);
-        const card1El = document.getElementById('val-card1-status');
-        if (kVal <= 20) {
-            card1El.textContent = 'โซนซื้อ (Oversold)';
-            card1El.className = 'ana-value positive';
-        } else if (kVal >= 80) {
-            card1El.textContent = 'โซนขาย (Overbought)';
-            card1El.className = 'ana-value negative';
-        } else {
-            card1El.textContent = 'ขาขึ้น (พักตัว)';
-            card1El.className = 'ana-value positive';
-        }
-        document.getElementById('desc-card1-sub').textContent = `ค่า %K: ${kVal} | เกณฑ์โซน: 0–20 / 80–100`;
-
-        document.getElementById('val-smc-zone').textContent = livePrice < 2740 ? 'Discount Zone' : 'Premium Zone';
-        document.getElementById('desc-smc-zone').textContent = livePrice < 2740 ? 'โซนได้เปรียบฝั่งซื้อ' : 'โซนได้เปรียบฝั่งขาย';
 
         const newsContainer = document.getElementById('ai-news-list');
         newsContainer.innerHTML = '';
