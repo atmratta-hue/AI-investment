@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Real-time TradingView Sync Dashboard</title>
+    <title>KU TRADER — Real-time Dynamic S/R, Order Block & Technical Analysis</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans Thai', sans-serif; line-height: 1.5; }
         .wrap { max-width: 1180px; margin: auto; padding: 28px 20px 60px; }
         
-        /* Hero Section (KU TRADER Brand) */
+        /* Hero Section */
         .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
         
         .hero-title-brand {
@@ -95,6 +95,7 @@
         .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
         .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
         .chart-card { height: 560px; }
+        .ta-card { min-height: 440px; }
         .tv-mount { height: 100%; width: 100%; }
         .side-stack { display: flex; flex-direction: column; gap: 16px; }
         .note { font-size: 12px; color: var(--dim); text-align: center; margin-top: 8px; }
@@ -136,7 +137,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Real-time Dynamic S/R, Order Block & Internal Range Liquidity</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Real-time Dynamic S/R, Order Block & Technical Analysis</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -252,13 +253,13 @@
         </div>
     </section>
 
-    <!-- กราฟราคาพร้อม Technical Analysis Widget สรุปสัญญาณแบบ TradingView -->
+    <!-- กราฟราคาพร้อม Technical Analysis Widget ด้านขวาที่แก้ไขแล้ว -->
     <section>
         <h2>กราฟราคาแบบเรียลไทม์ (เน้น TF 1H / 4H)</h2>
         <div class="chart-grid">
             <div class="card chart-card"><div class="tv-mount" id="tv-chart-mount"></div></div>
             <div class="side-stack">
-                <div class="card">
+                <div class="card ta-card">
                     <div id="tv-ta-mount"></div>
                     <div class="note">สรุปสัญญาณจาก Technical Indicators ของ TradingView</div>
                 </div>
@@ -366,11 +367,16 @@ let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 2740.50;
 let wsStream = null;
 
+// แปลงรูปแบบ Timeframe ให้เข้ากับระบบของ Technical Analysis Widget
+function getTaInterval(tf) {
+    const map = { '1m': '1m', '5m': '5m', '1h': '1h', '4h': '4h', '1d': '1D' };
+    return map[(tf || '1h').toLowerCase()] || '1h';
+}
+
 // ==========================================
 // 1. ระบบ Real-time Price Stream & Dynamic S/R Math
 // ==========================================
 function initRealtimeStream() {
-    // ใช้ Binance WebSocket Stream ดึงราคาทองคำสด (PAXGUSDT) แบบ Tick-by-Tick
     const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
     if (wsStream) wsStream.close();
 
@@ -395,7 +401,6 @@ function updateDynamicCalculations(price) {
         priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // คำนวณช่วงการขยับราคา Dynamic S/R ตาม Timeframe 1H / 4H
     const multMap = { '1m': 0.001, '5m': 0.003, '1h': 0.008, '4h': 0.018, '1d': 0.035 };
     const mult = multMap[currentTimeframe] || 0.008;
 
@@ -404,15 +409,12 @@ function updateDynamicCalculations(price) {
     const s1 = (price * (1 - mult)).toFixed(2);
     const s2 = (price * (1 - mult * 2)).toFixed(2);
 
-    // Dynamic Order Blocks (OB)
     const bullishOB = `${(price * (1 - mult * 0.95)).toFixed(2)} - ${s1}`;
     const bearishOB = `${r1} - ${(price * (1 + mult * 0.95)).toFixed(2)}`;
 
-    // Internal Range Liquidity (IRL)
     const bsl = (price * (1 + mult * 0.45)).toFixed(2);
     const ssl = (price * (1 - mult * 0.45)).toFixed(2);
 
-    // อัปเดตลงบน DOM
     document.getElementById('val-r1').textContent = r1;
     document.getElementById('val-r2').textContent = r2;
     document.getElementById('val-s1').textContent = s1;
@@ -423,7 +425,6 @@ function updateDynamicCalculations(price) {
     document.getElementById('val-irl-summary').textContent = `BSL $${bsl}`;
     document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${bsl} | รับย่อย (SSL): $${ssl}`;
 
-    // โซนแนะนำการเทรด ณ ราคาเรียลไทม์
     const obBox = document.getElementById('ob-recommendation');
     if (price <= parseFloat(s1) * 1.001) {
         obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY ($${bullishOB})</span> | SL: หลุด $${s2}`;
@@ -439,13 +440,16 @@ function updateDynamicCalculations(price) {
 // ==========================================
 function loadTV(id, src, config){
     const m = document.getElementById(id);
+    if (!m) return;
     m.innerHTML = '';
     const c = document.createElement('div');
     c.className = 'tradingview-widget-container';
-    c.style = 'height:100%;width:100%';
+    c.style.height = '100%';
+    c.style.width = '100%';
     const w = document.createElement('div');
     w.className = 'tradingview-widget-container__widget';
-    w.style = 'height:100%;width:100%';
+    w.style.height = '100%';
+    w.style.width = '100%';
     c.appendChild(w);
     const s = document.createElement('script');
     s.src = src;
@@ -458,7 +462,6 @@ function loadTV(id, src, config){
 function refreshWidget(symbol, tvInterval = '60'){
     currentSymbol = symbol;
 
-    // Single Quote Widget
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol,
         width: "100%",
@@ -467,7 +470,7 @@ function refreshWidget(symbol, tvInterval = '60'){
         locale: "th"
     });
 
-    // Advanced Chart Widget
+    // เพิ่ม STD;Pivot_Points_High_Low เพื่อแสดงจุดสูงสุด/ต่ำสุดที่ก่อตัวเป็น Order Block บนกราฟ
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true,
         symbol: symbol,
@@ -479,22 +482,21 @@ function refreshWidget(symbol, tvInterval = '60'){
         backgroundColor: 'rgba(23,29,39,1)',
         hide_top_toolbar: false,
         allow_symbol_change: true,
-        studies: ['STD;EMA', 'STD;Stochastic'],
+        studies: ['STD;EMA', 'STD;Stochastic', 'STD;Pivot_Points_High_Low'],
         support_host: 'https://www.tradingview.com'
     });
 
-    // Technical Analysis Summary Widget (TradingView Native)
+    // แก้ไขการส่งค่า interval ให้ตรงตามข้อกำหนดของ Technical Analysis Widget
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: tvInterval,
+        interval: getTaInterval(currentTimeframe),
         width: '100%',
-        height: 400,
+        height: 420,
         symbol: symbol,
         showIntervalTabs: true,
         locale: 'th',
         colorTheme: 'dark'
     });
 
-    // Timeline News Widget
     loadTV('tv-news-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js', {
         feedMode: 'symbol',
         symbol: symbol,
@@ -557,7 +559,6 @@ async function loadBackendData(){
             trendBadge.className = `sig-tag ${trendStatus}`;
         }
 
-        // Stochastic Card calculation
         const kVal = (Math.random() * 80 + 10).toFixed(1);
         const card1El = document.getElementById('val-card1-status');
         if (kVal <= 20) {
@@ -572,11 +573,9 @@ async function loadBackendData(){
         }
         document.getElementById('desc-card1-sub').textContent = `ค่า %K: ${kVal} | เกณฑ์โซน: 0–20 / 80–100`;
 
-        // SMC Zone Card
         document.getElementById('val-smc-zone').textContent = livePrice < 2740 ? 'Discount Zone' : 'Premium Zone';
         document.getElementById('desc-smc-zone').textContent = livePrice < 2740 ? 'โซนได้เปรียบฝั่งซื้อ' : 'โซนได้เปรียบฝั่งขาย';
 
-        // Update News List
         const newsContainer = document.getElementById('ai-news-list');
         newsContainer.innerHTML = '';
         if(!data.news || data.news.length === 0){
