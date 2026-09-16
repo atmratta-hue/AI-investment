@@ -1,0 +1,16 @@
+{
+	"name": "gold-dashboard-backend",
+	"version": "2.0.0",
+	"description": "Gold Trading Dashboard with RSI, SMC, Real-time Price and News Sentiment Analysis",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"dependencies": {
+		"axios": "^1.7.2",
+		"cheerio": "^1.2.0",
+		"dotenv": "^16.4.5",
+		"express": "^4.19.2",
+		"rss-parser": "^3.13.0"
+	}
+}
