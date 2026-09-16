@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Lightweight Charts with Smart Order Block Overlay</title>
+    <title>KU TRADER — MACD Overlay & Smart Order Block Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- นำเข้า TradingView Lightweight Charts Library -->
-    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root {
             --bg: #10141b;
@@ -27,13 +25,25 @@
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans Thai', sans-serif; line-height: 1.5; }
         .wrap { max-width: 1180px; margin: auto; padding: 28px 20px 60px; }
         
+        /* Hero Section */
         .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
-        .hero-title-brand { font-family: 'IBM Plex Mono', sans-serif; font-size: 40px; font-weight: 700; color: var(--gold2); letter-spacing: 1.5px; margin: 0; line-height: 1.1; }
+        
+        .hero-title-brand {
+            font-family: 'IBM Plex Mono', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--gold2);
+            letter-spacing: 1.5px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
         .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 98px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
         
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 28px; }
         
+        /* Timeframe Selector Bar */
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -41,6 +51,7 @@
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
         .tf-btn.primary-tf { border: 1px solid var(--gold2); color: var(--gold2); }
 
+        /* Signal Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
         .sr-header-group { flex: 1; min-width: 280px; }
         .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
@@ -64,6 +75,7 @@
         .sig-tag.negative, .sig-tag.sell, .sig-tag.strong-sell { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .sig-tag.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
+        /* Analytics Grid */
         .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
         .ana-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
         .ana-title { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
@@ -82,7 +94,7 @@
         
         .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
         .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-        .chart-card { height: 560px; position: relative; }
+        .chart-card { height: 560px; }
         .ta-card { min-height: 440px; }
         .tv-mount { height: 100%; width: 100%; }
         .side-stack { display: flex; flex-direction: column; gap: 16px; }
@@ -121,16 +133,18 @@
 </head>
 <body>
 <div class="wrap">
+    <!-- Hero Section -->
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Lightweight Charts with Order Block Overlay (Pine Script v5)</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">MACD Focus + Smart Order Block (Pine Script v5 Logic)</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
+    <!-- Timeframe Selector Bar -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe สำหรับวิเคราะห์ (เน้น 1H / 4H):</span>
         <div class="tf-btn-group">
@@ -142,6 +156,7 @@
         </div>
     </div>
 
+    <!-- Signal Box ( Pine Script v5 Smart Order Block ) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div style="font-size:13px; color:var(--dim)">
@@ -151,7 +166,7 @@
                 ราคาปัจจุบัน: <span id="val-realtime-price">กำลังเชื่อมต่อ...</span>
             </div>
             <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">
-                ระบบกำลังวาดแถบ Order Block และ Trade Zone ลงบนกราฟ
+                กำลังคำนวณ Smart Order Block และ Trade Zone สัมพันธ์กับราคาสด
             </div>
         </div>
 
@@ -200,6 +215,7 @@
         <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
     </div>
 
+    <!-- Analytics Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
             <div class="ana-title">1. MACD Trend Focus (<span class="txt-tf-display">TF 1H</span>)</div>
@@ -237,13 +253,11 @@
         </div>
     </section>
 
-    <!-- กราฟราคาแบบ Lightweight Charts พร้อมวาดโซน OB บนกราฟ -->
+    <!-- กราฟราคาพร้อม Technical Analysis Widget ด้านขวาที่แก้ไขแล้ว -->
     <section>
-        <h2>กราฟราคาแบบเรียลไทม์ (Lightweight Charts + Order Block Lines)</h2>
+        <h2>กราฟราคาแบบเรียลไทม์ (เน้น TF 1H / 4H)</h2>
         <div class="chart-grid">
-            <div class="card chart-card">
-                <div id="lw-chart-mount" style="height:100%; width:100%;"></div>
-            </div>
+            <div class="card chart-card"><div class="tv-mount" id="tv-chart-mount"></div></div>
             <div class="side-stack">
                 <div class="card ta-card">
                     <div id="tv-ta-mount"></div>
@@ -253,6 +267,7 @@
         </div>
     </section>
 
+    <!-- สรุปข่าวสารเรียลไทม์ -->
     <section>
         <h2>สรุปข่าวและผลกระทบตลาด (เรียลไทม์)</h2>
         <div class="card">
@@ -271,6 +286,7 @@
         </div>
     </section>
 
+    <!-- ปฏิทินเศรษฐกิจ และข่าวสาร TradingView Timeline -->
     <section>
         <h2>ข่าวและปฏิทินเศรษฐกิจที่เกี่ยวข้อง</h2>
         <div class="card">
@@ -278,8 +294,10 @@
         </div>
     </section>
 
+    <!-- แหล่งที่มาของข้อมูลทั้งหมด -->
     <section>
         <h2>แหล่งที่มาของข้อมูล (Data Sources & References)</h2>
+        
         <div class="source-category-title">1. ราคาทองคำ XAU/USD</div>
         <div class="ref-grid">
             <a class="ref-card" href="https://th.investing.com/currencies/xau-usd" target="_blank">
@@ -344,95 +362,17 @@
 
 <script>
 let currentTimeframe = '1h';
+let currentTvInterval = '60';
 let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 2740.50;
 let wsStream = null;
-
-// Lightweight Charts Variables
-let lwChart = null;
-let candleSeries = null;
-let currentCandle = null;
-
-// Price Lines for Order Blocks & Zones
-let lineBearishObTop = null;
-let lineBearishObBot = null;
-let lineBullishObTop = null;
-let lineBullishObBot = null;
 
 function getTaInterval(tf) {
     const map = { '1m': '1m', '5m': '5m', '1h': '1h', '4h': '4h', '1d': '1D' };
     return map[(tf || '1h').toLowerCase()] || '1h';
 }
 
-// ==========================================
-// 1. LIGHTWEIGHT CHARTS INITIALIZATION
-// ==========================================
-function initLightweightChart() {
-    const chartContainer = document.getElementById('lw-chart-mount');
-    chartContainer.innerHTML = '';
-
-    lwChart = LightweightCharts.createChart(chartContainer, {
-        width: chartContainer.clientWidth,
-        height: chartContainer.clientHeight,
-        layout: {
-            background: { type: 'solid', color: '#171d27' },
-            textColor: '#8b93a1',
-        },
-        grid: {
-            vertLines: { color: '#2a3242' },
-            horzLines: { color: '#2a3242' },
-        },
-        crosshair: {
-            mode: LightweightCharts.CrosshairMode.Normal,
-        },
-        timeScale: {
-            borderColor: '#2a3242',
-            timeVisible: true,
-            secondsVisible: false,
-        },
-    });
-
-    candleSeries = lwChart.addCandlestickSeries({
-        upColor: '#3fb37f',
-        downColor: '#e2574c',
-        borderVisible: false,
-        wickUpColor: '#3fb37f',
-        wickDownColor: '#e2574c',
-    });
-
-    // สร้างข้อมูลแท่งเทียนย้อนหลังจำลอง 80 แท่ง
-    const initialData = generateHistoricalCandles(livePrice);
-    candleSeries.setData(initialData);
-
-    const last = initialData[initialData.length - 1];
-    currentCandle = { ...last };
-
-    // Responsive Canvas Resize
-    window.addEventListener('resize', () => {
-        lwChart.applyOptions({ width: chartContainer.clientWidth, height: chartContainer.clientHeight });
-    });
-}
-
-function generateHistoricalCandles(basePrice) {
-    const data = [];
-    let now = Math.floor(Date.now() / 1000) - (80 * 3600);
-    let price = basePrice - 20;
-
-    for (let i = 0; i < 80; i++) {
-        const open = price + (Math.random() - 0.5) * 4;
-        const high = Math.max(open + Math.random() * 6, open);
-        const low = Math.min(open - Math.random() * 6, open);
-        const close = low + Math.random() * (high - low);
-        price = close;
-
-        data.push({ time: now + (i * 3600), open, high, low, close });
-    }
-    return data;
-}
-
-// ==========================================
-// 2. REAL-TIME WEBSOCKET & DYNAMIC OB LINES ON CHART
-// ==========================================
+// 1. WebSocket Real-time Stream
 function initRealtimeStream() {
     const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
     if (wsStream) wsStream.close();
@@ -443,27 +383,20 @@ function initRealtimeStream() {
         const data = JSON.parse(event.data);
         if (data && data.c) {
             livePrice = parseFloat(data.c);
-            updateRealtimeCandle(livePrice);
-            updateDynamicOBAndLines(livePrice);
+            updateDynamicCalculations(livePrice);
         }
     };
 
-    wsStream.onclose = () => setTimeout(initRealtimeStream, 3000);
+    wsStream.onclose = () => {
+        setTimeout(initRealtimeStream, 3000);
+    };
 }
 
-function updateRealtimeCandle(price) {
-    if (!currentCandle || !candleSeries) return;
-
-    currentCandle.close = price;
-    if (price > currentCandle.high) currentCandle.high = price;
-    if (price < currentCandle.low) currentCandle.low = price;
-
-    candleSeries.update(currentCandle);
-}
-
-function updateDynamicOBAndLines(price) {
+function updateDynamicCalculations(price) {
     const priceEl = document.getElementById('val-realtime-price');
-    if (priceEl) priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (priceEl) {
+        priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
     const multMap = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
     const mult = multMap[currentTimeframe] || 0.012;
@@ -472,9 +405,9 @@ function updateDynamicOBAndLines(price) {
     const zoneHigh = price * (1 + mult * 1.5);
     const zoneLow  = price * (1 - mult * 1.5);
 
-    // Pine Script OB Equations:
-    // Bullish OB = [zoneLow - ATR*0.5, zoneLow]
-    // Bearish OB = [zoneHigh, zoneHigh + ATR*0.5]
+    // Pine Script OB Formula:
+    // Bullish OB = [ZoneLow - ATR*0.5, ZoneLow]
+    // Bearish OB = [ZoneHigh, ZoneHigh + ATR*0.5]
     const bullObBot = zoneLow - (atr14 * 0.5);
     const bullObTop = zoneLow;
 
@@ -495,70 +428,6 @@ function updateDynamicOBAndLines(price) {
     document.getElementById('val-irl-summary').textContent = `BSL $${bsl}`;
     document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${bsl} | รับย่อย (SSL): $${ssl}`;
 
-    // === วาดเส้นแนวรับ/แนวต้าน และโซน OB บนตัวกราฟ Lightweight Charts ===
-    if (candleSeries) {
-        // ลบเส้นเดิมก่อนอัปเดตเส้นใหม่
-        if (lineBearishObTop) candleSeries.removePriceLine(lineBearishObTop);
-        if (lineBearishObBot) candleSeries.removePriceLine(lineBearishObBot);
-        if (lineBullishObTop) candleSeries.removePriceLine(lineBullishObTop);
-        if (lineBullishObBot) candleSeries.removePriceLine(lineBullishObBot);
-
-        // วาดเส้น Bearish OB (โซนสีแดง)
-        lineBearishObTop = candleSeries.createPriceLine({
-            price: bearObTop,
-            color: '#e2574c',
-            lineWidth: 1,
-            lineStyle: LightweightCharts.LineStyle.Dashed,
-            axisLabelVisible: true,
-            title: 'BEARISH OB TOP',
-        });
-        lineBearishObBot = candleSeries.createPriceLine({
-            price: bearObBot,
-            color: '#e2574c',
-            lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Solid,
-            axisLabelVisible: true,
-            title: 'BEARISH OB BOT (Zone High)',
-        });
-
-        // วาดเส้น Bullish OB (โซนสีเขียว)
-        lineBullishObTop = candleSeries.createPriceLine({
-            price: bullObTop,
-            color: '#3fb37f',
-            lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Solid,
-            axisLabelVisible: true,
-            title: 'BULLISH OB TOP (Zone Low)',
-        });
-        lineBullishObBot = candleSeries.createPriceLine({
-            price: bullObBot,
-            color: '#3fb37f',
-            lineWidth: 1,
-            lineStyle: LightweightCharts.LineStyle.Dashed,
-            axisLabelVisible: true,
-            title: 'BULLISH OB BOT',
-        });
-
-        // สั่งสร้างป้ายสัญญาณ BUY / SELL FOCUS บนแท่งเทียน
-        if (price <= zoneLow * 1.001) {
-            candleSeries.setMarkers([{
-                time: currentCandle.time,
-                position: 'belowBar',
-                color: '#3fb37f',
-                shape: 'arrowUp',
-                text: 'BUY FOCUS (Bullish OB)'
-            }]);
-        } else if (price >= zoneHigh * 0.999) {
-            candleSeries.setMarkers([{
-                time: currentCandle.time,
-                position: 'aboveBar',
-                color: '#e2574c',
-                shape: 'arrowDown',
-                text: 'SELL FOCUS (Bearish OB)'
-            }]);
-        }
-    }
-
     const obBox = document.getElementById('ob-recommendation');
     if (price <= zoneLow * 1.001) {
         obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY (Bullish OB $${bullObBot.toFixed(2)} - $${bullObTop.toFixed(2)})</span> | SL: หลุด $${(zoneLow*0.995).toFixed(2)}`;
@@ -569,9 +438,7 @@ function updateDynamicOBAndLines(price) {
     }
 }
 
-// ==========================================
-// 3. TRADINGVIEW WIDGETS & BACKEND SYNC
-// ==========================================
+// 2. TradingView Widget Mount
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
@@ -593,32 +460,68 @@ function loadTV(id, src, config){
     m.appendChild(c);
 }
 
-function refreshWidget(symbol){
+function refreshWidget(symbol, tvInterval = '60'){
     currentSymbol = symbol;
 
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
-        symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
+        symbol: symbol,
+        width: "100%",
+        isTransparent: true,
+        colorTheme: "dark",
+        locale: "th"
+    });
+
+    loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
+        autosize: true,
+        symbol: symbol,
+        interval: tvInterval,
+        timezone: 'Asia/Bangkok',
+        theme: 'dark',
+        style: '1',
+        locale: 'th',
+        backgroundColor: 'rgba(23,29,39,1)',
+        hide_top_toolbar: false,
+        allow_symbol_change: true,
+        studies: ['STD;EMA', 'STD;MACD', 'STD;Pivot_Points_High_Low'],
+        support_host: 'https://www.tradingview.com'
     });
 
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: getTaInterval(currentTimeframe), width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
+        interval: getTaInterval(currentTimeframe),
+        width: '100%',
+        height: 420,
+        symbol: symbol,
+        showIntervalTabs: true,
+        locale: 'th',
+        colorTheme: 'dark'
     });
 
     loadTV('tv-news-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js', {
-        feedMode: 'symbol', symbol: symbol, colorTheme: 'dark', isTransparent: true, width: '100%', height: 400, locale: 'th'
+        feedMode: 'symbol',
+        symbol: symbol,
+        colorTheme: 'dark',
+        isTransparent: true,
+        width: '100%',
+        height: 400,
+        locale: 'th'
     });
 }
 
-function changeTimeframe(tf){
+function changeTimeframe(tf, tvInterval){
     currentTimeframe = tf;
-    document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tf === tf));
-    refreshWidget(currentSymbol);
+    currentTvInterval = tvInterval;
+
+    document.querySelectorAll('.tf-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tf === tf);
+    });
+
+    refreshWidget(currentSymbol, currentTvInterval);
     loadBackendData();
 }
 
 function go(symbol, label){
     document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.symbol === symbol));
-    refreshWidget(symbol);
+    refreshWidget(symbol, currentTvInterval);
     loadBackendData();
 }
 
@@ -633,12 +536,10 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
 });
 
 document.getElementById('symbol-input').onkeydown = e => { if(e.key === 'Enter') handleSearch(); };
-
-// เริ่มต้นระบบ
-initLightweightChart();
-refreshWidget('OANDA:XAUUSD');
+refreshWidget('OANDA:XAUUSD', '60');
 initRealtimeStream();
 
+// 3. Backend Data Sync
 async function loadBackendData(){
     try {
         const res = await fetch(`/api/dashboard-data?tf=${currentTimeframe}&symbol=${encodeURIComponent(currentSymbol)}`);
@@ -649,8 +550,10 @@ async function loadBackendData(){
 
         if(data.signal){
             document.getElementById('sig-detail').textContent = data.signal.detail || '';
+            
             const sigBadge = document.getElementById('sig-badge');
-            sigBadge.textContent = (data.signal.badge || 'neutral').toUpperCase();
+            const badgeTxt = (data.signal.badge || 'neutral').toLowerCase();
+            sigBadge.textContent = badgeTxt.toUpperCase();
             sigBadge.className = `sig-tag ${data.signal.badgeClass || 'neutral'}`;
         }
 
@@ -699,7 +602,9 @@ async function loadBackendData(){
             newsContainer.appendChild(a);
         });
 
-    } catch(e) { console.error('Fetch error:', e); }
+    } catch(e) {
+        console.error('Fetch error:', e);
+    }
 }
 
 loadBackendData();
