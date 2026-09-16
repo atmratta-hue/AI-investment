@@ -1,11 +1,33 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
+app.use(express.json());
+
+// 1. ลองดึงจากโฟลเดอร์ public ก่อน
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 2. ป้องกันปัญหา Cannot GET / (ดึงไฟล์ index.html ไม่ว่าจะอยู่ข้างนอกหรือใน public)
+app.get('/', (req, res) => {
+  const publicIndexPath = path.join(__dirname, 'public', 'index.html');
+  const rootIndexPath = path.join(__dirname, 'index.html');
+
+  if (fs.existsSync(publicIndexPath)) {
+    res.sendFile(publicIndexPath);
+  } else if (fs.existsSync(rootIndexPath)) {
+    res.sendFile(rootIndexPath);
+  } else {
+    res.status(404).send('<h2>ไม่พบไฟล์ index.html! โปรดตรวจสอบว่ามีไฟล์ index.html อยู่ในโฟลเดอร์โครงการหรือไม่</h2>');
+  }
+});
+
+// ฟังก์ชันดึงคอนฟิกราคา
 function getAssetConfig(symbol) {
-  const sym = symbol.toUpperCase();
+  const sym = symbol ? symbol.toUpperCase() : '';
   if (sym.includes('BTC')) return { base: 65000, decimals: 2, vol: 0.015 };
   if (sym.includes('XAU')) return { base: 2740, decimals: 2, vol: 0.008 };
   if (sym.includes('XAG')) return { base: 31.50, decimals: 2, vol: 0.012 };
@@ -18,9 +40,8 @@ function getAssetConfig(symbol) {
 
 function calculatePineScriptOB(symbol, tf) {
   const config = getAssetConfig(symbol);
-  
   const tfMultipliers = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
-  const mult = (tfMultipliers[tf.toLowerCase()] || tfMultipliers['1h']) * config.vol * 100;
+  const mult = (tfMultipliers[(tf || '1h').toLowerCase()] || tfMultipliers['1h']) * config.vol * 100;
   
   const currentPrice = config.base + (Math.random() - 0.5) * (config.base * mult * 0.1);
   const atr14 = currentPrice * mult * 0.4; 
@@ -77,13 +98,13 @@ function calculatePineScriptOB(symbol, tf) {
   };
 }
 
-app.get('/api/dashboard-data', async (req, res) => {
+// API Data Endpoint
+app.get('/api/dashboard-data', (req, res) => {
   const tf = req.query.tf || '1h';
   const symbol = req.query.symbol || 'OANDA:XAUUSD';
 
   const data = calculatePineScriptOB(symbol, tf);
 
-  // === AI NEW LOGIC: News Feed แบ่งเป็น [PAST] และ [FORECAST] ===
   const newsFeed = [
     {
       type: 'forecast',
@@ -119,7 +140,6 @@ app.get('/api/dashboard-data', async (req, res) => {
     }
   ];
 
-  // จำลองการตั้งค่าสถานะตลาดตามเวลาหรือข่าวสำคัญ
   const marketState = {
     text: 'Wait & See (ชะลอตัวเพื่อรอตัวเลขเงินเฟ้อ CPI สหรัฐฯ คืนนี้)',
     status: 'neutral',
