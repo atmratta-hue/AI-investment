@@ -27,17 +27,7 @@
         
         /* Hero Section */
         .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
-        
-        .hero-title-brand {
-            font-family: 'IBM Plex Mono', sans-serif;
-            font-size: 40px;
-            font-weight: 700;
-            color: var(--gold2);
-            letter-spacing: 1.5px;
-            margin: 0;
-            line-height: 1.1;
-        }
-
+        .hero-title-brand { font-family: 'IBM Plex Mono', sans-serif; font-size: 40px; font-weight: 700; color: var(--gold2); letter-spacing: 1.5px; margin: 0; line-height: 1.1; }
         .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 98px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
         
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
@@ -67,7 +57,6 @@
         .resistance .sr-val { color: var(--down); }
         .support .sr-val { color: var(--up); }
         .ob-box .sr-val { color: var(--gold2); }
-
         .ob-recommendation-bar { width: 100%; margin-top: 14px; padding: 10px 14px; background: var(--panel); border-radius: 6px; border-left: 4px solid var(--gold); font-size: 13.5px; color: var(--text); }
 
         .sig-tag { padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
@@ -100,9 +89,25 @@
         .side-stack { display: flex; flex-direction: column; gap: 16px; }
         .note { font-size: 12px; color: var(--dim); text-align: center; margin-top: 8px; }
 
+        /* Market Trend UI Updates */
         .trend-summary-box { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .trend-status-title { font-size: 13px; color: var(--dim); }
-        .trend-status-val { font-size: 17px; font-weight: 700; color: var(--gold2); }
+        .trend-status-val { font-size: 17px; font-weight: 700; color: var(--gold2); margin-top:4px; }
+        
+        .catalyst-box { background: rgba(226, 87, 76, 0.1); border-left: 4px solid var(--down); padding: 12px 16px; border-radius: 6px; margin-bottom: 14px; display: none; }
+        
+        .news-list { display: flex; flex-direction: column; gap: 10px; }
+        .news-item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--text); display: flex; gap: 12px; }
+        .news-src { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+        .badge { height: max-content; padding: 3px 9px; border-radius: 999px; font: 600 11px 'IBM Plex Mono'; }
+        
+        /* News Badge Colors */
+        .sentiment-positive { background: #3fb37f26; color: var(--up); }
+        .sentiment-negative { background: #e2574c26; color: var(--down); }
+        .sentiment-neutral { background: #7a849626; color: #7a8496; }
+        
+        .type-past { border: 1px solid var(--dim); color: var(--dim); background: transparent; }
+        .type-forecast { border: 1px solid var(--gold2); color: var(--gold2); background: rgba(232, 201, 106, 0.1); }
 
         .source-category-title { font-size: 14px; font-weight: 600; color: var(--gold2); margin: 16px 0 10px; }
         .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
@@ -111,40 +116,20 @@
         .ref-tag, .ref-go { color: var(--gold2); font-size: 12px; font-weight: 600; }
         .ref-title { font-weight: 600; }
         .ref-desc { font-size: 13px; color: var(--dim); }
-
-        .news-list { display: flex; flex-direction: column; gap: 10px; }
-        .news-item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--text); display: flex; gap: 12px; }
-        .news-src { font-size: 11px; color: var(--gold2); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
-        .badge { height: max-content; padding: 3px 9px; border-radius: 999px; font: 600 11px 'IBM Plex Mono'; }
-        .positive { background: #3fb37f26; color: var(--up); }
-        .negative { background: #e2574c26; color: var(--down); }
-        .neutral { background: #7a849626; color: #7a8496; }
-        .ai-disclaimer { font-size: 12px; color: var(--dim); margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
-
-        @media(max-width: 880px) {
-            .analysis-grid { grid-template-columns: 1fr; }
-            .chart-grid, .ref-grid { grid-template-columns: 1fr; }
-            .chart-card { height: 460px; }
-            .hero { flex-direction: column; align-items: flex-start; }
-            .hero-right { width: 100%; max-width: 100%; }
-            .hero-title-brand { font-size: 32px; }
-        }
     </style>
 </head>
 <body>
 <div class="wrap">
-    <!-- Hero Section -->
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">MACD Focus + Smart Order Block (Pine Script v5 Logic)</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Forward-Looking Sentiment & Pine Script v5 Order Block</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
-    <!-- Timeframe Selector Bar -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe สำหรับวิเคราะห์ (เน้น 1H / 4H):</span>
         <div class="tf-btn-group">
@@ -156,79 +141,46 @@
         </div>
     </div>
 
-    <!-- Signal Box ( Pine Script v5 Smart Order Block ) -->
     <div class="signal-box">
         <div class="sr-header-group">
-            <div style="font-size:13px; color:var(--dim)">
-                แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — Dynamic Price Sync)
-            </div>
+            <div style="font-size:13px; color:var(--dim)">แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — Dynamic Price Sync)</div>
             <div style="font-size:22px; font-weight:700; color:var(--gold2); margin-top:4px">
                 ราคาปัจจุบัน: <span id="val-realtime-price">กำลังเชื่อมต่อ...</span>
             </div>
-            <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">
-                กำลังคำนวณ Smart Order Block และ Trade Zone สัมพันธ์กับราคาสด
-            </div>
+            <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">กำลังคำนวณ...</div>
         </div>
-
         <div class="sr-levels-container">
             <div class="sr-group resistance">
                 <div class="sr-title">Zone High (Resistance)</div>
-                <div class="sr-item">
-                    <span class="sr-label">แนวต้าน 2 (R2):</span>
-                    <span class="sr-val" id="val-r2">--</span>
-                </div>
-                <div class="sr-item">
-                    <span class="sr-label">Zone High:</span>
-                    <span class="sr-val" id="val-r1">--</span>
-                </div>
+                <div class="sr-item"><span class="sr-label">แนวต้าน 2 (R2):</span><span class="sr-val" id="val-r2">--</span></div>
+                <div class="sr-item"><span class="sr-label">Zone High:</span><span class="sr-val" id="val-r1">--</span></div>
             </div>
-
             <div class="sr-group support">
                 <div class="sr-title">Zone Low (Support)</div>
-                <div class="sr-item">
-                    <span class="sr-label">Zone Low:</span>
-                    <span class="sr-val" id="val-s1">--</span>
-                </div>
-                <div class="sr-item">
-                    <span class="sr-label">แนวรับ 2 (S2):</span>
-                    <span class="sr-val" id="val-s2">--</span>
-                </div>
+                <div class="sr-item"><span class="sr-label">Zone Low:</span><span class="sr-val" id="val-s1">--</span></div>
+                <div class="sr-item"><span class="sr-label">แนวรับ 2 (S2):</span><span class="sr-val" id="val-s2">--</span></div>
             </div>
-
             <div class="sr-group ob-box">
                 <div class="sr-title">Smart Order Block (OB)</div>
-                <div class="sr-item">
-                    <span class="sr-label">Bearish OB:</span>
-                    <span class="sr-val" id="val-bearish-ob">--</span>
-                </div>
-                <div class="sr-item">
-                    <span class="sr-label">Bullish OB:</span>
-                    <span class="sr-val" id="val-bullish-ob">--</span>
-                </div>
+                <div class="sr-item"><span class="sr-label">Bearish OB:</span><span class="sr-val" id="val-bearish-ob">--</span></div>
+                <div class="sr-item"><span class="sr-label">Bullish OB:</span><span class="sr-val" id="val-bullish-ob">--</span></div>
             </div>
         </div>
-
-        <div class="ob-recommendation-bar" id="ob-recommendation">
-            <b>โซนแนะนำการเทรด:</b> รอคำนวณจุดเข้าซื้อ/ขาย ณ โซน Order Block...
-        </div>
-        
+        <div class="ob-recommendation-bar" id="ob-recommendation"><b>โซนแนะนำการเทรด:</b> รอคำนวณจุดเข้าซื้อ/ขาย ณ โซน Order Block...</div>
         <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
     </div>
 
-    <!-- Analytics Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
             <div class="ana-title">1. MACD Trend Focus (<span class="txt-tf-display">TF 1H</span>)</div>
             <div class="ana-value positive" id="val-macd-focus">Bull Focus</div>
             <div class="ana-desc" id="desc-macd-focus">เกณฑ์: MACD > Signal & Hist > 0</div>
         </div>
-
         <div class="ana-card">
             <div class="ana-title">2. Trade Zone Status</div>
             <div class="ana-value neutral" id="val-trade-zone">BUY ZONE</div>
             <div class="ana-desc" id="desc-trade-zone">กรอบสะสม Lookback 50 Bars</div>
         </div>
-
         <div class="ana-card">
             <div class="ana-title">3. Internal Range Liquidity (IRL)</div>
             <div class="ana-value neutral" id="val-irl-summary">--</div>
@@ -253,7 +205,6 @@
         </div>
     </section>
 
-    <!-- กราฟราคาพร้อม Technical Analysis Widget ด้านขวาที่แก้ไขแล้ว -->
     <section>
         <h2>กราฟราคาแบบเรียลไทม์ (เน้น TF 1H / 4H)</h2>
         <div class="chart-grid">
@@ -267,94 +218,52 @@
         </div>
     </section>
 
-    <!-- สรุปข่าวสารเรียลไทม์ -->
+    <!-- สรุปข่าวและผลกระทบตลาด (Forward-Looking Update) -->
     <section>
-        <h2>สรุปข่าวและผลกระทบตลาด (เรียลไทม์)</h2>
+        <h2>สรุปข่าวและผลกระทบตลาด (Forward-Looking Focus)</h2>
         <div class="card">
+            <!-- Market Status Box -->
             <div class="trend-summary-box">
-                <div>
-                    <div class="trend-status-title">สรุปภาพรวมทิศทางตลาด (Market Trend Direction)</div>
+                <div style="flex: 1;">
+                    <div class="trend-status-title">สรุปภาพรวมทิศทางตลาดและคาดการณ์ล่วงหน้า</div>
                     <div class="trend-status-val" id="market-overall-trend">กำลังประมวลผลทิศทาง...</div>
                 </div>
                 <div class="sig-tag neutral" id="market-trend-badge">ANALYZING</div>
             </div>
 
+            <!-- Upcoming Catalyst Box (Hidden by default) -->
+            <div class="catalyst-box" id="upcoming-catalyst-box">
+                <div style="font-size: 12px; font-weight: 700; color: var(--down); text-transform: uppercase;">🔥 Upcoming Catalyst (<span id="cat-time">--</span>)</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text); margin-top: 4px;" id="cat-event">--</div>
+                <div style="font-size: 13px; color: var(--dim); margin-top: 2px;" id="cat-detail">--</div>
+            </div>
+
+            <!-- News List (PAST & FORECAST) -->
             <div class="news-list" id="ai-news-list">
                 <div class="news-state">กำลังดึงข่าวสดและประมวลผล...</div>
             </div>
-            <div class="ai-disclaimer">วิเคราะห์และสังเคราะห์ข้อมูลข่าวสารจาก Reuters, FOREX.com, MarketWatch และ FXStreet</div>
+            
+            <div style="font-size: 12px; color: var(--dim); margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px;">
+                ระบบ AI ดึงบริบทข่าวและปฏิทินเศรษฐกิจล่วงหน้า 24-48 ชั่วโมง
+            </div>
         </div>
     </section>
 
-    <!-- ปฏิทินเศรษฐกิจ และข่าวสาร TradingView Timeline -->
+    <!-- Calendar & Sources -->
     <section>
-        <h2>ข่าวและปฏิทินเศรษฐกิจที่เกี่ยวข้อง</h2>
-        <div class="card">
-            <div id="tv-news-mount"></div>
-        </div>
+        <h2>ปฏิทินเศรษฐกิจล่วงหน้า</h2>
+        <div class="card"><div id="tv-events-mount"></div></div>
     </section>
 
-    <!-- แหล่งที่มาของข้อมูลทั้งหมด -->
     <section>
-        <h2>แหล่งที่มาของข้อมูล (Data Sources & References)</h2>
-        
-        <div class="source-category-title">1. ราคาทองคำ XAU/USD</div>
+        <h2>แหล่งที่มาของข้อมูล (Data Sources)</h2>
+        <div class="source-category-title">ราคาทองคำ & บทวิเคราะห์</div>
         <div class="ref-grid">
             <a class="ref-card" href="https://th.investing.com/currencies/xau-usd" target="_blank">
-                <div class="ref-tag">Investing.com</div>
-                <div class="ref-title">XAU/USD — Gold Spot US Dollar Price</div>
-                <div class="ref-desc">ใช้ดูราคาปัจจุบัน ราคาเปิด และช่วงราคาสูงสุด–ต่ำสุดของวัน</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-            <a class="ref-card" href="https://tradingeconomics.com/commodity/gold" target="_blank">
-                <div class="ref-tag">Trading Economics</div>
-                <div class="ref-title">Gold — Price, Chart, Historical Data & News</div>
-                <div class="ref-desc">ข้อมูลราคาทองคำย้อนหลัง กราฟ และข้อมูลเศรษฐกิจ</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-        </div>
-
-        <div class="source-category-title">2. แนวรับ–แนวต้านและบทวิเคราะห์ทางเทคนิค</div>
-        <div class="ref-grid">
-            <a class="ref-card" href="https://coindcx.com/blog/crypto-price-predictions/gold-price-forecast-today/" target="_blank">
-                <div class="ref-tag">CoinDCX</div>
-                <div class="ref-title">Gold Price Forecast Today & Target Levels</div>
-                <div class="ref-desc">แหล่งอ้างอิงระดับ EMA และโซนแนวรับ–แนวต้านที่ใช้ประกอบการวิเคราะห์</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
+                <div class="ref-tag">Investing.com</div><div class="ref-title">XAU/USD — Gold Spot Price</div>
             </a>
             <a class="ref-card" href="https://www.tradingview.com/symbols/XAUUSD/ideas/" target="_blank">
-                <div class="ref-tag">TradingView</div>
-                <div class="ref-title">Gold Trade Ideas — OANDA:XAUUSD</div>
-                <div class="ref-desc">แนวคิดการวิเคราะห์กราฟจากผู้ใช้งานและนักวิเคราะห์บนแพลตฟอร์ม</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-            <a class="ref-card" href="https://www.fxstreet.com/markets/commodities/gold" target="_blank">
-                <div class="ref-tag">FXStreet</div>
-                <div class="ref-title">Gold Price Forecast & Technical Analysis</div>
-                <div class="ref-desc">บทวิเคราะห์ราคาทองคำและแนวรับสำคัญก่อนการตัดสินใจด้านนโยบายของ Fed</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-        </div>
-
-        <div class="source-category-title">3. ข่าวเศรษฐกิจและปัจจัยที่ส่งผลต่อทองคำ</div>
-        <div class="ref-grid">
-            <a class="ref-card" href="https://www.reuters.com/markets/commodities/" target="_blank">
-                <div class="ref-tag">Reuters</div>
-                <div class="ref-title">Gold Gains & Fed Rate Decision Spotlights</div>
-                <div class="ref-desc">ข่าวราคาทองคำ การเคลื่อนไหวของอัตราผลตอบแทนพันธบัตร และผลประชุม Fed</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-            <a class="ref-card" href="https://www.forex.com/en-us/news-and-analysis/" target="_blank">
-                <div class="ref-tag">FOREX.com</div>
-                <div class="ref-title">Gold Outlook & Market Drivers Analysis</div>
-                <div class="ref-desc">วิเคราะห์ผลของราคาน้ำมัน อัตราผลตอบแทนพันธบัตร และ FOMC ต่อทองคำ</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-            <a class="ref-card" href="https://www.marketwatch.com/investing/future/gold" target="_blank">
-                <div class="ref-tag">MarketWatch</div>
-                <div class="ref-title">Gold Market News & Dollar/Yield Trends</div>
-                <div class="ref-desc">ข่าวการเคลื่อนไหวของทองคำ ดอลลาร์สหรัฐ และพันธบัตรรัฐบาล</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
+                <div class="ref-tag">TradingView</div><div class="ref-title">Gold Trade Ideas</div>
             </a>
         </div>
     </section>
@@ -364,7 +273,6 @@
 let currentTimeframe = '1h';
 let currentTvInterval = '60';
 let currentSymbol = 'OANDA:XAUUSD';
-let livePrice = 2740.50;
 let wsStream = null;
 
 function getTaInterval(tf) {
@@ -372,149 +280,83 @@ function getTaInterval(tf) {
     return map[(tf || '1h').toLowerCase()] || '1h';
 }
 
-// 1. WebSocket Real-time Stream
 function initRealtimeStream() {
     const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
     if (wsStream) wsStream.close();
-
     wsStream = new WebSocket(wsUrl);
-
     wsStream.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data && data.c) {
-            livePrice = parseFloat(data.c);
-            updateDynamicCalculations(livePrice);
-        }
+        if (data && data.c) updateDynamicCalculations(parseFloat(data.c));
     };
-
-    wsStream.onclose = () => {
-        setTimeout(initRealtimeStream, 3000);
-    };
+    wsStream.onclose = () => setTimeout(initRealtimeStream, 3000);
 }
 
 function updateDynamicCalculations(price) {
-    const priceEl = document.getElementById('val-realtime-price');
-    if (priceEl) {
-        priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    const multMap = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
+    document.getElementById('val-realtime-price').textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    
+    const multMap = { '1h': 0.012, '4h': 0.025 };
     const mult = multMap[currentTimeframe] || 0.012;
     const atr14 = price * mult * 0.4;
-
     const zoneHigh = price * (1 + mult * 1.5);
     const zoneLow  = price * (1 - mult * 1.5);
-
-    // Pine Script OB Formula:
-    // Bullish OB = [ZoneLow - ATR*0.5, ZoneLow]
-    // Bearish OB = [ZoneHigh, ZoneHigh + ATR*0.5]
+    
     const bullObBot = zoneLow - (atr14 * 0.5);
-    const bullObTop = zoneLow;
-
-    const bearObBot = zoneHigh;
     const bearObTop = zoneHigh + (atr14 * 0.5);
-
-    const bsl = (price + (zoneHigh - price) * 0.5).toFixed(2);
-    const ssl = (price - (price - zoneLow) * 0.5).toFixed(2);
 
     document.getElementById('val-r1').textContent = zoneHigh.toFixed(2);
     document.getElementById('val-r2').textContent = (zoneHigh * 1.005).toFixed(2);
     document.getElementById('val-s1').textContent = zoneLow.toFixed(2);
     document.getElementById('val-s2').textContent = (zoneLow * 0.995).toFixed(2);
-
-    document.getElementById('val-bullish-ob').textContent = `$${bullObBot.toFixed(2)} - $${bullObTop.toFixed(2)}`;
-    document.getElementById('val-bearish-ob').textContent = `$${bearObBot.toFixed(2)} - $${bearObTop.toFixed(2)}`;
-
-    document.getElementById('val-irl-summary').textContent = `BSL $${bsl}`;
-    document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${bsl} | รับย่อย (SSL): $${ssl}`;
+    document.getElementById('val-bullish-ob').textContent = `$${bullObBot.toFixed(2)} - $${zoneLow.toFixed(2)}`;
+    document.getElementById('val-bearish-ob').textContent = `$${zoneHigh.toFixed(2)} - $${bearObTop.toFixed(2)}`;
 
     const obBox = document.getElementById('ob-recommendation');
     if (price <= zoneLow * 1.001) {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY (Bullish OB $${bullObBot.toFixed(2)} - $${bullObTop.toFixed(2)})</span> | SL: หลุด $${(zoneLow*0.995).toFixed(2)}`;
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY (Bullish OB)</span> | SL: หลุด $${(zoneLow*0.995).toFixed(2)}`;
     } else if (price >= zoneHigh * 0.999) {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--down)">โซนเข้า SELL (Bearish OB $${bearObBot.toFixed(2)} - $${bearObTop.toFixed(2)})</span> | SL: พ้น $${(zoneHigh*1.005).toFixed(2)}`;
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--down)">โซนเข้า SELL (Bearish OB)</span> | SL: พ้น $${(zoneHigh*1.005).toFixed(2)}`;
     } else {
-        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> ราคาวิ่งกลางกรอบ รอย่อทดสอบ Bullish OB ($${bullObTop.toFixed(2)}) หรือขึ้นทดสอบ Bearish OB ($${bearObBot.toFixed(2)})`;
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> ราคาวิ่งกลางกรอบ รอย่อทดสอบ Bullish OB หรือขึ้นทดสอบ Bearish OB`;
     }
 }
 
-// 2. TradingView Widget Mount
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
     m.innerHTML = '';
     const c = document.createElement('div');
     c.className = 'tradingview-widget-container';
-    c.style.height = '100%';
-    c.style.width = '100%';
+    c.style.height = '100%'; c.style.width = '100%';
     const w = document.createElement('div');
     w.className = 'tradingview-widget-container__widget';
-    w.style.height = '100%';
-    w.style.width = '100%';
+    w.style.height = '100%'; w.style.width = '100%';
     c.appendChild(w);
     const s = document.createElement('script');
-    s.src = src;
-    s.async = true;
-    s.textContent = JSON.stringify(config);
-    c.appendChild(s);
-    m.appendChild(c);
+    s.src = src; s.async = true; s.textContent = JSON.stringify(config);
+    c.appendChild(s); m.appendChild(c);
 }
 
 function refreshWidget(symbol, tvInterval = '60'){
     currentSymbol = symbol;
-
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
-        symbol: symbol,
-        width: "100%",
-        isTransparent: true,
-        colorTheme: "dark",
-        locale: "th"
+        symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
     });
-
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
-        autosize: true,
-        symbol: symbol,
-        interval: tvInterval,
-        timezone: 'Asia/Bangkok',
-        theme: 'dark',
-        style: '1',
-        locale: 'th',
-        backgroundColor: 'rgba(23,29,39,1)',
-        hide_top_toolbar: false,
-        allow_symbol_change: true,
-        studies: ['STD;EMA', 'STD;MACD', 'STD;Pivot_Points_High_Low'],
-        support_host: 'https://www.tradingview.com'
+        autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
+        backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
+        studies: ['STD;EMA', 'STD;MACD', 'STD;Pivot_Points_High_Low']
     });
-
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: getTaInterval(currentTimeframe),
-        width: '100%',
-        height: 420,
-        symbol: symbol,
-        showIntervalTabs: true,
-        locale: 'th',
-        colorTheme: 'dark'
+        interval: getTaInterval(currentTimeframe), width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
-
-    loadTV('tv-news-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js', {
-        feedMode: 'symbol',
-        symbol: symbol,
-        colorTheme: 'dark',
-        isTransparent: true,
-        width: '100%',
-        height: 400,
-        locale: 'th'
+    loadTV('tv-events-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-events.js', {
+        colorTheme: "dark", isTransparent: true, width: "100%", height: "400", locale: "th", importanceFilter: "0,1", currencyFilter: "USD"
     });
 }
 
 function changeTimeframe(tf, tvInterval){
-    currentTimeframe = tf;
-    currentTvInterval = tvInterval;
-
-    document.querySelectorAll('.tf-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tf === tf);
-    });
-
+    currentTimeframe = tf; currentTvInterval = tvInterval;
+    document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tf === tf));
     refreshWidget(currentSymbol, currentTvInterval);
     loadBackendData();
 }
@@ -539,72 +381,59 @@ document.getElementById('symbol-input').onkeydown = e => { if(e.key === 'Enter')
 refreshWidget('OANDA:XAUUSD', '60');
 initRealtimeStream();
 
-// 3. Backend Data Sync
 async function loadBackendData(){
     try {
         const res = await fetch(`/api/dashboard-data?tf=${currentTimeframe}&symbol=${encodeURIComponent(currentSymbol)}`);
-        if(!res.ok) throw new Error('Network error');
         const data = await res.json();
-
-        document.querySelectorAll('.txt-tf-display').forEach(el => el.textContent = `TF ${data.timeframe || currentTimeframe.toUpperCase()}`);
-
-        if(data.signal){
-            document.getElementById('sig-detail').textContent = data.signal.detail || '';
-            
-            const sigBadge = document.getElementById('sig-badge');
-            const badgeTxt = (data.signal.badge || 'neutral').toLowerCase();
-            sigBadge.textContent = badgeTxt.toUpperCase();
-            sigBadge.className = `sig-tag ${data.signal.badgeClass || 'neutral'}`;
-        }
-
-        if(data.macdFocus){
-            const macdEl = document.getElementById('val-macd-focus');
-            macdEl.textContent = data.macdFocus;
-            macdEl.className = `ana-value ${data.macdFocus.includes('Bull') ? 'positive' : 'negative'}`;
-        }
-
-        if(data.tradeZone){
-            const zoneEl = document.getElementById('val-trade-zone');
-            zoneEl.textContent = data.tradeZone;
-            zoneEl.className = `ana-value ${data.tradeZone.includes('BUY') ? 'positive' : 'negative'}`;
-        }
-
-        if(data.marketTrend){
-            document.getElementById('market-overall-trend').textContent = data.marketTrend.text || 'รอปัจจัยใหม่';
+        
+        // Market Status & Upcoming Catalyst
+        if (data.marketTrend) {
+            document.getElementById('market-overall-trend').textContent = data.marketTrend.text;
             const trendBadge = document.getElementById('market-trend-badge');
-            const trendStatus = (data.marketTrend.status || 'neutral').toLowerCase();
-            trendBadge.textContent = data.marketTrend.label || trendStatus.toUpperCase();
-            trendBadge.className = `sig-tag ${trendStatus}`;
+            trendBadge.textContent = data.marketTrend.label;
+            trendBadge.className = `sig-tag ${data.marketTrend.status}`;
+
+            const catBox = document.getElementById('upcoming-catalyst-box');
+            if(data.marketTrend.catalyst && data.marketTrend.catalyst.active) {
+                catBox.style.display = 'block';
+                document.getElementById('cat-time').textContent = data.marketTrend.catalyst.time;
+                document.getElementById('cat-event').textContent = data.marketTrend.catalyst.event;
+                document.getElementById('cat-detail').innerHTML = data.marketTrend.catalyst.details;
+            } else {
+                catBox.style.display = 'none';
+            }
         }
 
+        // News List (Past vs Forecast)
         const newsContainer = document.getElementById('ai-news-list');
         newsContainer.innerHTML = '';
-        if(!data.news || data.news.length === 0){
-            newsContainer.innerHTML = '<div class="news-state">ไม่มีข้อมูลข่าวในขณะนี้</div>';
-            return;
-        }
-        
         data.news.forEach(item => {
             const a = document.createElement('a');
             a.className = 'news-item';
             a.href = item.link || '#';
             a.target = '_blank';
-            const s = ['positive','negative','neutral'].includes(item.sentiment) ? item.sentiment : 'neutral';
-            const labelMap = {positive:'บวก', negative:'ลบ', neutral:'กลาง'};
             
+            // Set Badge Type
+            const typeClass = item.type === 'forecast' ? 'type-forecast' : 'type-past';
+            const typeLabel = item.type === 'forecast' ? '[FORECAST]' : '[FACT]';
+            
+            // Set Sentiment Color
+            const sentiClass = `sentiment-${item.sentiment}`;
+
             a.innerHTML = `
-                <span class="badge ${s}">${labelMap[s]}</span>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span class="badge ${typeClass}">${typeLabel}</span>
+                    <span class="badge ${sentiClass}" style="border:none;">${item.sentiment.toUpperCase()}</span>
+                </div>
                 <div>
-                    <div class="news-src">${item.source || 'ข่าวสารตลาด'}</div>
+                    <div class="news-src" style="color:var(--gold2)">${item.source}</div>
                     <div style="font-weight:600">${item.title}</div>
                     <div style="font-size:13px; color:var(--dim)">${item.reason}</div>
                 </div>`;
             newsContainer.appendChild(a);
         });
 
-    } catch(e) {
-        console.error('Fetch error:', e);
-    }
+    } catch(e) { console.error('Fetch error:', e); }
 }
 
 loadBackendData();

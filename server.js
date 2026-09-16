@@ -4,11 +4,6 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ฟังก์ชันดึงคอนฟิกราคาและ Volatility ตามสัญลักษณ์
 function getAssetConfig(symbol) {
   const sym = symbol.toUpperCase();
   if (sym.includes('BTC')) return { base: 65000, decimals: 2, vol: 0.015 };
@@ -21,36 +16,27 @@ function getAssetConfig(symbol) {
   return { base: 100.00, decimals: 2, vol: 0.008 };
 }
 
-// คำนวณ Order Block & Trade Zone ตามสูตร Pine Script v5
 function calculatePineScriptOB(symbol, tf) {
   const config = getAssetConfig(symbol);
   
-  const tfMultipliers = {
-    '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050
-  };
+  const tfMultipliers = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
   const mult = (tfMultipliers[tf.toLowerCase()] || tfMultipliers['1h']) * config.vol * 100;
   
   const currentPrice = config.base + (Math.random() - 0.5) * (config.base * mult * 0.1);
-  const atr14 = currentPrice * mult * 0.4; // ประมาณการค่า ATR(14)
+  const atr14 = currentPrice * mult * 0.4; 
 
-  // PART 3: Trade Zone (Lookback 50)
-  const zoneHigh = currentPrice * (1 + mult * 1.5); // Resistance
-  const zoneLow  = currentPrice * (1 - mult * 1.5); // Support
+  const zoneHigh = currentPrice * (1 + mult * 1.5); 
+  const zoneLow  = currentPrice * (1 - mult * 1.5);
   const zoneMid  = (zoneHigh + zoneLow) / 2;
 
   const isBuyZone  = currentPrice < zoneMid && currentPrice > zoneLow;
   const isSellZone = currentPrice > zoneMid && currentPrice < zoneHigh;
 
-  // PART 2: Smart Order Block (OB) สูตร Pine Script
-  // Bullish OB = [low[1] - ATR*0.5 , low[1]]
-  // Bearish OB = [high[1] , high[1] + ATR*0.5]
-  const bullObTop = zoneLow;
   const bullObBot = zoneLow - (atr14 * 0.5);
-
+  const bullObTop = zoneLow;
   const bearObBot = zoneHigh;
   const bearObTop = zoneHigh + (atr14 * 0.5);
 
-  // PART 4: MACD Trend Focus & Signals
   const macdVal = (Math.random() - 0.4) * 5;
   const signalVal = (Math.random() - 0.4) * 4;
   const hist = macdVal - signalVal;
@@ -91,36 +77,60 @@ function calculatePineScriptOB(symbol, tf) {
   };
 }
 
-// API Endpoint
 app.get('/api/dashboard-data', async (req, res) => {
   const tf = req.query.tf || '1h';
   const symbol = req.query.symbol || 'OANDA:XAUUSD';
 
   const data = calculatePineScriptOB(symbol, tf);
 
+  // === AI NEW LOGIC: News Feed แบ่งเป็น [PAST] และ [FORECAST] ===
   const newsFeed = [
     {
+      type: 'forecast',
+      source: 'Forex Factory (Forecast)',
+      title: 'US CPI Release at 19:30 GMT+7',
+      reason: 'คาดการณ์ 3.1% (ครั้งก่อน 3.2%) หากตัวเลขต่ำกว่าคาด สินทรัพย์มีความเสี่ยงพุ่งขึ้นทดสอบ Zone High',
+      sentiment: 'neutral',
+      link: '#'
+    },
+    {
+      type: 'past',
       source: 'Reuters',
       title: 'Gold gains as MACD Focus Signal triggers BUY in key Support Zone',
-      reason: 'เกิดสัญญาณ BUY Focus ตามกรอบแนวรับ Trade Zone และโครงสร้าง Order Block ใน TF 1H/4H',
+      reason: 'แรงซื้อเก็งกำไรดันราคากลับขึ้นมายืนเหนือกรอบแนวรับสำคัญใน 24 ชั่วโมงที่ผ่านมา',
       sentiment: 'positive',
       link: 'https://www.reuters.com/markets/commodities/'
     },
     {
-      source: 'FOREX.com',
-      title: 'Crude oil, bond yields test Bearish Order Block boundary',
-      reason: 'การผันผวนของราคาน้ำมันดิบส่งผลให้ราคาเข้าใกล้ขอบบนโซน Bearish Order Block',
-      sentiment: 'negative',
-      link: 'https://www.forex.com/en-us/news-and-analysis/'
+      type: 'forecast',
+      source: 'MarketWatch (Forecast)',
+      title: 'FED Rate Decision & FOMC Statement Tomorrow',
+      reason: 'นักวิเคราะห์เก็งว่า FED จะคงอัตราดอกเบี้ย ส่งผลให้ดอลลาร์อาจชะลอตัว เป็นปัจจัยหนุนฝั่งซื้อ (Bullish Expectation)',
+      sentiment: 'positive',
+      link: 'https://www.marketwatch.com/investing/future/gold'
     },
     {
-      source: 'MarketWatch',
-      title: 'Dollar Index stabilizes as traders monitor Internal Range Liquidity',
-      reason: 'ดัชนีดอลลาร์ทรงตัวบริเวณจุดสะสมวอลลุ่ม Liquidity ก่อนการเลือกทิศทางใหม่',
-      sentiment: 'neutral',
-      link: 'https://www.marketwatch.com/investing/future/gold'
+      type: 'past',
+      source: 'FOREX.com',
+      title: 'Crude oil, bond yields test Bearish Order Block boundary',
+      reason: 'เมื่อคืนที่ผ่านมา ตลาดถูกกดดันจากการปรับขึ้นของบอนด์ยีลด์',
+      sentiment: 'negative',
+      link: 'https://www.forex.com/en-us/news-and-analysis/'
     }
   ];
+
+  // จำลองการตั้งค่าสถานะตลาดตามเวลาหรือข่าวสำคัญ
+  const marketState = {
+    text: 'Wait & See (ชะลอตัวเพื่อรอตัวเลขเงินเฟ้อ CPI สหรัฐฯ คืนนี้)',
+    status: 'neutral',
+    label: 'WAIT & SEE',
+    catalyst: {
+      active: true,
+      time: 'คืนนี้ 19:30 น.',
+      event: 'ประกาศตัวเลขดัชนีราคาผู้บริโภค (CPI) สหรัฐฯ',
+      details: 'คาดการณ์: 3.1% (ครั้งก่อน 3.2%)<br><b>Impact Forecast:</b> หากเงินเฟ้อต่ำกว่าคาด ดอลลาร์จะอ่อนค่า หนุนให้ราคาทองคำทะลุขึ้น'
+    }
+  };
 
   res.json({
     symbol: symbol,
@@ -143,11 +153,7 @@ app.get('/api/dashboard-data', async (req, res) => {
     bullishOB: data.bullishOB,
     bearishOB: data.bearishOB,
     irl: data.irl,
-    marketTrend: {
-      text: `สภาวะตลาด: ${data.macdStatus} | กรอบ ${data.tradeZoneText}`,
-      status: data.badgeClass === 'buy' ? 'positive' : data.badgeClass === 'sell' ? 'negative' : 'neutral',
-      label: data.focusSignal
-    },
+    marketTrend: marketState,
     news: newsFeed
   });
 });
