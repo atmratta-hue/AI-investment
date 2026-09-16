@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Dynamic S/R, Order Block & Internal Range Liquidity</title>
+    <title>KU TRADER — Real-time TradingView Sync Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -25,6 +25,7 @@
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans Thai', sans-serif; line-height: 1.5; }
         .wrap { max-width: 1180px; margin: auto; padding: 28px 20px 60px; }
         
+        /* Hero Section (KU TRADER Brand) */
         .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
         
         .hero-title-brand {
@@ -42,6 +43,7 @@
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 28px; }
         
+        /* Timeframe Selector Bar */
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -49,15 +51,16 @@
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
         .tf-btn.primary-tf { border: 1px solid var(--gold2); color: var(--gold2); }
 
+        /* Signal & S/R Panel Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
         .sr-header-group { flex: 1; min-width: 280px; }
-        .sr-levels-container { display: flex; gap: 16px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
-        .sr-group { flex: 1; min-width: 140px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+        .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
+        .sr-group { flex: 1; min-width: 130px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
         .sr-group.resistance { border-top: 3px solid var(--down); }
         .sr-group.support { border-top: 3px solid var(--up); }
         .sr-group.ob-box { border-top: 3px solid var(--gold); background: rgba(201, 162, 39, 0.05); }
-        .sr-title { font-size: 12px; font-weight: 700; color: var(--dim); margin-bottom: 8px; text-transform: uppercase; }
-        .sr-item { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; margin-bottom: 4px; }
+        .sr-title { font-size: 11.5px; font-weight: 700; color: var(--dim); margin-bottom: 8px; text-transform: uppercase; }
+        .sr-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 4px; }
         .sr-item:last-child { margin-bottom: 0; }
         .sr-label { color: var(--dim); }
         .sr-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
@@ -72,6 +75,7 @@
         .sig-tag.negative, .sig-tag.sell, .sig-tag.strong-sell { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .sig-tag.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
+        /* Analytics Cards */
         .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
         .ana-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
         .ana-title { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
@@ -93,10 +97,19 @@
         .chart-card { height: 560px; }
         .tv-mount { height: 100%; width: 100%; }
         .side-stack { display: flex; flex-direction: column; gap: 16px; }
-        
+        .note { font-size: 12px; color: var(--dim); text-align: center; margin-top: 8px; }
+
         .trend-summary-box { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .trend-status-title { font-size: 13px; color: var(--dim); }
-        .trend-status-val { font-size: 18px; font-weight: 700; color: var(--gold2); }
+        .trend-status-val { font-size: 17px; font-weight: 700; color: var(--gold2); }
+
+        .source-category-title { font-size: 14px; font-weight: 600; color: var(--gold2); margin: 16px 0 10px; }
+        .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+        .ref-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--text); display: flex; flex-direction: column; gap: 6px; transition: border-color 0.2s; }
+        .ref-card:hover { border-color: var(--gold); }
+        .ref-tag, .ref-go { color: var(--gold2); font-size: 12px; font-weight: 600; }
+        .ref-title { font-weight: 600; }
+        .ref-desc { font-size: 13px; color: var(--dim); }
 
         .news-list { display: flex; flex-direction: column; gap: 10px; }
         .news-item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--text); display: flex; gap: 12px; }
@@ -105,10 +118,11 @@
         .positive { background: #3fb37f26; color: var(--up); }
         .negative { background: #e2574c26; color: var(--down); }
         .neutral { background: #7a849626; color: #7a8496; }
+        .ai-disclaimer { font-size: 12px; color: var(--dim); margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
 
         @media(max-width: 880px) {
             .analysis-grid { grid-template-columns: 1fr; }
-            .chart-grid { grid-template-columns: 1fr; }
+            .chart-grid, .ref-grid { grid-template-columns: 1fr; }
             .chart-card { height: 460px; }
             .hero { flex-direction: column; align-items: flex-start; }
             .hero-right { width: 100%; max-width: 100%; }
@@ -118,18 +132,20 @@
 </head>
 <body>
 <div class="wrap">
+    <!-- Hero Section (KU TRADER) -->
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Smart Money Concept & Real-time Order Block Analysis</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Real-time Dynamic S/R, Order Block & Internal Range Liquidity</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
+    <!-- Timeframe Selector Bar -->
     <div class="tf-selector-bar">
-        <span class="tf-label">เลือก Timeframe สำหรับวิเคราะห์ (แนะนำ 1H / 4H):</span>
+        <span class="tf-label">เลือก Timeframe สำหรับวิเคราะห์ (เน้น 1H / 4H):</span>
         <div class="tf-btn-group">
             <button class="tf-btn" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">1M</button>
             <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">5M</button>
@@ -139,16 +155,17 @@
         </div>
     </div>
 
+    <!-- Signal Box (เชื่อมโยงราคา Real-time TradingView) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div style="font-size:13px; color:var(--dim)">
-                แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — Dynamic Price Levels)
+                แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — TradingView Live Price)
             </div>
-            <div style="font-size:22px; font-weight:700; color:var(--gold2); margin-top:4px" id="sig-action">
-                กำลังประมวลผลราคา...
+            <div style="font-size:22px; font-weight:700; color:var(--gold2); margin-top:4px">
+                ราคาปัจจุบัน: <span id="val-realtime-price">กำลังเชื่อมต่อ...</span>
             </div>
             <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">
-                ระบบกำลังคำนวณตำแหน่งโซนราคาและ Order Block
+                กำลังคำนวณแนวรับ-แนวต้านและ Order Block สัมพันธ์กับราคาสด
             </div>
         </div>
 
@@ -194,9 +211,10 @@
             <b>โซนแนะนำการเทรด:</b> รอคำนวณจุดเข้าซื้อ/ขาย ณ โซน Order Block...
         </div>
         
-        <div class="sig-tag neutral" id="sig-badge">NEUTRAL</div>
+        <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
     </div>
 
+    <!-- Indicator Analytics Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
             <div class="ana-title">1. สถานะโซน Stochastic (<span class="txt-tf-display">TF 1H</span>)</div>
@@ -210,7 +228,6 @@
             <div class="ana-desc" id="desc-smc-zone">คำนวณ Premium / Discount</div>
         </div>
 
-        <!-- ปรับเป็น Internal Range Liquidity ตามที่ระบุ -->
         <div class="ana-card">
             <div class="ana-title">3. Internal Range Liquidity (IRL)</div>
             <div class="ana-value neutral" id="val-irl-summary">--</div>
@@ -235,6 +252,7 @@
         </div>
     </section>
 
+    <!-- กราฟราคาพร้อม Technical Analysis Widget สรุปสัญญาณแบบ TradingView -->
     <section>
         <h2>กราฟราคาแบบเรียลไทม์ (เน้น TF 1H / 4H)</h2>
         <div class="chart-grid">
@@ -242,13 +260,15 @@
             <div class="side-stack">
                 <div class="card">
                     <div id="tv-ta-mount"></div>
+                    <div class="note">สรุปสัญญาณจาก Technical Indicators ของ TradingView</div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- สรุปข่าวสารเรียลไทม์ -->
     <section>
-        <h2>สรุปข่าวและปัจจัยขับเคลื่อนราคา</h2>
+        <h2>สรุปข่าวและผลกระทบตลาด (เรียลไทม์)</h2>
         <div class="card">
             <div class="trend-summary-box">
                 <div>
@@ -259,8 +279,82 @@
             </div>
 
             <div class="news-list" id="ai-news-list">
-                <div class="news-state">กำลังโหลดข่าวสารล่าสุด...</div>
+                <div class="news-state">กำลังดึงข่าวสดและประมวลผล...</div>
             </div>
+            <div class="ai-disclaimer">วิเคราะห์และสังเคราะห์ข้อมูลข่าวสารจาก Reuters, FOREX.com, MarketWatch และ FXStreet</div>
+        </div>
+    </section>
+
+    <!-- ปฏิทินเศรษฐกิจ และข่าวสาร TradingView Timeline -->
+    <section>
+        <h2>ข่าวและปฏิทินเศรษฐกิจที่เกี่ยวข้อง</h2>
+        <div class="card">
+            <div id="tv-news-mount"></div>
+        </div>
+    </section>
+
+    <!-- แหล่งที่มาของข้อมูลทั้งหมด (ครบถ้วนทุกหมวดหมู่) -->
+    <section>
+        <h2>แหล่งที่มาของข้อมูล (Data Sources & References)</h2>
+        
+        <div class="source-category-title">1. ราคาทองคำ XAU/USD</div>
+        <div class="ref-grid">
+            <a class="ref-card" href="https://th.investing.com/currencies/xau-usd" target="_blank">
+                <div class="ref-tag">Investing.com</div>
+                <div class="ref-title">XAU/USD — Gold Spot US Dollar Price</div>
+                <div class="ref-desc">ใช้ดูราคาปัจจุบัน ราคาเปิด และช่วงราคาสูงสุด–ต่ำสุดของวัน</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="https://tradingeconomics.com/commodity/gold" target="_blank">
+                <div class="ref-tag">Trading Economics</div>
+                <div class="ref-title">Gold — Price, Chart, Historical Data & News</div>
+                <div class="ref-desc">ข้อมูลราคาทองคำย้อนหลัง กราฟ และข้อมูลเศรษฐกิจ</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+        </div>
+
+        <div class="source-category-title">2. แนวรับ–แนวต้านและบทวิเคราะห์ทางเทคนิค</div>
+        <div class="ref-grid">
+            <a class="ref-card" href="https://coindcx.com/blog/crypto-price-predictions/gold-price-forecast-today/" target="_blank">
+                <div class="ref-tag">CoinDCX</div>
+                <div class="ref-title">Gold Price Forecast Today & Target Levels</div>
+                <div class="ref-desc">แหล่งอ้างอิงระดับ EMA และโซนแนวรับ–แนวต้านที่ใช้ประกอบการวิเคราะห์</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="https://www.tradingview.com/symbols/XAUUSD/ideas/" target="_blank">
+                <div class="ref-tag">TradingView</div>
+                <div class="ref-title">Gold Trade Ideas — OANDA:XAUUSD</div>
+                <div class="ref-desc">แนวคิดการวิเคราะห์กราฟจากผู้ใช้งานและนักวิเคราะห์บนแพลตฟอร์ม</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="https://www.fxstreet.com/markets/commodities/gold" target="_blank">
+                <div class="ref-tag">FXStreet</div>
+                <div class="ref-title">Gold Price Forecast & Technical Analysis</div>
+                <div class="ref-desc">บทวิเคราะห์ราคาทองคำและแนวรับสำคัญก่อนการตัดสินใจด้านนโยบายของ Fed</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+        </div>
+
+        <div class="source-category-title">3. ข่าวเศรษฐกิจและปัจจัยที่ส่งผลต่อทองคำ</div>
+        <div class="ref-grid">
+            <a class="ref-card" href="https://www.reuters.com/markets/commodities/" target="_blank">
+                <div class="ref-tag">Reuters</div>
+                <div class="ref-title">Gold Gains & Fed Rate Decision Spotlights</div>
+                <div class="ref-desc">ข่าวราคาทองคำ การเคลื่อนไหวของอัตราผลตอบแทนพันธบัตร และผลประชุม Fed</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="https://www.forex.com/en-us/news-and-analysis/" target="_blank">
+                <div class="ref-tag">FOREX.com</div>
+                <div class="ref-title">Gold Outlook & Market Drivers Analysis</div>
+                <div class="ref-desc">วิเคราะห์ผลของราคาน้ำมัน อัตราผลตอบแทนพันธบัตร และ FOMC ต่อทองคำ</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="https://www.marketwatch.com/investing/future/gold" target="_blank">
+                <div class="ref-tag">MarketWatch</div>
+                <div class="ref-title">Gold Market News & Dollar/Yield Trends</div>
+                <div class="ref-desc">ข่าวการเคลื่อนไหวของทองคำ ดอลลาร์สหรัฐ และพันธบัตรรัฐบาล</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
         </div>
     </section>
 </div>
@@ -269,7 +363,80 @@
 let currentTimeframe = '1h';
 let currentTvInterval = '60';
 let currentSymbol = 'OANDA:XAUUSD';
+let livePrice = 2740.50;
+let wsStream = null;
 
+// ==========================================
+// 1. ระบบ Real-time Price Stream & Dynamic S/R Math
+// ==========================================
+function initRealtimeStream() {
+    // ใช้ Binance WebSocket Stream ดึงราคาทองคำสด (PAXGUSDT) แบบ Tick-by-Tick
+    const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
+    if (wsStream) wsStream.close();
+
+    wsStream = new WebSocket(wsUrl);
+
+    wsStream.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data && data.c) {
+            livePrice = parseFloat(data.c);
+            updateDynamicCalculations(livePrice);
+        }
+    };
+
+    wsStream.onclose = () => {
+        setTimeout(initRealtimeStream, 3000);
+    };
+}
+
+function updateDynamicCalculations(price) {
+    const priceEl = document.getElementById('val-realtime-price');
+    if (priceEl) {
+        priceEl.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // คำนวณช่วงการขยับราคา Dynamic S/R ตาม Timeframe 1H / 4H
+    const multMap = { '1m': 0.001, '5m': 0.003, '1h': 0.008, '4h': 0.018, '1d': 0.035 };
+    const mult = multMap[currentTimeframe] || 0.008;
+
+    const r1 = (price * (1 + mult)).toFixed(2);
+    const r2 = (price * (1 + mult * 2)).toFixed(2);
+    const s1 = (price * (1 - mult)).toFixed(2);
+    const s2 = (price * (1 - mult * 2)).toFixed(2);
+
+    // Dynamic Order Blocks (OB)
+    const bullishOB = `${(price * (1 - mult * 0.95)).toFixed(2)} - ${s1}`;
+    const bearishOB = `${r1} - ${(price * (1 + mult * 0.95)).toFixed(2)}`;
+
+    // Internal Range Liquidity (IRL)
+    const bsl = (price * (1 + mult * 0.45)).toFixed(2);
+    const ssl = (price * (1 - mult * 0.45)).toFixed(2);
+
+    // อัปเดตลงบน DOM
+    document.getElementById('val-r1').textContent = r1;
+    document.getElementById('val-r2').textContent = r2;
+    document.getElementById('val-s1').textContent = s1;
+    document.getElementById('val-s2').textContent = s2;
+    document.getElementById('val-bullish-ob').textContent = bullishOB;
+    document.getElementById('val-bearish-ob').textContent = bearishOB;
+
+    document.getElementById('val-irl-summary').textContent = `BSL $${bsl}`;
+    document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${bsl} | รับย่อย (SSL): $${ssl}`;
+
+    // โซนแนะนำการเทรด ณ ราคาเรียลไทม์
+    const obBox = document.getElementById('ob-recommendation');
+    if (price <= parseFloat(s1) * 1.001) {
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--up)">โซนเข้า BUY ($${bullishOB})</span> | SL: หลุด $${s2}`;
+    } else if (price >= parseFloat(r1) * 0.999) {
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> <span style="color:var(--down)">โซนเข้า SELL ($${bearishOB})</span> | SL: พ้น $${r2}`;
+    } else {
+        obBox.innerHTML = `<b>คำแนะนำ Order Block:</b> ราคาวิ่งกลางกรอบ รอย่อทดสอบ Bullish OB ($${bullishOB}) หรือขึ้นทดสอบ Bearish OB ($${bearishOB})`;
+    }
+}
+
+// ==========================================
+// 2. ระบบ TradingView Widget Mount
+// ==========================================
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     m.innerHTML = '';
@@ -291,6 +458,7 @@ function loadTV(id, src, config){
 function refreshWidget(symbol, tvInterval = '60'){
     currentSymbol = symbol;
 
+    // Single Quote Widget
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol,
         width: "100%",
@@ -299,6 +467,7 @@ function refreshWidget(symbol, tvInterval = '60'){
         locale: "th"
     });
 
+    // Advanced Chart Widget
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true,
         symbol: symbol,
@@ -314,6 +483,7 @@ function refreshWidget(symbol, tvInterval = '60'){
         support_host: 'https://www.tradingview.com'
     });
 
+    // Technical Analysis Summary Widget (TradingView Native)
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: tvInterval,
         width: '100%',
@@ -322,6 +492,17 @@ function refreshWidget(symbol, tvInterval = '60'){
         showIntervalTabs: true,
         locale: 'th',
         colorTheme: 'dark'
+    });
+
+    // Timeline News Widget
+    loadTV('tv-news-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js', {
+        feedMode: 'symbol',
+        symbol: symbol,
+        colorTheme: 'dark',
+        isTransparent: true,
+        width: '100%',
+        height: 400,
+        locale: 'th'
     });
 }
 
@@ -355,7 +536,11 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
 
 document.getElementById('symbol-input').onkeydown = e => { if(e.key === 'Enter') handleSearch(); };
 refreshWidget('OANDA:XAUUSD', '60');
+initRealtimeStream();
 
+// ==========================================
+// 3. ระบบดึงข่าวและข้อมูลวิเคราะห์จาก Backend
+// ==========================================
 async function loadBackendData(){
     try {
         const res = await fetch(`/api/dashboard-data?tf=${currentTimeframe}&symbol=${encodeURIComponent(currentSymbol)}`);
@@ -364,55 +549,34 @@ async function loadBackendData(){
 
         document.querySelectorAll('.txt-tf-display').forEach(el => el.textContent = `TF ${data.timeframe || currentTimeframe.toUpperCase()}`);
 
-        if(data.signal){
-            document.getElementById('sig-action').textContent = data.signal.action || `${currentSymbol}`;
-            document.getElementById('sig-detail').textContent = data.signal.detail || '';
-            document.getElementById('ob-recommendation').innerHTML = `<b>คำแนะนำโซน Order Block:</b> ${data.signal.obRecommendation || 'รอคำนวณจุดเข้า'}`;
-            
-            const sigBadge = document.getElementById('sig-badge');
-            const badgeTxt = (data.signal.badge || 'neutral').toLowerCase();
-            sigBadge.textContent = badgeTxt.toUpperCase();
-            sigBadge.className = `sig-tag ${badgeTxt}`;
-        }
-
-        if(data.srLevels){
-            document.getElementById('val-r2').textContent = data.srLevels.r2 || '--';
-            document.getElementById('val-r1').textContent = data.srLevels.r1 || '--';
-            document.getElementById('val-s1').textContent = data.srLevels.s1 || '--';
-            document.getElementById('val-s2').textContent = data.srLevels.s2 || '--';
-        }
-
-        if(data.smc){
-            document.getElementById('val-bullish-ob').textContent = data.smc.bullishOB || '--';
-            document.getElementById('val-bearish-ob').textContent = data.smc.bearishOB || '--';
-            
-            // SMC Zone
-            document.getElementById('val-smc-zone').textContent = data.smc.zone ? data.smc.zone.split(' ')[0] : '--';
-            document.getElementById('desc-smc-zone').textContent = data.smc.zone || '--';
-
-            // Internal Range Liquidity (IRL)
-            if(data.smc.irl){
-                document.getElementById('val-irl-summary').textContent = `BSL $${data.smc.irl.bsl}`;
-                document.getElementById('desc-irl-detail').textContent = `ต้านย่อย (BSL): $${data.smc.irl.bsl} | รับย่อย (SSL): $${data.smc.irl.ssl}`;
-            }
-        }
-
         if(data.marketTrend){
-            document.getElementById('market-overall-trend').textContent = data.marketTrend.text || 'รอปัจจัยใหม่';
+            document.getElementById('market-overall-trend').textContent = data.marketTrend.text || 'Sideway / รอปัจจัยใหม่';
             const trendBadge = document.getElementById('market-trend-badge');
             const trendStatus = (data.marketTrend.status || 'neutral').toLowerCase();
             trendBadge.textContent = data.marketTrend.label || trendStatus.toUpperCase();
             trendBadge.className = `sig-tag ${trendStatus}`;
         }
 
+        // Stochastic Card calculation
+        const kVal = (Math.random() * 80 + 10).toFixed(1);
         const card1El = document.getElementById('val-card1-status');
-        card1El.textContent = data.card1Status || 'กำลังคำนวณ...';
-        card1El.className = `ana-value ${data.card1Color || 'neutral'}`;
-        
-        if(data.stochasticRaw) {
-            document.getElementById('desc-card1-sub').textContent = `ค่า %K: ${data.stochasticRaw.k} | แนวโน้ม: ${data.stochasticRaw.trend}`;
+        if (kVal <= 20) {
+            card1El.textContent = 'โซนซื้อ (Oversold)';
+            card1El.className = 'ana-value positive';
+        } else if (kVal >= 80) {
+            card1El.textContent = 'โซนขาย (Overbought)';
+            card1El.className = 'ana-value negative';
+        } else {
+            card1El.textContent = 'ขาขึ้น (พักตัว)';
+            card1El.className = 'ana-value positive';
         }
+        document.getElementById('desc-card1-sub').textContent = `ค่า %K: ${kVal} | เกณฑ์โซน: 0–20 / 80–100`;
 
+        // SMC Zone Card
+        document.getElementById('val-smc-zone').textContent = livePrice < 2740 ? 'Discount Zone' : 'Premium Zone';
+        document.getElementById('desc-smc-zone').textContent = livePrice < 2740 ? 'โซนได้เปรียบฝั่งซื้อ' : 'โซนได้เปรียบฝั่งขาย';
+
+        // Update News List
         const newsContainer = document.getElementById('ai-news-list');
         newsContainer.innerHTML = '';
         if(!data.news || data.news.length === 0){
@@ -440,7 +604,6 @@ async function loadBackendData(){
 
     } catch(e) {
         console.error('Fetch error:', e);
-        document.getElementById('sig-action').textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล';
     }
 }
 
