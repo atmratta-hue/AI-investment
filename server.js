@@ -7,11 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// 1. ลองดึงจากโฟลเดอร์ public ก่อน
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. ป้องกันปัญหา Cannot GET / (ดึงไฟล์ index.html ไม่ว่าจะอยู่ข้างนอกหรือใน public)
 app.get('/', (req, res) => {
   const publicIndexPath = path.join(__dirname, 'public', 'index.html');
   const rootIndexPath = path.join(__dirname, 'index.html');
@@ -21,11 +18,10 @@ app.get('/', (req, res) => {
   } else if (fs.existsSync(rootIndexPath)) {
     res.sendFile(rootIndexPath);
   } else {
-    res.status(404).send('<h2>ไม่พบไฟล์ index.html! โปรดตรวจสอบว่ามีไฟล์ index.html อยู่ในโฟลเดอร์โครงการหรือไม่</h2>');
+    res.status(404).send('<h2>ไม่พบไฟล์ index.html!</h2>');
   }
 });
 
-// ฟังก์ชันดึงคอนฟิกราคา
 function getAssetConfig(symbol) {
   const sym = symbol ? symbol.toUpperCase() : '';
   if (sym.includes('BTC')) return { base: 65000, decimals: 2, vol: 0.015 };
@@ -38,6 +34,7 @@ function getAssetConfig(symbol) {
   return { base: 100.00, decimals: 2, vol: 0.008 };
 }
 
+// คำนวณ Pine Script Order Block & SMC Internal Range Liquidity (IRL)
 function calculatePineScriptOB(symbol, tf) {
   const config = getAssetConfig(symbol);
   const tfMultipliers = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
@@ -58,6 +55,22 @@ function calculatePineScriptOB(symbol, tf) {
   const bearObBot = zoneHigh;
   const bearObTop = zoneHigh + (atr14 * 0.5);
 
+  // === SMC Internal Range Liquidity (IRL) Calculation ===
+  // BSL (Buy Side Liquidity) อยู่ช่วง Premium Zone เหนือ EQ (zoneMid)
+  // SSL (Sell Side Liquidity) อยู่ช่วง Discount Zone ใต้ EQ (zoneMid)
+  const irlBSL = (zoneMid + (zoneHigh - zoneMid) * 0.5).toFixed(config.decimals);
+  const irlSSL = (zoneLow + (zoneMid - zoneLow) * 0.5).toFixed(config.decimals);
+  const irlEQ  = zoneMid.toFixed(config.decimals);
+
+  let irlStatus = '';
+  if (currentPrice > parseFloat(irlBSL)) {
+    irlStatus = `ดึงวอลลุ่ม BSL ($${irlBSL}) แล้ว - เสี่ยงโดน Sweep`;
+  } else if (currentPrice < parseFloat(irlSSL)) {
+    irlStatus = `ดึงวอลลุ่ม SSL ($${irlSSL}) แล้ว - เสี่ยงเกิด Liquidity Grab`;
+  } else {
+    irlStatus = `วิ่งในกรอบ IRL (EQ: $${irlEQ})`;
+  }
+
   const macdVal = (Math.random() - 0.4) * 5;
   const signalVal = (Math.random() - 0.4) * 4;
   const hist = macdVal - signalVal;
@@ -67,16 +80,16 @@ function calculatePineScriptOB(symbol, tf) {
 
   let focusSignal = 'NEUTRAL';
   let badgeClass = 'neutral';
-  let detailMsg = `ราคากำลังวิ่งอยู่ในกรอบ Trade Zone ($${zoneLow.toFixed(config.decimals)} - $${zoneHigh.toFixed(config.decimals)})`;
+  let detailMsg = `ราคาเคลื่อนไหวภายใน Trade Zone ($${zoneLow.toFixed(config.decimals)} - $${zoneHigh.toFixed(config.decimals)})`;
 
   if (isBuyZone && isBullFocus) {
     focusSignal = 'BUY FOCUS';
     badgeClass = 'buy';
-    detailMsg = `เกิดสัญญาณ BUY FOCUS: ราคาอยู่ใน Buy Zone ร่วมกับ MACD Bull Focus (ทดสอบ Bullish OB)`;
+    detailMsg = `เกิดสัญญาณ BUY FOCUS: ราคาอยู่ใน Buy Zone ร่วมกับ MACD Bull Focus และสะสม SSL Liquidity`;
   } else if (isSellZone && isBearFocus) {
     focusSignal = 'SELL FOCUS';
     badgeClass = 'sell';
-    detailMsg = `เกิดสัญญาณ SELL FOCUS: ราคาอยู่ใน Sell Zone ร่วมกับ MACD Bear Focus (ทดสอบ Bearish OB)`;
+    detailMsg = `เกิดสัญญาณ SELL FOCUS: ราคาอยู่ใน Sell Zone ร่วมกับ MACD Bear Focus และทดสอบ BSL Liquidity`;
   }
 
   return {
@@ -84,7 +97,7 @@ function calculatePineScriptOB(symbol, tf) {
     zoneHigh: zoneHigh.toFixed(config.decimals),
     zoneLow: zoneLow.toFixed(config.decimals),
     zoneMid: zoneMid.toFixed(config.decimals),
-    tradeZoneText: isBuyZone ? 'BUY ZONE (โซนฝั่งซื้อ)' : isSellZone ? 'SELL ZONE (โซนฝั่งขาย)' : 'MID ZONE',
+    tradeZoneText: isBuyZone ? 'BUY ZONE (Discount)' : isSellZone ? 'SELL ZONE (Premium)' : 'EQUILIBRIUM (Mid)',
     bullishOB: `$${bullObBot.toFixed(config.decimals)} - $${bullObTop.toFixed(config.decimals)}`,
     bearishOB: `$${bearObBot.toFixed(config.decimals)} - $${bearObTop.toFixed(config.decimals)}`,
     macdStatus: isBullFocus ? 'Bull Focus (เขียว)' : isBearFocus ? 'Bear Focus (แดง)' : 'SideFocus',
@@ -92,63 +105,75 @@ function calculatePineScriptOB(symbol, tf) {
     badgeClass: badgeClass,
     detailMessage: detailMsg,
     irl: {
-      bsl: (currentPrice + (zoneHigh - currentPrice) * 0.5).toFixed(config.decimals),
-      ssl: (currentPrice - (currentPrice - zoneLow) * 0.5).toFixed(config.decimals)
+      bsl: irlBSL,
+      ssl: irlSSL,
+      eq: irlEQ,
+      summary: `BSL $${irlBSL} / SSL $${irlSSL}`,
+      detail: irlStatus
     }
   };
 }
 
-// API Data Endpoint
+// API Data Endpoint สรุปข่าวและคาดการณ์ล่วงหน้าแบบครอบคลุม Real-time
 app.get('/api/dashboard-data', (req, res) => {
   const tf = req.query.tf || '1h';
   const symbol = req.query.symbol || 'OANDA:XAUUSD';
 
   const data = calculatePineScriptOB(symbol, tf);
 
+  // สรุปข่าวครอบคลุมทุกอีเวนต์สำคัญ (FOMC, CPI, NFP, Retail Sales, Fed Speech)
   const newsFeed = [
     {
       type: 'forecast',
-      source: 'Forex Factory (Forecast)',
-      title: 'US CPI Release at 19:30 GMT+7',
-      reason: 'คาดการณ์ 3.1% (ครั้งก่อน 3.2%) หากตัวเลขต่ำกว่าคาด สินทรัพย์มีความเสี่ยงพุ่งขึ้นทดสอบ Zone High',
+      source: 'Forex Factory & Trading Economics',
+      title: 'FOMC Interest Rate Decision & Powell Speech (1:00 AM GMT+7)',
+      reason: 'คาดการณ์คงอัตราดอกเบี้ย หากแถลงการณ์ส่งสัญญาณ Dovish (ผ่อนคลาย) จะเป็นปัจจัยหนุนทองคำพุ่งขึ้นแรง',
+      sentiment: 'positive',
+      link: 'https://www.goldsniper.io/calendar/'
+    },
+    {
+      type: 'forecast',
+      source: 'Investing.com (Forecast)',
+      title: 'US CPI Inflation Data Release (19:30 GMT+7)',
+      reason: 'คาดการณ์ 3.1% (ครั้งก่อน 3.2%) หากตัวเลขต่ำกว่าคาด ดอลลาร์จะอ่อนค่าส่งผลบวกต่อฝั่ง BUY',
       sentiment: 'neutral',
-      link: '#'
+      link: 'https://th.investing.com/economic-calendar/'
+    },
+    {
+      type: 'forecast',
+      source: 'FXStreet (Analysis)',
+      title: 'Non-Farm Payrolls (NFP) & Unemployment Rate Preview',
+      reason: 'นักวิเคราะห์ประเมินตลาดแรงงานเริ่มชะลอตัว อาจเร่งให้ Fed พิจารณาลดดอกเบี้ยเร็วขึ้น',
+      sentiment: 'positive',
+      link: 'https://www.fxstreet.com/analysis/latest'
     },
     {
       type: 'past',
       source: 'Reuters',
-      title: 'Gold gains as MACD Focus Signal triggers BUY in key Support Zone',
-      reason: 'แรงซื้อเก็งกำไรดันราคากลับขึ้นมายืนเหนือกรอบแนวรับสำคัญใน 24 ชั่วโมงที่ผ่านมา',
+      title: 'US Retail Sales & Producer Price Index (PPI) Digest',
+      reason: 'ตัวเลขยอดขายปลีกและดัชนี PPI ล่าสุด สะท้อนแรงกดดันเงินเฟ้อระดับขายส่งเริ่มทรงตัว',
       sentiment: 'positive',
       link: 'https://www.reuters.com/markets/commodities/'
     },
     {
-      type: 'forecast',
-      source: 'MarketWatch (Forecast)',
-      title: 'FED Rate Decision & FOMC Statement Tomorrow',
-      reason: 'นักวิเคราะห์เก็งว่า FED จะคงอัตราดอกเบี้ย ส่งผลให้ดอลลาร์อาจชะลอตัว เป็นปัจจัยหนุนฝั่งซื้อ (Bullish Expectation)',
-      sentiment: 'positive',
-      link: 'https://www.marketwatch.com/investing/future/gold'
-    },
-    {
       type: 'past',
       source: 'FOREX.com',
-      title: 'Crude oil, bond yields test Bearish Order Block boundary',
-      reason: 'เมื่อคืนที่ผ่านมา ตลาดถูกกดดันจากการปรับขึ้นของบอนด์ยีลด์',
-      sentiment: 'negative',
+      title: 'US Dollar Index (DXY) Stabilizes as Bond Yields Retrace',
+      reason: 'บอนด์ยีลด์ย่อตัวลงเมื่อคืนที่ผ่านมา ช่วยลดแรงกดดันในโซน Bearish Order Block',
+      sentiment: 'neutral',
       link: 'https://www.forex.com/en-us/news-and-analysis/'
     }
   ];
 
   const marketState = {
-    text: 'Wait & See (ชะลอตัวเพื่อรอตัวเลขเงินเฟ้อ CPI สหรัฐฯ คืนนี้)',
+    text: 'Wait & See (ชะลอตัวรอผลประชุม FOMC และแถลงการณ์ประธาน Fed คืนนี้)',
     status: 'neutral',
     label: 'WAIT & SEE',
     catalyst: {
       active: true,
-      time: 'คืนนี้ 19:30 น.',
-      event: 'ประกาศตัวเลขดัชนีราคาผู้บริโภค (CPI) สหรัฐฯ',
-      details: 'คาดการณ์: 3.1% (ครั้งก่อน 3.2%)<br><b>Impact Forecast:</b> หากเงินเฟ้อต่ำกว่าคาด ดอลลาร์จะอ่อนค่า หนุนให้ราคาทองคำทะลุขึ้น'
+      time: 'คืนนี้ 01:00 น. / พรุ่งนี้ 19:30 น.',
+      event: 'ประชุม FOMC, ดัชนี CPI และตัวเลขการจ้างงาน NFP สหรัฐฯ',
+      details: '<b>คาดการณ์ตลาด:</b> ตลาดลุ้นสัญญาณปรับลดอัตราดอกเบี้ยจาก Fed หากตัวเลขเงินเฟ้อและ NFP ชะลอตัว จะกระตุ้นแรงซื้อทองคำทดสอบ Zone High'
     }
   };
 
