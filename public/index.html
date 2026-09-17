@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — SMC IRL & Real-time Forward Sentiment Dashboard</title>
+    <title>KU TRADER — MACD Overlay & Smart Order Block Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -110,6 +110,15 @@
         .ref-tag, .ref-go { color: var(--gold2); font-size: 12px; font-weight: 600; }
         .ref-title { font-weight: 600; }
         .ref-desc { font-size: 13px; color: var(--dim); }
+
+        @media(max-width: 880px) {
+            .analysis-grid { grid-template-columns: 1fr; }
+            .chart-grid, .ref-grid { grid-template-columns: 1fr; }
+            .chart-card { height: 460px; }
+            .hero { flex-direction: column; align-items: flex-start; }
+            .hero-right { width: 100%; max-width: 100%; }
+            .hero-title-brand { font-size: 32px; }
+        }
     </style>
 </head>
 <body>
@@ -117,7 +126,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">SMC IRL Liquidity & Forward-Looking Sentiment Dashboard</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">SMC IRL Liquidity & Real-time Forward Sentiment Dashboard</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -164,7 +173,6 @@
         <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
     </div>
 
-    <!-- SMC Analytics Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
             <div class="ana-title">1. MACD Trend Focus (<span class="txt-tf-display">TF 1H</span>)</div>
@@ -179,7 +187,7 @@
         <div class="ana-card">
             <div class="ana-title">3. SMC Internal Range Liquidity (IRL)</div>
             <div class="ana-value neutral" id="val-irl-summary">--</div>
-            <div class="ana-desc" id="desc-irl-detail">คำนวณระดับ BSL / SSL Liquidity</div>
+            <div class="ana-desc" id="desc-irl-detail">คำนวณระดับ BSL / SSL ตาม Timezone & Session</div>
         </div>
     </div>
 
@@ -213,9 +221,8 @@
         </div>
     </section>
 
-    <!-- สรุปข่าวและคาดการณ์ล่วงหน้า (Forward Sentiment Engine) -->
     <section>
-        <h2>สรุปข่าวและผลกระทบตลาด (Real-time Forward Sentiment)</h2>
+        <h2>สรุปข่าวและผลกระทบตลาด (Real-time RSS Feed & Sentiment)</h2>
         <div class="card">
             <div class="trend-summary-box">
                 <div style="flex: 1;">
@@ -236,37 +243,36 @@
             </div>
             
             <div style="font-size: 12px; color: var(--dim); margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px;">
-                ระบบวิเคราะห์ข้อมูลเรียลไทม์ครอบคลุม FOMC, CPI, NFP, PPI และยอดขายปลีกสหรัฐฯ
+                ระบบดึงและสังเคราะห์ข้อมูลจาก RSS Feed จริงเรียลไทม์ (FXStreet, MarketWatch)
             </div>
         </div>
     </section>
 
     <section>
-        <h2>ปฏิทินเศรษฐกิจล่วงหน้า (TradingView Event Feed)</h2>
-        <div class="card"><div id="tv-events-mount"></div></div>
+        <h2>ข่าวและปฏิทินเศรษฐกิจที่เกี่ยวข้อง (TradingView Feed)</h2>
+        <div class="card"><div id="tv-news-mount"></div></div>
     </section>
 
     <section>
         <h2>แหล่งที่มาของข้อมูลทั้งหมด (Data Sources & References)</h2>
-        
-        <div class="source-category-title">1. ปฏิทินเศรษฐกิจและข่าวสารล่วงหน้า (Economic Calendar & Forward Forecast)</div>
+        <div class="source-category-title">1. ปฏิทินเศรษฐกิจและข่าวสารล่วงหน้า (Economic Calendar & RSS Feeds)</div>
         <div class="ref-grid">
-            <a class="ref-card" href="https://www.goldsniper.io/calendar/" target="_blank">
-                <div class="ref-tag">GoldSniper Economic Calendar</div>
-                <div class="ref-title">XAU/USD Key High-Impact Events Calendar</div>
-                <div class="ref-desc">ติดตามตารางประกาศตัวเลข FOMC, CPI, NFP และช่วงความผันผวนของราคาทองคำ</div>
+            <a class="ref-card" href="https://www.fxstreet.com/rss/news" target="_blank">
+                <div class="ref-tag">FXStreet RSS News Feed</div>
+                <div class="ref-title">Real-time Financial & Gold News Feed</div>
+                <div class="ref-desc">แหล่งข้อมูลข่าวเรียลไทม์และบทวิเคราะห์คาดการณ์สภาวะตลาด</div>
+                <div class="ref-go">เปิดเว็บไซต์ →</div>
+            </a>
+            <a class="ref-card" href="http://feeds.marketwatch.com/marketwatch/topstories" target="_blank">
+                <div class="ref-tag">MarketWatch Top Stories RSS</div>
+                <div class="ref-title">Global Markets & Commodities News</div>
+                <div class="ref-desc">ข่าวการเคลื่อนไหวของดอลลาร์สหรัฐและอัตราผลตอบแทนพันธบัตร</div>
                 <div class="ref-go">เปิดเว็บไซต์ →</div>
             </a>
             <a class="ref-card" href="https://th.investing.com/economic-calendar/" target="_blank">
                 <div class="ref-tag">Investing.com Calendar</div>
                 <div class="ref-title">Real-time Global Economic Calendar</div>
-                <div class="ref-desc">ตารางเวลาประกาศตัวเลขเศรษฐกิจสหรัฐฯ คาดการณ์ และผลลัพธ์ย้อนหลัง</div>
-                <div class="ref-go">เปิดเว็บไซต์ →</div>
-            </a>
-            <a class="ref-card" href="https://www.fxstreet.com/analysis/latest" target="_blank">
-                <div class="ref-tag">FXStreet News & Analysis</div>
-                <div class="ref-title">Forex & Commodity Forward Analysis</div>
-                <div class="ref-desc">บทวิเคราะห์คาดการณ์ทิศทางดอกเบี้ย Fed และผลกระทบต่อราคาทองคำ</div>
+                <div class="ref-desc">ตารางเวลาประกาศตัวเลขเศรษฐกิจสหรัฐฯ (CPI, FOMC, NFP)</div>
                 <div class="ref-go">เปิดเว็บไซต์ →</div>
             </a>
         </div>
@@ -276,7 +282,7 @@
             <a class="ref-card" href="https://th.investing.com/currencies/xau-usd" target="_blank">
                 <div class="ref-tag">Investing.com Spot Gold</div>
                 <div class="ref-title">XAU/USD — Gold Spot Price & Chart</div>
-                <div class="ref-desc">ราคาทองคำสดเรียลไทม์</div>
+                <div class="ref-desc">ใช้ดูราคาปัจจุบัน ช่วงราคาสูงสุด-ต่ำสุดเรียลไทม์</div>
                 <div class="ref-go">เปิดเว็บไซต์ →</div>
             </a>
             <a class="ref-card" href="https://www.tradingview.com/symbols/XAUUSD/ideas/" target="_blank">
@@ -324,7 +330,6 @@ function updateDynamicCalculations(price) {
     const bullObBot = zoneLow - (atr14 * 0.5);
     const bearObTop = zoneHigh + (atr14 * 0.5);
 
-    // SMC Dynamic IRL Realtime Update
     const bsl = (zoneMid + (zoneHigh - zoneMid) * 0.5).toFixed(2);
     const ssl = (zoneLow + (zoneMid - zoneLow) * 0.5).toFixed(2);
 
@@ -334,9 +339,6 @@ function updateDynamicCalculations(price) {
     document.getElementById('val-s2').textContent = (zoneLow * 0.995).toFixed(2);
     document.getElementById('val-bullish-ob').textContent = `$${bullObBot.toFixed(2)} - $${zoneLow.toFixed(2)}`;
     document.getElementById('val-bearish-ob').textContent = `$${zoneHigh.toFixed(2)} - $${bearObTop.toFixed(2)}`;
-
-    document.getElementById('val-irl-summary').textContent = `BSL $${bsl} / SSL $${ssl}`;
-    document.getElementById('desc-irl-detail').textContent = `แนวรับย่อย (SSL): $${ssl} | แนวต้านย่อย (BSL): $${bsl}`;
 
     const obBox = document.getElementById('ob-recommendation');
     if (price <= zoneLow * 1.001) {
@@ -377,8 +379,8 @@ function refreshWidget(symbol, tvInterval = '60'){
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: getTaInterval(currentTimeframe), width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
-    loadTV('tv-events-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-events.js', {
-        colorTheme: "dark", isTransparent: true, width: "100%", height: "400", locale: "th", importanceFilter: "0,1", currencyFilter: "USD"
+    loadTV('tv-news-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js', {
+        feedMode: 'symbol', symbol: symbol, colorTheme: 'dark', isTransparent: true, width: '100%', height: 400, locale: 'th'
     });
 }
 

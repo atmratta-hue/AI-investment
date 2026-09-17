@@ -12,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Explicit Route Handler ป้องกัน Cannot GET /
 app.get('/', (req, res) => {
   const publicIndexPath = path.join(__dirname, 'public', 'index.html');
   const rootIndexPath = path.join(__dirname, 'index.html');
@@ -21,7 +22,7 @@ app.get('/', (req, res) => {
   } else if (fs.existsSync(rootIndexPath)) {
     res.sendFile(rootIndexPath);
   } else {
-    res.status(404).send('<h2>ไม่พบไฟล์ index.html!</h2>');
+    res.status(404).send('<h2>ไม่พบไฟล์ index.html! กรุณาตรวจสอบตำแหน่งไฟล์</h2>');
   }
 });
 
@@ -37,11 +38,34 @@ function getAssetConfig(symbol) {
   return { base: 100.00, decimals: 2, vol: 0.008 };
 }
 
+// เช็ก Session ตลาดตาม Timezone ไทย (Asia/Bangkok)
+function getMarketSessionInfo() {
+  const now = new Date();
+  const options = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
+  const timeStr = new Intl.DateTimeFormat('th-TH', options).format(now);
+  const [hour, minute] = timeStr.split(':').map(Number);
+  const totalMinutes = hour * 60 + minute;
+
+  if (totalMinutes >= 360 && totalMinutes < 840) {
+    return { name: 'Asian Session', code: 'ASIA', volMult: 0.8, desc: 'กรอบสร้างราคาและ Liquidity ย่อย' };
+  } else if (totalMinutes >= 840 && totalMinutes < 1140) {
+    return { name: 'London Session', code: 'LDN', volMult: 1.2, desc: 'ช่วงกวาด Asian High/Low Sweep' };
+  } else if (totalMinutes >= 1140 || totalMinutes < 180) {
+    return { name: 'New York Session', code: 'NY', volMult: 1.5, desc: 'ช่วงวอลลุ่มสูงสุดและตัวเลขเศรษฐกิจ' };
+  } else {
+    return { name: 'Pacific/Off-Peak', code: 'OFF', volMult: 0.6, desc: 'ช่วงปริมาณการซื้อขายเบาบาง' };
+  }
+}
+
+// คำนวณ Pine Script Order Block & SMC Internal Range Liquidity (IRL)
 function calculatePineScriptOB(symbol, tf) {
   const config = getAssetConfig(symbol);
+  const session = getMarketSessionInfo();
+
   const tfMultipliers = { '1m': 0.002, '5m': 0.005, '1h': 0.012, '4h': 0.025, '1d': 0.050 };
-  const mult = (tfMultipliers[(tf || '1h').toLowerCase()] || tfMultipliers['1h']) * config.vol * 100;
-  
+  const baseMult = (tfMultipliers[(tf || '1h').toLowerCase()] || tfMultipliers['1h']) * config.vol * 100;
+  const mult = baseMult * session.volMult;
+
   const currentPrice = config.base + (Math.random() - 0.5) * (config.base * mult * 0.1);
   const atr14 = currentPrice * mult * 0.4; 
 
@@ -57,17 +81,18 @@ function calculatePineScriptOB(symbol, tf) {
   const bearObBot = zoneHigh;
   const bearObTop = zoneHigh + (atr14 * 0.5);
 
+  // คำนวณ BSL / SSL ตาม Timezone & Session
   const irlBSL = (zoneMid + (zoneHigh - zoneMid) * 0.5).toFixed(config.decimals);
   const irlSSL = (zoneLow + (zoneMid - zoneLow) * 0.5).toFixed(config.decimals);
   const irlEQ  = zoneMid.toFixed(config.decimals);
 
   let irlStatus = '';
   if (currentPrice > parseFloat(irlBSL)) {
-    irlStatus = `ดึงวอลลุ่ม BSL ($${irlBSL}) แล้ว - เสี่ยงโดน Sweep`;
+    irlStatus = `[${session.code}] ดึงวอลลุ่ม BSL ($${irlBSL}) แล้ว - เสี่ยง Sweep`;
   } else if (currentPrice < parseFloat(irlSSL)) {
-    irlStatus = `ดึงวอลลุ่ม SSL ($${irlSSL}) แล้ว - เสี่ยงเกิด Liquidity Grab`;
+    irlStatus = `[${session.code}] ดึงวอลลุ่ม SSL ($${irlSSL}) แล้ว - เสี่ยงเกิด Liquidity Grab`;
   } else {
-    irlStatus = `วิ่งในกรอบ IRL (EQ: $${irlEQ})`;
+    irlStatus = `[${session.code}] วิ่งในกรอบ IRL (${session.desc})`;
   }
 
   const macdVal = (Math.random() - 0.4) * 5;
@@ -79,16 +104,16 @@ function calculatePineScriptOB(symbol, tf) {
 
   let focusSignal = 'NEUTRAL';
   let badgeClass = 'neutral';
-  let detailMsg = `ราคาเคลื่อนไหวภายใน Trade Zone ($${zoneLow.toFixed(config.decimals)} - $${zoneHigh.toFixed(config.decimals)})`;
+  let detailMsg = `ราคาเคลื่อนไหวใน Trade Zone ($${zoneLow.toFixed(config.decimals)} - $${zoneHigh.toFixed(config.decimals)}) [${session.name}]`;
 
   if (isBuyZone && isBullFocus) {
     focusSignal = 'BUY FOCUS';
     badgeClass = 'buy';
-    detailMsg = `เกิดสัญญาณ BUY FOCUS: ราคาอยู่ใน Buy Zone ร่วมกับ MACD Bull Focus`;
+    detailMsg = `เกิดสัญญาณ BUY FOCUS ช่วง ${session.name}: ราคาอยู่ใน Buy Zone ร่วมกับ MACD Bull Focus`;
   } else if (isSellZone && isBearFocus) {
     focusSignal = 'SELL FOCUS';
     badgeClass = 'sell';
-    detailMsg = `เกิดสัญญาณ SELL FOCUS: ราคาอยู่ใน Sell Zone ร่วมกับ MACD Bear Focus`;
+    detailMsg = `เกิดสัญญาณ SELL FOCUS ช่วง ${session.name}: ราคาอยู่ใน Sell Zone ร่วมกับ MACD Bear Focus`;
   }
 
   return {
@@ -103,17 +128,18 @@ function calculatePineScriptOB(symbol, tf) {
     focusSignal: focusSignal,
     badgeClass: badgeClass,
     detailMessage: detailMsg,
+    session: session,
     irl: {
       bsl: irlBSL,
       ssl: irlSSL,
       eq: irlEQ,
-      summary: `BSL $${irlBSL} / SSL $${irlSSL}`,
+      summary: `[${session.code}] BSL $${irlBSL} / SSL $${irlSSL}`,
       detail: irlStatus
     }
   };
 }
 
-// === ฟังก์ชันดึงและวิเคราะห์ RSS Feed จริงจากสำนักข่าว ===
+// ดึง RSS Feed ข่าวสดจริงเรียลไทม์
 async function fetchRealNews() {
   const rssFeeds = [
     { name: 'FXStreet Gold News', url: 'https://www.fxstreet.com/rss/news' },
@@ -128,12 +154,10 @@ async function fetchRealNews() {
       const processed = feed.items.slice(0, 4).map(item => {
         const text = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
 
-        // ตรวจจับว่าเป็นข่าววิเคราะห์คาดการณ์ล่วงหน้า [FORECAST] หรือ ข่าวอดีต [FACT]
         const isForecast = text.includes('forecast') || text.includes('preview') || text.includes('expect') || 
                            text.includes('outlook') || text.includes('fed') || text.includes('cpi') || 
                            text.includes('ahead') || text.includes('target');
 
-        // วิเคราะห์ Sentiment จากคำสำคัญ
         let sentiment = 'neutral';
         if (text.includes('bull') || text.includes('rise') || text.includes('gain') || text.includes('high') || text.includes('up')) {
           sentiment = 'positive';
@@ -145,7 +169,7 @@ async function fetchRealNews() {
           type: isForecast ? 'forecast' : 'past',
           source: feedConfig.name,
           title: item.title,
-          reason: item.contentSnippet ? item.contentSnippet.substring(0, 150) + '...' : 'ติดตามรายละเอียดเพิ่มเติมฉบับเต็มจากสำนักข่าว',
+          reason: item.contentSnippet ? item.contentSnippet.substring(0, 150) + '...' : 'ติดตามรายละเอียดเพิ่มเติมจากสำนักข่าว',
           sentiment: sentiment,
           link: item.link || '#'
         };
@@ -156,7 +180,6 @@ async function fetchRealNews() {
     }
   }
 
-  // หากกรณีเครือข่ายบล็อก RSS Feed ให้ใช้ Fallback Data
   if (newsItems.length === 0) {
     newsItems = [
       {
@@ -189,8 +212,6 @@ app.get('/api/dashboard-data', async (req, res) => {
   const data = calculatePineScriptOB(symbol, tf);
   const realNews = await fetchRealNews();
 
-  // ประมวลผลภาพรวมทิศทางจากข่าวจริงล่าสุด
-  const forecastCount = realNews.filter(n => n.type === 'forecast').length;
   const positiveCount = realNews.filter(n => n.sentiment === 'positive').length;
   const negativeCount = realNews.filter(n => n.sentiment === 'negative').length;
 
@@ -208,7 +229,6 @@ app.get('/api/dashboard-data', async (req, res) => {
     trendStatus = 'sell';
   }
 
-  // หาสรุป Catalyst ล่วงหน้าที่สำคัญที่สุดจาก RSS
   const topForecast = realNews.find(n => n.type === 'forecast') || realNews[0];
 
   const marketState = {
@@ -217,7 +237,7 @@ app.get('/api/dashboard-data', async (req, res) => {
     label: trendLabel,
     catalyst: {
       active: true,
-      time: 'เรียลไทม์ (Live Stream Feed)',
+      time: `เรียลไทม์ (${data.session.name})`,
       event: topForecast.title,
       details: `<b>บทวิเคราะห์สถาบัน:</b> ${topForecast.reason}`
     }
