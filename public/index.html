@@ -1,348 +1,290 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Volume Profile & FVG Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #10141b;
-            --panel: #171d27;
-            --panel2: #1d2430;
-            --line: #2a3242;
-            --gold: #c9a227;
-            --gold2: #e8c96a;
-            --text: #e9e7df;
-            --dim: #8b93a1;
-            --up: #3fb37f;
-            --down: #e2574c;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUNPORT FX - Realtime Trading Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --text-main: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent-green: #2ea043;
+      --accent-red: #da3633;
+      --accent-blue: #58a6ff;
+      --accent-gold: #d29922;
+    }
 
-        * { box-sizing: border-box; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans Thai', sans-serif; line-height: 1.5; }
-        .wrap { max-width: 1180px; margin: auto; padding: 28px 20px 60px; }
-        
-        .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
-        .hero-title-brand { font-family: 'IBM Plex Mono', sans-serif; font-size: 40px; font-weight: 700; color: var(--gold2); letter-spacing: 1.5px; margin: 0; line-height: 1.1; }
-        .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 98px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
-        
-        h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
-        section { margin-bottom: 28px; }
-        
-        .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
-        .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
-        .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
-        
-        /* แก้ไขคำว่า หลัก ออกแล้ว */
-        .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-        .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kanit', sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
-        .sr-header-group { flex: 1; min-width: 280px; }
-        .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
-        .sr-group { flex: 1; min-width: 130px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-        .sr-group.resistance { border-top: 3px solid var(--down); }
-        .sr-group.support { border-top: 3px solid var(--up); }
-        .sr-group.ob-box { border-top: 3px solid var(--gold); background: rgba(201, 162, 39, 0.05); }
-        .sr-title { font-size: 11.5px; font-weight: 700; color: var(--dim); margin-bottom: 8px; text-transform: uppercase; }
-        .sr-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 4px; }
-        .sr-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
-        .resistance .sr-val { color: var(--down); }
-        .support .sr-val { color: var(--up); }
-        .ob-box .sr-val { color: var(--gold2); }
-        .ob-recommendation-bar { width: 100%; margin-top: 14px; padding: 10px 14px; background: var(--panel); border-radius: 6px; border-left: 4px solid var(--gold); font-size: 13.5px; color: var(--text); }
+    /* Header Controls */
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      padding: 15px 20px; border-radius: 12px; flex-wrap: wrap; gap: 15px;
+    }
+    .symbol-selector, .tf-selector { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      background: #21262d; border: 1px solid var(--card-border); color: var(--text-main);
+      padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+    }
+    .btn:hover, .btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
 
-        .sig-tag { padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
-        .sig-tag.positive, .sig-tag.buy { background: #3fb37f26; color: var(--up); border: 1px solid var(--up); }
-        .sig-tag.negative, .sig-tag.sell { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
-        .sig-tag.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
+    /* Main Grid Layout */
+    .grid-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    @media (max-width: 1024px) { .grid-layout { grid-template-columns: 1fr; } }
 
-        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
-        .ana-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
-        .ana-title { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
-        .ana-value { font: 700 18px 'IBM Plex Sans Thai'; letter-spacing: 0.5px; }
-        .ana-value.positive { color: var(--up); }
-        .ana-value.negative { color: var(--down); }
-        .ana-value.neutral { color: var(--gold2); }
-        .ana-desc { font-size: 12.5px; margin-top: 4px; color: var(--dim); }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;
+    }
+    .card-title { font-size: 1.2rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
 
-        .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .search-bar { margin-bottom: 14px; }
-        input { flex: 1; min-width: 220px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; color: var(--text); font: 14px inherit; }
-        button { background: var(--gold); color: #1a1406; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
-        .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
-        .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
-        
-        .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
-        .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-        .chart-card { height: 560px; }
-        .ta-card { min-height: 440px; }
-        .tv-mount { height: 100%; width: 100%; }
-        .side-stack { display: flex; flex-direction: column; gap: 16px; }
+    /* Live Sync Box */
+    .live-sync-box {
+      background: rgba(88, 166, 255, 0.08); border: 1px solid var(--accent-blue);
+      border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .price-highlight { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .entry-signal-badge { background: var(--accent-gold); color: #000; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; width: fit-content; }
 
-        .trend-summary-box { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-        .trend-status-title { font-size: 13.5px; color: var(--dim); }
-        .trend-status-val { font-size: 18px; font-weight: 700; color: var(--gold2); margin-top:4px; }
+    /* S/R Table */
+    .sr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sr-item { background: #21262d; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 0.95rem; }
+    .sr-item.res { border-left: 4px solid var(--accent-red); }
+    .sr-item.sup { border-left: 4px solid var(--accent-green); }
+    .sr-item.poc { border-left: 4px solid var(--accent-gold); }
 
-        .news-list { display: flex; flex-direction: column; gap: 10px; }
-        .news-item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--text); display: flex; gap: 12px; }
-        .news-src { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
-        .badge { height: max-content; padding: 3px 9px; border-radius: 999px; font: 600 11px 'IBM Plex Mono'; }
-        
-        .sentiment-positive { background: #3fb37f26; color: var(--up); }
-        .sentiment-negative { background: #e2574c26; color: var(--down); }
-        .sentiment-neutral { background: #7a849626; color: #7a8496; }
-    </style>
+    /* Trade Entry Setup Grid */
+    .setup-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .setup-card { background: #21262d; padding: 12px; border-radius: 8px; text-align: center; }
+    .setup-card .label { font-size: 0.8rem; color: var(--text-muted); }
+    .setup-card .val { font-size: 1.1rem; font-weight: 600; margin-top: 4px; }
+
+    /* News Feed */
+    .news-item { background: #21262d; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .news-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--accent-blue); }
+    .news-title { font-weight: 600; color: #fff; text-decoration: none; }
+    .news-title:hover { text-decoration: underline; color: var(--accent-blue); }
+    .news-desc { font-size: 0.85rem; color: var(--text-muted); }
+    .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; width: fit-content; }
+    .badge-positive { background: rgba(46, 160, 67, 0.2); color: #3fb950; }
+    .badge-negative { background: rgba(218, 54, 51, 0.2); color: #f85149; }
+    .badge-neutral { background: rgba(139, 148, 158, 0.2); color: #8b949e; }
+  </style>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
-<div class="wrap">
-    <div class="hero">
-        <div class="hero-left">
-            <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Volume Profile & FVG Trading Dashboard</div>
+
+<div class="container">
+  <!-- Controls Bar -->
+  <div class="header-bar">
+    <div class="symbol-selector">
+      <span style="font-weight: 600;">เลือกสินทรัพย์:</span>
+      <button class="btn symbol-btn active" onclick="changeSymbol('OANDA:XAUUSD')">XAUUSD (ทองคำ)</button>
+      <button class="btn symbol-btn" onclick="changeSymbol('FX:EURUSD')">EURUSD</button>
+      <button class="btn symbol-btn" onclick="changeSymbol('BITSTAMP:BTCUSD')">BTCUSD</button>
+    </div>
+    
+    <div class="tf-selector">
+      <span style="font-weight: 600;">Timeframe:</span>
+      <button class="btn tf-btn" onclick="changeTF('M1')">M1</button>
+      <button class="btn tf-btn" onclick="changeTF('M5')">M5</button>
+      <button class="btn tf-btn active" onclick="changeTF('M15')">M15</button>
+      <button class="btn tf-btn" onclick="changeTF('H1')">H1</button>
+      <button class="btn tf-btn" onclick="changeTF('H4')">H4</button>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- Left Column: Live Sync & S/R -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- Live Sync & Signal Box -->
+      <div class="card">
+        <div class="card-title">⚡ Live Sync & จุดเข้าซื้อขาย Real-time</div>
+        <div class="live-sync-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">ราคาตลาด ณ ปัจจุบัน:</span>
+              <div class="price-highlight" id="live-price">$0.00</div>
+            </div>
+            <div id="trade-zone-badge" class="entry-signal-badge">ANALYZING...</div>
+          </div>
+          <div id="signal-detail" style="font-size: 0.9rem; color: var(--accent-blue);">กำลังดึงข้อมูลระบบ...</div>
+          <div id="recommendation-text" style="font-weight: 600; font-size: 1.05rem; color: #fff;">-</div>
         </div>
-        <div class="hero-right">
-            <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
+
+        <!-- Calculated Entry / TP / SL Setup -->
+        <div class="setup-grid">
+          <div class="setup-card">
+            <div class="label">จุดเข้า BUY (FVG/Sup)</div>
+            <div class="val" id="setup-buy" style="color: var(--accent-green);">$0.00</div>
+          </div>
+          <div class="setup-card">
+            <div class="label">จุดเข้า SELL (FVG/Res)</div>
+            <div class="val" id="setup-sell" style="color: var(--accent-red);">$0.00</div>
+          </div>
+          <div class="setup-card">
+            <div class="label">เป้าหมาย (TP)</div>
+            <div class="val" id="setup-tp" style="color: var(--accent-blue);">$0.00</div>
+          </div>
+          <div class="setup-card">
+            <div class="label">ตัดขาดทุน (SL)</div>
+            <div class="val" id="setup-sl" style="color: var(--accent-gold);">$0.00</div>
+          </div>
         </div>
+      </div>
+
+      <!-- Support & Resistance (แนวรับ / แนวต้าน 1 & 2) -->
+      <div class="card">
+        <div class="card-title">📊 แนวรับ - แนวต้าน & Volume Profile</div>
+        <div class="sr-grid">
+          <div class="sr-item res"><span>แนวต้าน 2 (Res 2)</span><strong id="sr-res2">$0.00</strong></div>
+          <div class="sr-item res"><span>แนวต้าน 1 (Res 1 / VAH)</span><strong id="sr-res1">$0.00</strong></div>
+          <div class="sr-item poc"><span>POC (Volume จุดสูงสุด)</span><strong id="sr-poc">$0.00</strong></div>
+          <div class="sr-item sup"><span>แนวรับ 1 (Sup 1 / VAL)</span><strong id="sr-sup1">$0.00</strong></div>
+          <div class="sr-item sup"><span>แนวรับ 2 (Sup 2)</span><strong id="sr-sup2">$0.00</strong></div>
+        </div>
+      </div>
+
+      <!-- TradingView Chart Widget -->
+      <div class="card">
+        <div class="card-title">📈 กราฟราคาเทคนิคัล (TradingView)</div>
+        <div id="tradingview_chart" style="height: 450px;"></div>
+      </div>
+
     </div>
 
-    <!-- แก้ไขลบคำว่า หลัก ออกแล้ว -->
-    <div class="tf-selector-bar">
-        <span class="tf-label">เลือก Timeframe สำหรับวิเคราะห์:</span>
-        <div class="tf-btn-group">
-            <button class="tf-btn active" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">1H</button>
-            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">4H</button>
+    <!-- Right Column: Real-time News Feeds -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="card">
+        <div class="card-title">📰 แหล่งข่าวอ้างอิง Real-time & Sentiment</div>
+        
+        <div id="news-overall" style="padding: 10px; background: #21262d; border-radius: 8px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem;">ผลกระทบข่าวโดยรวม:</span>
+            <span id="news-impact-badge" class="badge badge-neutral">WAIT</span>
+          </div>
+          <div id="news-overall-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">กำลังโหลด...</div>
         </div>
+
+        <div id="news-list-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 650px; overflow-y: auto;">
+          <!-- ข่าวสารจะมาโผล่ตรงนี้ -->
+        </div>
+      </div>
     </div>
-
-    <!-- บล็อกจุดซื้อจุดขายและ Volume Profile -->
-    <div class="signal-box">
-        <div class="sr-header-group">
-            <div style="font-size:13px; color:var(--dim)">แนวรับ - แนวต้าน เรียลไทม์ (<span class="txt-tf-display">TF 1H</span> — Live Sync)</div>
-            <div style="font-size:22px; font-weight:700; color:var(--gold2); margin-top:4px">
-                ราคาปัจจุบัน: <span id="val-realtime-price">กำลังเชื่อมต่อ...</span>
-            </div>
-            <div style="font-size:13.5px; margin-top:4px; color:var(--text)" id="sig-detail">กำลังคำนวณจุดเข้าซื้อ/ขาย...</div>
-        </div>
-        <div class="sr-levels-container">
-            <div class="sr-group resistance">
-                <div class="sr-title">Volume High (VAH)</div>
-                <div class="sr-item"><span class="sr-label">แนวต้าน VAH:</span><span class="sr-val" id="val-vah">--</span></div>
-            </div>
-            <div class="sr-group ob-box">
-                <div class="sr-title">Point of Control (POC)</div>
-                <div class="sr-item"><span class="sr-label">Volume POC:</span><span class="sr-val" id="val-poc">--</span></div>
-            </div>
-            <div class="sr-group support">
-                <div class="sr-title">Volume Low (VAL)</div>
-                <div class="sr-item"><span class="sr-label">แนวรับ VAL:</span><span class="sr-val" id="val-val">--</span></div>
-            </div>
-        </div>
-        <!-- บอกจุดซื้อ ณ ราคาไหน -->
-        <div class="ob-recommendation-bar" id="ob-recommendation"><b>จุดซื้อ-จุดขายที่แนะนำ:</b> รอประมวลผล...</div>
-        <div class="sig-tag neutral" id="sig-badge">LIVE SYNC</div>
-    </div>
-
-    <!-- บล็อก 3 บล็อกด้านล่าง (ปรับบล็อกที่ 3 เป็น TP / SL) -->
-    <div class="analysis-grid">
-        <div class="ana-card">
-            <div class="ana-title">1. MACD Momentum Focus</div>
-            <div class="ana-value positive" id="val-macd-focus">Bullish Momentum</div>
-            <div class="ana-desc">ตรวจสอบทิศทางตาม TF4H/1H</div>
-        </div>
-        <div class="ana-card">
-            <div class="ana-title">2. จุดแนะนำ BUY / SELL</div>
-            <div class="ana-value neutral" id="val-buy-sell-pts">Buy @ -- | Sell @ --</div>
-            <div class="ana-desc">อิง FVG 50% & Volume Profile</div>
-        </div>
-        <!-- ปรับบล็อกที่ 3 เป็นเป้า TP/SL แม่นยำ -->
-        <div class="ana-card" style="border-left: 3px solid var(--gold);">
-            <div class="ana-title">3. เป้าทำกำไร & ตัดขาดทุน (TP / SL)</div>
-            <div class="ana-value positive" id="val-tp-sl" style="font-size: 16px;">TP: -- | SL: --</div>
-            <div class="ana-desc">คำนวณอัตรา Risk Reward 1.3 - 2.0 RR</div>
-        </div>
-    </div>
-
-    <section>
-        <h2>ค้นหาสัญลักษณ์อื่น</h2>
-        <div class="search-bar">
-            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น NASDAQ:AAPL, BINANCE:BTCUSDT, SET:PTT">
-            <button onclick="handleSearch()">ค้นหา</button>
-        </div>
-        <div class="chip-row" id="chip-row">
-            <span class="chip active" data-symbol="OANDA:XAUUSD" data-label="XAU/USD — ทองคำ">ทองคำ</span>
-            <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
-            <span class="chip" data-symbol="OANDA:GBPJPY" data-label="GBP/JPY">GBP/JPY</span>
-            <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมัน</span>
-            <span class="chip" data-symbol="BINANCE:BTCUSDT" data-label="Bitcoin / USDT">บิทคอยน์</span>
-        </div>
-    </section>
-
-    <section>
-        <h2>กราฟราคาแบบเรียลไทม์</h2>
-        <div class="chart-grid">
-            <div class="card chart-card"><div class="tv-mount" id="tv-chart-mount"></div></div>
-            <div class="side-stack">
-                <div class="card ta-card">
-                    <div id="tv-ta-mount"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- จุดขายที่ 1: สรุปข่าวทั้งหมดที่มีผลกระทบประจำวัน -->
-    <section>
-        <h2>สรุปข่าวและผลกระทบตลาดประจำวัน (Daily Impact Analysis)</h2>
-        <div class="card">
-            <div class="trend-summary-box">
-                <div style="flex: 1;">
-                    <div class="trend-status-title">สรุปผลกระทบข่าวภาพรวมวันต่อวัน (เหตุผลที่สินทรัพย์ขึ้น/ลง)</div>
-                    <div class="trend-status-val" id="market-overall-trend">กำลังวิเคราะห์ผลกระทบข่าวประจำวัน...</div>
-                    <div style="font-size: 13px; color: var(--dim); margin-top: 6px;" id="market-overall-desc">--</div>
-                </div>
-                <div class="sig-tag neutral" id="market-trend-badge">ANALYZING</div>
-            </div>
-
-            <div class="news-list" id="ai-news-list">
-                <div class="news-state">กำลังดึงข่าวสดและประมวลผล...</div>
-            </div>
-        </div>
-    </section>
+  </div>
 </div>
 
 <script>
-let currentTimeframe = '1h';
-let currentTvInterval = '60';
-let currentSymbol = 'OANDA:XAUUSD';
-let livePrice = 2740.00;
-let wsStream = null;
+  let currentSymbol = 'OANDA:XAUUSD';
+  let currentTF = 'M15';
 
-function initRealtimeStream() {
-    const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
-    if (wsStream) wsStream.close();
-    wsStream = new WebSocket(wsUrl);
-    wsStream.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data && data.c) {
-            livePrice = parseFloat(data.c);
-            document.getElementById('val-realtime-price').textContent = livePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-    };
-    wsStream.onclose = () => setTimeout(initRealtimeStream, 3000);
-}
+  // แปลง Timeframe ให้เป็นรูปแบบ TradingView Widget Interval
+  function getTVInterval(tf) {
+    const map = { 'M1': '1', 'M5': '5', 'M15': '15', 'H1': '60', 'H4': '240' };
+    return map[tf] || '15';
+  }
 
-function loadTV(id, src, config){
-    const m = document.getElementById(id);
-    if (!m) return;
-    m.innerHTML = '';
-    const c = document.createElement('div');
-    c.className = 'tradingview-widget-container';
-    c.style.height = '100%'; c.style.width = '100%';
-    const w = document.createElement('div');
-    w.className = 'tradingview-widget-container__widget';
-    w.style.height = '100%'; w.style.width = '100%';
-    c.appendChild(w);
-    const s = document.createElement('script');
-    s.src = src; s.async = true; s.textContent = JSON.stringify(config);
-    c.appendChild(s); m.appendChild(c);
-}
-
-function refreshWidget(symbol, tvInterval = '60'){
-    currentSymbol = symbol;
-    loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
-        symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
+  function initTradingViewWidget() {
+    new TradingView.widget({
+      "width": "100%",
+      "height": 450,
+      "symbol": currentSymbol,
+      "interval": getTVInterval(currentTF),
+      "timezone": "Asia/Bangkok",
+      "theme": "dark",
+      "style": "1",
+      "locale": "th",
+      "toolbar_bg": "#f1f3f6",
+      "enable_publishing": false,
+      "allow_symbol_change": false,
+      "container_id": "tradingview_chart"
     });
-    loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
-        autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
-        backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true
-    });
-    loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: tvInterval === '240' ? '4h' : '1h', width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
-    });
-}
+  }
 
-function changeTimeframe(tf, tvInterval){
-    currentTimeframe = tf; currentTvInterval = tvInterval;
-    document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tf === tf));
-    document.querySelectorAll('.txt-tf-display').forEach(el => el.textContent = `TF ${tf.toUpperCase()}`);
-    refreshWidget(currentSymbol, currentTvInterval);
-    loadBackendData();
-}
-
-function go(symbol, label){
-    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.symbol === symbol));
-    refreshWidget(symbol, currentTvInterval);
-    loadBackendData();
-}
-
-function handleSearch(){
-    const v = document.getElementById('symbol-input').value.trim().toUpperCase();
-    if(v) go(v, v);
-}
-
-document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
-    document.getElementById('symbol-input').value = '';
-    go(c.dataset.symbol, c.dataset.label);
-});
-
-refreshWidget('OANDA:XAUUSD', '60');
-initRealtimeStream();
-
-async function loadBackendData(){
+  async function fetchDashboardData() {
     try {
-        const res = await fetch(`/api/dashboard-data?tf=${currentTimeframe}&symbol=${encodeURIComponent(currentSymbol)}&price=${livePrice}`);
-        const data = await res.json();
-        
-        document.getElementById('sig-detail').textContent = data.signal.detail;
-        document.getElementById('val-vah').textContent = data.srLevels.vah;
-        document.getElementById('val-poc').textContent = data.srLevels.poc;
-        document.getElementById('val-val').textContent = data.srLevels.val;
+      // สุ่มราคาจำลอง หรือจะรับ Real Price มาใส่
+      const mockPrice = currentSymbol.includes('XAU') ? 2742.50 : (currentSymbol.includes('BTC') ? 65400.00 : 1.0850);
+      const res = await fetch(`/api/dashboard-data?symbol=${currentSymbol}&tf=${currentTF}&price=${mockPrice}`);
+      const data = await res.json();
 
-        document.getElementById('ob-recommendation').innerHTML = `<b>จุดเข้าซื้อ/ขายที่แนะนำ:</b> ${data.signal.recommendation}`;
-        document.getElementById('val-macd-focus').textContent = data.macdFocus;
-        document.getElementById('val-buy-sell-pts').textContent = `Buy @ $${data.tradeSetup.buyPoint} | Sell @ $${data.tradeSetup.sellPoint}`;
-        
-        // ปรับบล็อกที่ 3 เป็น TP / SL
-        document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP: $${data.tradeSetup.tpLevel}</span> | <span style="color:var(--down)">SL: $${data.tradeSetup.slLevel}</span>`;
+      // Live Sync Updates
+      document.getElementById('live-price').innerText = `$${data.tradeSetup.buyPoint > 0 ? mockPrice.toFixed(2) : '0.00'}`;
+      document.getElementById('trade-zone-badge').innerText = data.tradeZone;
+      document.getElementById('signal-detail').innerText = data.signal.detail;
+      document.getElementById('recommendation-text').innerText = data.signal.recommendation;
 
-        // สรุปข่าววันต่อวัน
-        if (data.dailyNews) {
-            document.getElementById('market-overall-trend').textContent = `ผลกระทบภาพรวม: ${data.dailyNews.overallImpact}`;
-            document.getElementById('market-overall-desc').textContent = data.dailyNews.overallDesc;
-            
-            const badgeEl = document.getElementById('market-trend-badge');
-            badgeEl.textContent = data.dailyNews.overallImpact;
-            badgeEl.className = `sig-tag ${data.dailyNews.badgeStyle}`;
+      // Entry Points Setup
+      document.getElementById('setup-buy').innerText = `$${data.tradeSetup.buyPoint}`;
+      document.getElementById('setup-sell').innerText = `$${data.tradeSetup.sellPoint}`;
+      document.getElementById('setup-tp').innerText = `$${data.tradeSetup.tpLevel}`;
+      document.getElementById('setup-sl').innerText = `$${data.tradeSetup.slLevel}`;
 
-            const newsContainer = document.getElementById('ai-news-list');
-            newsContainer.innerHTML = '';
-            data.dailyNews.newsList.forEach(item => {
-                const a = document.createElement('a');
-                a.className = 'news-item';
-                a.href = item.link || '#';
-                a.target = '_blank';
-                
-                a.innerHTML = `
-                    <div>
-                        <span class="badge sentiment-${item.sentiment}">${item.sentiment.toUpperCase()}</span>
-                    </div>
-                    <div>
-                        <div class="news-src" style="color:var(--gold2)">${item.source}</div>
-                        <div style="font-weight:600">${item.title}</div>
-                        <div style="font-size:13px; color:var(--dim)">${item.reason}</div>
-                    </div>`;
-                newsContainer.appendChild(a);
-            });
-        }
+      // Support / Resistance
+      document.getElementById('sr-res2').innerText = `$${data.srLevels.res2}`;
+      document.getElementById('sr-res1').innerText = `$${data.srLevels.res1}`;
+      document.getElementById('sr-poc').innerText = `$${data.srLevels.poc}`;
+      document.getElementById('sr-sup1').innerText = `$${data.srLevels.sup1}`;
+      document.getElementById('sr-sup2').innerText = `$${data.srLevels.sup2}`;
 
-    } catch(e) { console.error('Fetch error:', e); }
-}
+      // News & Sources
+      const news = data.dailyNews;
+      document.getElementById('news-impact-badge').innerText = news.overallImpact;
+      document.getElementById('news-impact-badge').className = `badge badge-${news.badgeStyle}`;
+      document.getElementById('news-overall-desc').innerText = news.overallDesc;
 
-loadBackendData();
-setInterval(loadBackendData, 5000);
+      const newsContainer = document.getElementById('news-list-container');
+      newsContainer.innerHTML = '';
+      news.newsList.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'news-item';
+        itemEl.innerHTML = `
+          <div class="news-header">
+            <span>📌 ${item.source}</span>
+            <span class="badge badge-${item.sentiment === 'positive' ? 'positive' : (item.sentiment === 'negative' ? 'negative' : 'neutral')}">${item.sentiment.toUpperCase()}</span>
+          </div>
+          <a href="${item.link}" target="_blank" class="news-title">${item.title}</a>
+          <div class="news-desc">${item.reason}</div>
+        `;
+        newsContainer.appendChild(itemEl);
+      });
+
+    } catch (err) {
+      console.error('Data Fetch Error:', err);
+    }
+  }
+
+  function changeSymbol(symbol) {
+    currentSymbol = symbol;
+    document.querySelectorAll('.symbol-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    initTradingViewWidget();
+    fetchDashboardData();
+  }
+
+  function changeTF(tf) {
+    currentTF = tf;
+    document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    initTradingViewWidget();
+    fetchDashboardData();
+  }
+
+  // Initial Load
+  window.onload = () => {
+    initTradingViewWidget();
+    fetchDashboardData();
+    // Auto Refresh ทุกๆ 10 วินาที
+    setInterval(fetchDashboardData, 10000);
+  };
 </script>
 </body>
 </html>
