@@ -15,154 +15,173 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   const publicIndexPath = path.join(__dirname, 'public', 'index.html');
   const rootIndexPath = path.join(__dirname, 'index.html');
-
-  if (fs.existsSync(publicIndexPath)) {
-    res.sendFile(publicIndexPath);
-  } else if (fs.existsSync(rootIndexPath)) {
-    res.sendFile(rootIndexPath);
-  } else {
-    res.status(404).send('<h2>ไม่พบไฟล์ index.html!</h2>');
-  }
+  if (fs.existsSync(publicIndexPath)) res.sendFile(publicIndexPath);
+  else if (fs.existsSync(rootIndexPath)) res.sendFile(rootIndexPath);
+  else res.status(404).send('<h2>ไม่พบไฟล์ index.html!</h2>');
 });
 
-function getMarketSessionInfo() {
-  const now = new Date();
-  const options = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false };
-  const timeStr = new Intl.DateTimeFormat('th-TH', options).format(now);
-  const [hour] = timeStr.split(':').map(Number);
-
-  if (hour >= 6 && hour < 14) {
-    return { name: 'Asian Session', code: 'ASIA', volMult: 0.8, desc: 'กรอบสะสมช่วงเช้า' };
-  } else if (hour >= 14 && hour < 19) {
-    return { name: 'London Session', code: 'LDN', volMult: 1.2, desc: 'ช่วงกวาด Asian High/Low' };
-  } else if (hour >= 19 || hour < 3) {
-    return { name: 'New York Session', code: 'NY', volMult: 1.5, desc: 'ช่วงวอลลุ่มสูงสุด' };
-  } else {
-    return { name: 'Off-Peak', code: 'OFF', volMult: 0.6, desc: 'ช่วงปริมาณการซื้อขายเบาบาง' };
-  }
-}
-
-// คำนวณ Order Block และ IRL โดยรับราคาจริง (realPrice) จากหน้าบ้าน
-function calculatePineScriptOB(symbol, tf, realPrice) {
-  const currentPrice = parseFloat(realPrice) || 2740.00;
-  const session = getMarketSessionInfo();
-
-  // กำหนดสเกลความผันผวนตามสัญลักษณ์
-  let vol = 0.008;
-  if (symbol.includes('BTC')) vol = 0.015;
-  if (symbol.includes('USOIL')) vol = 0.010;
-
-  const tfMultipliers = { '1m': 0.001, '5m': 0.003, '1h': 0.008, '4h': 0.018, '1d': 0.035 };
-  const mult = (tfMultipliers[(tf || '1h').toLowerCase()] || tfMultipliers['1h']) * (vol / 0.008);
-
-  const atr14 = currentPrice * mult * 0.4;
-  const zoneHigh = currentPrice * (1 + mult * 1.2);
-  const zoneLow  = currentPrice * (1 - mult * 1.2);
-  const zoneMid  = (zoneHigh + zoneLow) / 2;
-
-  const bullObBot = zoneLow - (atr14 * 0.5);
-  const bearObTop = zoneHigh + (atr14 * 0.5);
-
-  const irlBSL = (zoneMid + (zoneHigh - zoneMid) * 0.5).toFixed(2);
-  const irlSSL = (zoneLow + (zoneMid - zoneLow) * 0.5).toFixed(2);
-  const irlEQ  = zoneMid.toFixed(2);
-
-  const isBuyZone  = currentPrice < zoneMid;
-  const isSellZone = currentPrice >= zoneMid;
-
-  return {
-    price: currentPrice.toFixed(2),
-    zoneHigh: zoneHigh.toFixed(2),
-    zoneLow: zoneLow.toFixed(2),
-    tradeZoneText: isBuyZone ? 'BUY ZONE (Discount)' : 'SELL ZONE (Premium)',
-    bullishOB: `$${bullObBot.toFixed(2)} - $${zoneLow.toFixed(2)}`,
-    bearishOB: `$${zoneHigh.toFixed(2)} - $${bearObTop.toFixed(2)}`,
-    macdStatus: isBuyZone ? 'Bull Focus' : 'Bear Focus',
-    badgeClass: isBuyZone ? 'buy' : 'sell',
-    detailMessage: `คำนวณจากราคาสดจริง ($${currentPrice.toFixed(2)}) ช่วง ${session.name}`,
-    irl: {
-      bsl: irlBSL,
-      ssl: irlSSL,
-      eq: irlEQ,
-      summary: `[${session.code}] BSL $${irlBSL} / SSL $${irlSSL}`,
-      detail: `[${session.code}] BSL $${irlBSL} | SSL $${irlSSL}`
-    }
-  };
-}
-
-async function fetchRealNews() {
+// ดึงและวิเคราะห์ข่าวประจำวันเรียลไทม์
+async function fetchDailyNewsAnalysis(symbol) {
   const rssFeeds = [
-    { name: 'FXStreet Gold News', url: 'https://www.fxstreet.com/rss/news' },
+    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news' },
     { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories' }
   ];
 
   let newsItems = [];
+  let hasHighImpactNews = false;
+  let posCount = 0, negCount = 0;
+
   for (const feedConfig of rssFeeds) {
     try {
       const feed = await parser.parseURL(feedConfig.url);
       const processed = feed.items.slice(0, 3).map(item => {
         const text = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
-        const isForecast = text.includes('forecast') || text.includes('preview') || text.includes('expect') || text.includes('fed') || text.includes('cpi');
+        
+        // ตรวจจับว่ามีข่าวสำคัญ/ข่าวผันผวนสูงหรือไม่
+        if (text.includes('fed') || text.includes('cpi') || text.includes('nfp') || text.includes('fomc') || text.includes('rate decision') || text.includes('powell')) {
+          hasHighImpactNews = true;
+        }
+
         let sentiment = 'neutral';
-        if (text.includes('bull') || text.includes('rise') || text.includes('gain') || text.includes('up')) sentiment = 'positive';
-        if (text.includes('bear') || text.includes('fall') || text.includes('drop') || text.includes('down')) sentiment = 'negative';
+        if (text.includes('bull') || text.includes('rise') || text.includes('gain') || text.includes('up')) {
+          sentiment = 'positive';
+          posCount++;
+        } else if (text.includes('bear') || text.includes('fall') || text.includes('drop') || text.includes('down')) {
+          sentiment = 'negative';
+          negCount++;
+        }
 
         return {
-          type: isForecast ? 'forecast' : 'past',
           source: feedConfig.name,
           title: item.title,
-          reason: item.contentSnippet ? item.contentSnippet.substring(0, 140) + '...' : 'ติดตามอ่านฉบับเต็มได้ที่แหล่งข่าวอ้างอิง',
+          reason: item.contentSnippet ? item.contentSnippet.substring(0, 140) + '...' : 'อ่านรายละเอียดเพิ่มเติมจากข่าวต้นทาง',
           sentiment: sentiment,
           link: item.link || '#'
         };
       });
       newsItems = newsItems.concat(processed);
     } catch (err) {
-      console.log(`Feed error: ${feedConfig.name}`);
+      console.log(`Feed fetch error: ${feedConfig.name}`);
     }
   }
-  return newsItems;
+
+  let overallImpact = 'NEUTRAL / WAIT';
+  let overallDesc = `สภาวะข่าวของ ${symbol} อยู่ในระดับปกติ แนะนำเข้าเทรดตามกรอบ FVG และ Volume Profile ในช่วง Kill Zone`;
+  let badgeStyle = 'neutral';
+
+  if (posCount > negCount) {
+    overallImpact = 'BULLISH (+)';
+    overallDesc = `ข่าวและปัจจัยวันนี้ส่งผลบวก (+) ต่อ ${symbol} หนุนให้ราคามีโอกาสปรับตัวขึ้นทดสอบแนว VAH`;
+    badgeStyle = 'positive';
+  } else if (negCount > posCount) {
+    overallImpact = 'BEARISH (-)';
+    overallDesc = `ข่าววันนี้ส่งผลกดดันเชิงลบ (-) ต่อ ${symbol} มีโอกาสย่อตัวลงมาทดสอบแนวรับ VAL / FVG Discount`;
+    badgeStyle = 'negative';
+  }
+
+  return { overallImpact, overallDesc, badgeStyle, hasHighImpactNews, newsList: newsItems };
+}
+
+// คำนวณจุดเทรดอิงตามคูู่มือ PUNPORT FX (Volume Profile & FVG) + ปรับตามความผันผวนข่าว
+function calculatePunportSetup(symbol, tf, realPrice, hasNews) {
+  const currentPrice = parseFloat(realPrice) || 2740.00;
+  
+  // กำหนด Volatility
+  const isHighVolSymbol = symbol.includes('XAU') || symbol.includes('BTC') || symbol.includes('OIL');
+  let baseSpread = isHighVolSymbol ? currentPrice * 0.006 : currentPrice * 0.0025;
+
+  // หากมีข่าวสำคัญ ปรับเพิ่มขอบเขตราคา (Buffer Zone) ป้องกันโดนข่าวลากกวาดไส้
+  const newsMultiplier = hasNews ? 1.5 : 1.0;
+  const spread = baseSpread * newsMultiplier;
+
+  // คำนวณระดับ Volume Profile (VAH, VAL, POC) และ FVG 50%
+  const pocPrice = currentPrice - (spread * 0.1); // POC สะสมปริมาณซื้อขายสูงสุด
+  const vahPrice = currentPrice + (spread * 0.5); // Value Area High
+  const valPrice = currentPrice - (spread * 0.5); // Value Area Low
+
+  const fvgBuy50  = currentPrice - (spread * 0.25); // FVG 50% ฝั่ง BUY
+  const fvgSell50 = currentPrice + (spread * 0.25); // FVG 50% ฝั่ง SELL
+
+  const isBuySetup = currentPrice >= pocPrice;
+
+  let buyPoint, sellPoint, tpLevel, slLevel, recommendationText;
+
+  if (isBuySetup) {
+    buyPoint = fvgBuy50.toFixed(2);
+    sellPoint = vahPrice.toFixed(2);
+    
+    // ตั้ง SL นอกกรอบ VAL / FVG (ถ้ามีข่าว ขยายระยะ SL เพิ่มอีก 20% ป้องกันโดน Sweep)
+    const slDistance = hasNews ? (spread * 0.45) : (spread * 0.35);
+    slLevel = (fvgBuy50 - slDistance).toFixed(2);
+    
+    const risk = fvgBuy50 - parseFloat(slLevel);
+    tpLevel = (fvgBuy50 + (risk * 1.8)).toFixed(2); // RR 1:1.8
+
+    recommendationText = hasNews 
+      ? `🚨 [โหมดข่าวผันผวน] รอราคาย่อลึกกวาด Liquidity ก่อนตั้งรับ BUY ที่แนว FVG 50% ($${buyPoint}) | SL: $${slLevel}`
+      : `BUY ณ แนว FVG 50% / Volume POC ($${buyPoint}) | TP: $${tpLevel} | SL: $${slLevel}`;
+  } else {
+    buyPoint = valPrice.toFixed(2);
+    sellPoint = fvgSell50.toFixed(2);
+    
+    const slDistance = hasNews ? (spread * 0.45) : (spread * 0.35);
+    slLevel = (fvgSell50 + slDistance).toFixed(2);
+    
+    const risk = parseFloat(slLevel) - fvgSell50;
+    tpLevel = (fvgSell50 - (risk * 1.8)).toFixed(2); // RR 1:1.8
+
+    recommendationText = hasNews 
+      ? `🚨 [โหมดข่าวผันผวน] รอราคาดันขึ้นกวาด Liquidity ก่อนกด SELL ที่แนว FVG 50% ($${sellPoint}) | SL: $${slLevel}`
+      : `SELL ณ แนว FVG 50% / Volume POC ($${sellPoint}) | TP: $${tpLevel} | SL: $${slLevel}`;
+  }
+
+  return {
+    price: currentPrice.toFixed(2),
+    poc: pocPrice.toFixed(2),
+    vah: vahPrice.toFixed(2),
+    val: valPrice.toFixed(2),
+    buyPoint,
+    sellPoint,
+    tpLevel,
+    slLevel,
+    recommendationText,
+    macdStatus: isBuySetup ? 'Bullish Momentum' : 'Bearish Momentum',
+    tradeZoneText: isBuySetup ? 'BUY ZONE (Discount)' : 'SELL ZONE (Premium)'
+  };
 }
 
 app.get('/api/dashboard-data', async (req, res) => {
   const tf = req.query.tf || '1h';
   const symbol = req.query.symbol || 'OANDA:XAUUSD';
-  const realPrice = req.query.price; // รับราคาสดจากฝั่งหน้าบ้าน
+  const realPrice = req.query.price;
 
-  const data = calculatePineScriptOB(symbol, tf, realPrice);
-  const realNews = await fetchRealNews();
+  const newsData = await fetchDailyNewsAnalysis(symbol);
+  const setup = calculatePunportSetup(symbol, tf, realPrice, newsData.hasHighImpactNews);
 
   res.json({
     symbol: symbol,
     timeframe: tf.toUpperCase(),
     signal: {
-      action: `${symbol}`,
-      detail: data.detailMessage,
-      badge: data.macdStatus,
-      badgeClass: data.badgeClass,
-      obRecommendation: `โซนเข้าซื้อ Bullish OB: ${data.bullishOB} | โซนเข้าขาย Bearish OB: ${data.bearishOB}`
+      detail: `คำนวณจุดเข้าอิง Volume Profile & FVG (${symbol} - TF ${tf.toUpperCase()}) ${newsData.hasHighImpactNews ? '⚡ [ช่วงข่าวผันผวนสูง]' : ''}`,
+      recommendation: setup.recommendationText
     },
     srLevels: {
-      r2: (parseFloat(data.zoneHigh) * 1.003).toFixed(2),
-      r1: data.zoneHigh,
-      s1: data.zoneLow,
-      s2: (parseFloat(data.zoneLow) * 0.997).toFixed(2)
+      poc: setup.poc,
+      vah: setup.vah,
+      val: setup.val
     },
-    tradeZone: data.tradeZoneText,
-    macdFocus: data.macdStatus,
-    bullishOB: data.bullishOB,
-    bearishOB: data.bearishOB,
-    irl: data.irl,
-    marketTrend: {
-      text: 'Real-time Market Sync (ซิงก์ราคาสดและข่าวสารตรงกับ TradingView)',
-      status: 'neutral',
-      label: 'LIVE SYNC',
-      catalyst: { active: false }
+    tradeSetup: {
+      buyPoint: setup.buyPoint,
+      sellPoint: setup.sellPoint,
+      tpLevel: setup.tpLevel,
+      slLevel: setup.slLevel
     },
-    news: realNews
+    tradeZone: setup.tradeZoneText,
+    macdFocus: setup.macdStatus,
+    dailyNews: newsData
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
