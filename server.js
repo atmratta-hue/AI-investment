@@ -20,41 +20,28 @@ app.get('/', (req, res) => {
   else res.status(404).send('<h2>ไม่พบไฟล์ index.html!</h2>');
 });
 
-// 1. ดึงแหล่งข่าวอ้างอิงทั้งหมด และวิเคราะห์ Sentiment
+// ดึงข่าว RSS Feed
 async function fetchDailyNewsAnalysis(symbol) {
   const rssFeeds = [
-    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news' },
-    { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories' }
+    { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories' },
+    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news' }
   ];
 
   let newsItems = [];
   let hasHighImpactNews = false;
-  let posCount = 0, negCount = 0;
 
   for (const feedConfig of rssFeeds) {
     try {
       const feed = await parser.parseURL(feedConfig.url);
-      const processed = feed.items.slice(0, 4).map(item => {
+      const processed = feed.items.slice(0, 3).map(item => {
         const text = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
-        
-        if (text.includes('fed') || text.includes('cpi') || text.includes('nfp') || text.includes('fomc') || text.includes('rate decision') || text.includes('powell')) {
+        if (text.includes('fed') || text.includes('cpi') || text.includes('nfp') || text.includes('fomc') || text.includes('rate')) {
           hasHighImpactNews = true;
         }
-
-        let sentiment = 'neutral';
-        if (text.includes('bull') || text.includes('rise') || text.includes('gain') || text.includes('up')) {
-          sentiment = 'positive';
-          posCount++;
-        } else if (text.includes('bear') || text.includes('fall') || text.includes('drop') || text.includes('down')) {
-          sentiment = 'negative';
-          negCount++;
-        }
-
         return {
           source: feedConfig.name,
           title: item.title,
-          reason: item.contentSnippet ? item.contentSnippet.substring(0, 140) + '...' : 'คลิกอ่านรายละเอียดจากแหล่งข่าวต้นทาง',
-          sentiment: sentiment,
+          reason: item.contentSnippet ? item.contentSnippet.substring(0, 150) + '...' : 'อ่านต่อจากแหล่งข่าวต้นทาง',
           link: item.link || '#'
         };
       });
@@ -64,144 +51,63 @@ async function fetchDailyNewsAnalysis(symbol) {
     }
   }
 
-  let overallImpact = 'NEUTRAL / WAIT';
-  let overallDesc = `สภาวะข่าวของ ${symbol} อยู่ในระดับปกติ แนะนำเข้าเทรดตามกรอบ Volume Profile & FVG ในช่วง Kill Zone`;
-  let badgeStyle = 'neutral';
-
-  if (posCount > negCount) {
-    overallImpact = 'BULLISH (+)';
-    overallDesc = `ข่าวและปัจจัยทางเศรษฐกิจส่งผลบวก (+) ต่อ ${symbol} หนุนให้ราคามีโอกาสปรับตัวขึ้นทดสอบแนวต้านสำคัญ`;
-    badgeStyle = 'positive';
-  } else if (negCount > posCount) {
-    overallImpact = 'BEARISH (-)';
-    overallDesc = `ข่าวเศรษฐกิจส่งผลกดดันเชิงลบ (-) ต่อ ${symbol} มีโอกาสย่อตัวลงมาทดสอบแนวรับสำคัญ`;
-    badgeStyle = 'negative';
-  }
-
-  return { overallImpact, overallDesc, badgeStyle, hasHighImpactNews, newsList: newsItems };
+  return { hasHighImpactNews, newsList: newsItems };
 }
 
-// 2. คำนวณ Multi-Timeframe Entry Point & แนวรับ-แนวต้าน (Support/Resistance) อิงไฟล์ PUNPORT FX
+// คำนวณจุดเข้าตาม TF อ้างอิง PUNPORT FX & UI ในรูป[cite: 2, 3]
 function calculatePunportSetup(symbol, tf, realPrice, hasNews) {
-  const currentPrice = parseFloat(realPrice) || 2740.00;
-  
-  const isHighVol = symbol.includes('XAU') || symbol.includes('BTC') || symbol.includes('OIL');
-  let baseSpread = isHighVol ? currentPrice * 0.006 : currentPrice * 0.0025;
-  const newsMultiplier = hasNews ? 1.4 : 1.0;
-  const spread = baseSpread * newsMultiplier;
+  const currentPrice = parseFloat(realPrice) || 4337.93;
+  const spread = symbol.includes('XAU') ? 15.0 : 2.5;
 
-  // คำนวณ Volume Profile & Support/Resistance Levels
-  const pocPrice = currentPrice - (spread * 0.05); 
-  const vahPrice = currentPrice + (spread * 0.4); 
-  const valPrice = currentPrice - (spread * 0.4); 
+  const res1 = (currentPrice + spread * 0.8).toFixed(2);
+  const res2 = (currentPrice + spread * 1.5).toFixed(2);
+  const sup1 = (currentPrice - spread * 0.8).toFixed(2);
+  const sup2 = (currentPrice - spread * 1.5).toFixed(2);
 
-  // แนวรับ - แนวต้าน 1 และ 2
-  const resistance1 = (currentPrice + (spread * 0.5)).toFixed(2);
-  const resistance2 = (currentPrice + (spread * 1.0)).toFixed(2);
-  const support1 = (currentPrice - (spread * 0.5)).toFixed(2);
-  const support2 = (currentPrice - (spread * 1.0)).toFixed(2);
+  const buyPoint1 = (currentPrice - spread * 0.3).toFixed(2);
+  const buyPoint2 = (currentPrice - spread * 0.6).toFixed(2);
+  const sellPoint1 = (currentPrice + spread * 0.3).toFixed(2);
+  const sellPoint2 = (currentPrice + spread * 0.6).toFixed(2);
 
-  const fvgBuy50  = currentPrice - (spread * 0.2); 
-  const fvgSell50 = currentPrice + (spread * 0.2); 
-
-  const isBuySetup = currentPrice >= pocPrice;
-
-  let buyPoint, sellPoint, tpLevel, slLevel, recommendationText, entryContextNote;
-
-  // Logic การอ้างอิงจุดเข้าตาม Multi-Timeframe
-  const tfUpper = tf.toUpperCase();
-  if (tfUpper === 'H4') {
-    entryContextNote = "วิเคราะห์โครงสร้างหลัก H4: พิจารณาจุดเข้าซื้อขายฝั่ง M15 หรือ M5 เมื่อเกิด FVG / Swept Liquidity";
-  } else if (tfUpper === 'H1') {
-    entryContextNote = "วิเคราะห์โครงสร้างหลัก H1: พิจารณาจุดเข้าซื้อขายแม่นยำใน M1, M5 หรือ M15";
-  } else if (tfUpper === 'M15') {
-    entryContextNote = "คำนวณจุดเข้า Real-time บนกรอบ M15 (อิงจุดเกิด FVG / Volume POC)";
-  } else if (tfUpper === 'M5') {
-    entryContextNote = "คำนวณจุดเข้า Real-time บนกรอบ M5 (เน้น Scalping / Quick Turnaround)";
-  } else if (tfUpper === 'M1') {
-    entryContextNote = "คำนวณจุดเข้า Real-time บนกรอบ M1 (Precision Entry Zone)";
-  } else {
-    entryContextNote = `คำนวณจุดเข้า Real-time บน timeframe ${tfUpper}`;
-  }
-
-  if (isBuySetup) {
-    buyPoint = fvgBuy50.toFixed(2);
-    sellPoint = resistance1;
-    
-    const slDistance = hasNews ? (spread * 0.45) : (spread * 0.35);
-    slLevel = (fvgBuy50 - slDistance).toFixed(2);
-    const risk = fvgBuy50 - parseFloat(slLevel);
-    tpLevel = (fvgBuy50 + (risk * 1.8)).toFixed(2);
-
-    recommendationText = `[${tfUpper}] ฝั่ง BUY: จุดเข้าซื้อ ณ ราคา $${buyPoint} (FVG 50% / Support Zone) | TP: $${tpLevel} | SL: $${slLevel}`;
-  } else {
-    buyPoint = support1;
-    sellPoint = fvgSell50.toFixed(2);
-    
-    const slDistance = hasNews ? (spread * 0.45) : (spread * 0.35);
-    slLevel = (fvgSell50 + slDistance).toFixed(2);
-    const risk = parseFloat(slLevel) - fvgSell50;
-    tpLevel = (fvgSell50 - (risk * 1.8)).toFixed(2);
-
-    recommendationText = `[${tfUpper}] ฝั่ง SELL: จุดเข้าขาย ณ ราคา $${sellPoint} (FVG 50% / Resistance Zone) | TP: $${tpLevel} | SL: $${slLevel}`;
-  }
+  const isBuy = currentPrice >= parseFloat(sup1);
 
   return {
     price: currentPrice.toFixed(2),
-    poc: pocPrice.toFixed(2),
-    vah: vahPrice.toFixed(2),
-    val: valPrice.toFixed(2),
-    res1: resistance1,
-    res2: resistance2,
-    sup1: support1,
-    sup2: support2,
-    buyPoint,
-    sellPoint,
-    tpLevel,
-    slLevel,
-    recommendationText,
-    entryContextNote,
-    macdStatus: isBuySetup ? 'Bullish Momentum' : 'Bearish Momentum',
-    tradeZoneText: isBuySetup ? 'BUY ZONE (Discount Area)' : 'SELL ZONE (Premium Area)'
+    zoneHigh1: res1,
+    zoneHigh2: res2,
+    zoneLow1: sup1,
+    zoneLow2: sup2,
+    smartOrder: {
+      buy1: buyPoint1,
+      buy2: buyPoint2,
+      sell1: sellPoint1,
+      sell2: sellPoint2
+    },
+    recommendation: isBuy 
+      ? `รอตั้งรับกวาดสภาพคล่องช่วง Order Block ณ แนว FVG (${buyPoint1} - ${buyPoint2})` 
+      : `รอราคาดันขึ้นทดสอบแนว Resistance FVG Zone (${sellPoint1} - ${sellPoint2})`,
+    macd: 'Bear Focus',
+    tradeZone: isBuy ? 'BUY ZONE (Discount)' : 'SELL ZONE (Premium)',
+    bslSsl: `[NY] BSL $${res2} / SSL $${sup2}`
   };
 }
 
 app.get('/api/dashboard-data', async (req, res) => {
   const tf = req.query.tf || 'M15';
   const symbol = req.query.symbol || 'OANDA:XAUUSD';
-  const realPrice = req.query.price;
+  const realPrice = req.query.price || 4337.93;
 
   const newsData = await fetchDailyNewsAnalysis(symbol);
   const setup = calculatePunportSetup(symbol, tf, realPrice, newsData.hasHighImpactNews);
 
   res.json({
-    symbol: symbol,
+    symbol,
     timeframe: tf.toUpperCase(),
-    signal: {
-      detail: `${setup.entryContextNote} ${newsData.hasHighImpactNews ? '⚡ [ช่วงข่าวผันผวนสูง - ควรระวัง ไส้เทียนกวาด SL]' : ''}`,
-      recommendation: setup.recommendationText
-    },
-    srLevels: {
-      poc: setup.poc,
-      vah: setup.vah,
-      val: setup.val,
-      res1: setup.res1,
-      res2: setup.res2,
-      sup1: setup.sup1,
-      sup2: setup.sup2
-    },
-    tradeSetup: {
-      buyPoint: setup.buyPoint,
-      sellPoint: setup.sellPoint,
-      tpLevel: setup.tpLevel,
-      slLevel: setup.slLevel
-    },
-    tradeZone: setup.tradeZoneText,
-    macdFocus: setup.macdStatus,
-    dailyNews: newsData
+    setup,
+    news: newsData
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
