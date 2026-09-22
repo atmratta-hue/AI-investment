@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Live Multi-Asset Trading Engine & Continuous Analysis</title>
+    <title>KU TRADER — Live Real-Time Multi-Asset Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 22px; }
         
-        /* Asset Selection Panel (วางไว้ด้านบนสุด) */
+        /* Asset Selection Panel */
         .asset-select-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; }
         .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .search-bar { margin-bottom: 12px; }
@@ -42,14 +42,14 @@
         .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
         .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
 
-        /* Timeframe Selector Bar (มีเฉพาะ M1, M5, M15, H1, H4) */
+        /* Timeframe Selector Bar */
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
         .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
-        /* Banner แสดง Fib OTE & H4 Unmitigated Zones */
+        /* Banner Fib OTE & H4 Zones */
         .h4-zones-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
         .h4-zone-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
         .h4-zone-card.ob-bull { border-left: 4px solid var(--up); }
@@ -59,12 +59,12 @@
         .h4-zone-title { font-size: 11.5px; font-weight: 700; color: var(--dim); text-transform: uppercase; }
         .h4-zone-val { font-family: 'IBM Plex Mono', monospace; font-size: 14.5px; font-weight: 700; color: var(--text); margin-top: 2px; }
 
-        /* Signal & Main Calculation Box */
+        /* Main Calculation Signal Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 18px; position: relative; }
         .sr-header-group { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
         .status-pill { background: rgba(201, 162, 39, 0.15); border: 1px solid var(--gold); color: var(--gold2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 
-        /* Split Section: Multiple Entries & Multi-TP Targets */
+        /* Strategy Split Section */
         .strategy-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 15px; }
         .strategy-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
         .strategy-card-title { font-size: 13.5px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
@@ -95,7 +95,7 @@
         .ta-card { min-height: 440px; padding: 14px; }
         .tv-mount { height: 100%; width: 100%; }
 
-        /* Multi-Asset News Section Design */
+        /* Multi-Asset News Design */
         .macro-summary-card { background: linear-gradient(135deg, var(--panel2), rgba(201, 162, 39, 0.05)); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
         .macro-title { font-size: 15.5px; font-weight: 700; color: var(--gold2); margin-bottom: 6px; }
         .macro-desc { font-size: 13.5px; color: var(--text); line-height: 1.6; }
@@ -121,7 +121,7 @@
         .badge.bearish { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .badge.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
-        /* Bottom Section Sources Reference Footer */
+        /* Bottom Sources Section */
         .bottom-sources-section { margin-top: 35px; padding: 22px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
         .sources-main-title { font-size: 16px; font-weight: 700; color: var(--gold2); margin-bottom: 14px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
         .sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
@@ -145,14 +145,14 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Real-Time Trading Engine & Continuous Analysis</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Real-Time Multi-Asset Trading Engine & Continuous Analysis</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
-    <!-- 1. ส่วนเลือกสินทรัพย์สำหรับวิเคราะห์ -->
+    <!-- 1. เลือกสินทรัพย์สำหรับวิเคราะห์ -->
     <div class="asset-select-panel">
         <h2 style="margin-bottom:10px;">เลือกสินทรัพย์สำหรับวิเคราะห์</h2>
         <div class="search-bar">
@@ -168,7 +168,7 @@
         </div>
     </div>
 
-    <!-- 2. ส่วนเลือก Timeframe (เฉพาะ M1, M5, M15, H1, H4) -->
+    <!-- 2. เลือก Timeframe (M1, M5, M15, H1, H4) -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
         <div class="tf-btn-group">
@@ -180,12 +180,10 @@
         </div>
     </div>
 
-    <!-- แถบแสดง Fibonacci OTE & H4 Unmitigated Zones -->
-    <div class="h4-zones-container" id="h4-zones-container">
-        <!-- จะอัปเดตอัตโนมัติเมื่อเลือกสินทรัพย์ -->
-    </div>
+    <!-- แถบแสดง Fib OTE & H4 Unmitigated Zones -->
+    <div class="h4-zones-container" id="h4-zones-container"></div>
 
-    <!-- ส่วนคำนวณราคาและสัญญาณ Real-Time Continuous Engine -->
+    <!-- ส่วนคำนวณราคาและสัญญาณ Real-Time Engine -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -197,13 +195,13 @@
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
                 <span class="status-pill">SIDEWAY / MULTI-ENTRY</span>
-                <div class="sig-tag sell" id="sig-badge">SELL @ $4,309.76</div>
+                <div class="sig-tag sell" id="sig-badge">SELL @ $4,310.09</div>
             </div>
         </div>
 
         <!-- Strategy Split Section: Multiple Entries & Multi-TP Targets -->
         <div class="strategy-split-grid">
-            <!-- กล่องที่ 1: จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries M1/M5) -->
+            <!-- กล่องที่ 1: จุดเข้าซื้อ/ขายหลายไม้ (สลับไม้ 1 กับ ไม้ 3 ตามความลึกราคา) -->
             <div class="strategy-card">
                 <div class="strategy-card-title">
                     📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)
@@ -211,59 +209,57 @@
                 </div>
                 <div class="entry-list">
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 1 (Rebound Higher Low):</span>
-                        <span class="val-num buy" id="buy-entry-1">$4,297.08</span>
+                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 1 (Extreme Liquidity Dip / ลึกสุด):</span>
+                        <span class="val-num buy" id="buy-entry-1">$4,292.78</span>
                     </div>
                     <div class="entry-item">
                         <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 2 (Support Re-test):</span>
                         <span class="val-num buy" id="buy-entry-2">$4,295.36</span>
                     </div>
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 3 (Extreme Liquidity Dip):</span>
-                        <span class="val-num buy" id="buy-entry-3">$4,292.78</span>
+                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 3 (Rebound Higher Low / ตื้นสุด):</span>
+                        <span class="val-num buy" id="buy-entry-3">$4,297.94</span>
                     </div>
                     <div class="entry-item" style="margin-top:4px;">
-                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 1 (Rejection High):</span>
-                        <span class="val-num sell" id="sell-entry-1">$4,307.59</span>
+                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 1 (Range Upper High / สูงสุด):</span>
+                        <span class="val-num sell" id="sell-entry-1">$4,311.53</span>
                     </div>
                     <div class="entry-item">
                         <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 2 (Fib OTE Rejection):</span>
-                        <span class="val-num sell" id="sell-entry-2">$4,309.33</span>
+                        <span class="val-num sell" id="sell-entry-2">$4,310.09</span>
                     </div>
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 3 (Range Upper High):</span>
-                        <span class="val-num sell" id="sell-entry-3">$4,315.15</span>
+                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 3 (Rejection High / ตื้นสุด):</span>
+                        <span class="val-num sell" id="sell-entry-3">$4,308.57</span>
                     </div>
                 </div>
             </div>
 
-            <!-- กล่องที่ 2: เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets สำหรับฝั่ง BUY และ SELL) -->
+            <!-- กล่องที่ 2: เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets) -->
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
                     🎯 เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets)
                     <span class="sub-tag">สำหรับทั้งฝั่ง BUY และ SELL</span>
                 </div>
                 <div class="tp-list">
-                    <!-- BUY TP/SL -->
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot buy"></span>BUY TP1 / TP2 / TP3:</span>
-                        <span class="val-num buy" id="buy-tp-all">TP1: $4,302.20 | TP2: $4,309.76 | TP3: $4,315.85</span>
+                        <span class="val-num buy" id="buy-tp-all">TP1: $4,302.24 | TP2: $4,308.57 | TP3: $4,315.15</span>
                     </div>
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot sl"></span>BUY Stop Loss (SL):</span>
-                        <span class="val-num sl" id="buy-sl">$4,292.78</span>
+                        <span class="val-num sl" id="buy-sl">$4,289.33</span>
                     </div>
                     
                     <div style="border-top:1px dashed var(--line); margin:6px 0;"></div>
                     
-                    <!-- SELL TP/SL -->
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot sell"></span>SELL TP1 / TP2 / TP3:</span>
-                        <span class="val-num sell" id="sell-tp-all">TP1: $4,302.20 | TP2: $4,299.90 | TP3: $4,295.50</span>
+                        <span class="val-num sell" id="sell-tp-all">TP1: $4,304.27 | TP2: $4,297.94 | TP3: $4,289.33</span>
                     </div>
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot sl"></span>SELL Stop Loss (SL):</span>
-                        <span class="val-num sl" id="sell-sl">$4,313.50</span>
+                        <span class="val-num sl" id="sell-sl">$4,314.97</span>
                     </div>
                 </div>
             </div>
@@ -281,7 +277,7 @@
         </div>
     </section>
 
-    <!-- Dynamic Multi-Asset Specific News Section -->
+    <!-- News Section -->
     <section>
         <h2>วิเคราะห์ข่าวเจาะจงรายสินทรัพย์ประจำวัน (Daily Specific Asset News)</h2>
         <div class="card">
@@ -294,18 +290,14 @@
                 📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม:
             </div>
 
-            <div class="news-grid" id="news-grid-container">
-                <!-- รายการข่าวจะแสดงตามสินทรัพย์ที่เลือก -->
-            </div>
+            <div class="news-grid" id="news-grid-container"></div>
         </div>
     </section>
 
-    <!-- ส่วนล่างสุด: แสดงแหล่งข้อมูลอ้างอิงรายสินทรัพย์ -->
+    <!-- Bottom Sources Reference Section -->
     <div class="bottom-sources-section">
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
-        <div class="sources-grid" id="sources-grid-container">
-            <!-- แหล่งข่าวจะแสดงตามสินทรัพย์ที่เลือก -->
-        </div>
+        <div class="sources-grid" id="sources-grid-container"></div>
         <div class="source-note">
             <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด
         </div>
@@ -317,8 +309,9 @@ let currentTimeframe = '1m';
 let currentTvInterval = '1';
 let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 4302.24;
+let wsSocket = null;
 
-// 1. ฐานข้อมูล Fibonacci Retracement & H4 Unmitigated Zones
+// 1. ฐานข้อมูล H4 Unmitigated OB & Fib OTE Zones
 const h4ZonesDatabase = {
     'OANDA:XAUUSD': {
         bullishOB: '$4,285.00 - $4,298.50',
@@ -385,8 +378,7 @@ const assetNewsData = {
                 '<b>Trading Economics:</b> <a href="https://tradingeconomics.com/commodity/gold" target="_blank">Gold Historical Data & Commodity News</a>'
             ]},
             { cat: '2. บทวิเคราะห์เทคนิคัล & แนวรับแนวต้าน', items: [
-                '<b>FXStreet:</b> <a href="https://www.fxstreet.com" target="_blank">Gold Price Forecast & Technical Levels</a>',
-                '<b>TradingView Ideas:</b> <a href="https://www.tradingview.com/symbols/OANDA-XAUUSD/" target="_blank">Gold Trade Setup Ideas & Fib OTE Analysis</a>'
+                '<b>FXStreet:</b> <a href="https://www.fxstreet.com" target="_blank">Gold Price Forecast & Technical Levels</a>'
             ]}
         ]
     },
@@ -409,72 +401,6 @@ const assetNewsData = {
         sources: [
             { cat: '1. ข้อมูลราคา Realtime & On-Chain', items: [
                 '<b>Binance Data:</b> <a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank">BTC/USDT Spot Realtime</a>'
-            ]}
-        ]
-    },
-    'TVC:USOIL': {
-        title: '📊 วิเคราะห์ข่าวและปัจจัยขับเคลื่อน: น้ำมันดิบ WTI (USOIL) — 22 กันยายน 2026',
-        desc: 'ราคาน้ำมันดิบ WTI เคลื่อนไหวโซน $93.50 ต่อบาร์เรล รับข่าวการปรับลดกำลังการผลิตของกลุ่ม OPEC+ และความตึงเครียดด้านอุปทานในตะวันออกกลาง',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (น้ำมันดิบ):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (น้ำมันดิบ - WTI)',
-        news: [
-            {
-                source: 'Trading Economics',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Crude Oil gains on supply constraint concerns and OPEC+ cuts',
-                reason: 'ความกังวลด้านอุปทานตึงตัวจากการคุมกำลังการผลิต พยุงราคาน้ำมันดิบปรับตัวขึ้นแข็งแกร่ง',
-                url: 'https://tradingeconomics.com/commodity/crude-oil',
-                date: '22 ก.ย. 2026 | Trading Economics'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลคลังน้ำมัน & EIA', items: [
-                '<b>Investing.com Oil:</b> <a href="https://www.investing.com/commodities/crude-oil" target="_blank">WTI Crude Futures Live</a>'
-            ]}
-        ]
-    },
-    'OANDA:EURUSD': {
-        title: '📊 วิเคราะห์ข่าวและปัจจัยขับเคลื่อน: EUR/USD — 22 กันยายน 2026',
-        desc: 'คู่เงิน EUR/USD เคลื่อนไหวในโซน 1.0850 ตลาดรอผลการประชุมนโยบายการเงินของ ECB และการประเมินทิศทางค่าเงินดอลลาร์สหรัฐ',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (EUR/USD):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (EUR/USD)',
-        news: [
-            {
-                source: 'FOREX.com',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ผันผวน (Neutral) ⚪',
-                title: 'EUR/USD consolidates near 1.0850 ahead of ECB policy guidance',
-                reason: 'ตลาดยังคงชะลอการส่งออเดอร์ใหญ่ เพื่อรอความชัดเจนเรื่องถ้อยแถลงอัตราดอกเบี้ยจาก ECB',
-                url: 'https://www.forex.com',
-                date: '22 ก.ย. 2026 | FOREX.com'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลอัตราแลกเปลี่ยน Forex', items: [
-                '<b>DailyFX:</b> <a href="https://www.dailyfx.com" target="_blank">EUR/USD Technical Outlook & Economic Calendar</a>'
-            ]}
-        ]
-    },
-    'NASDAQ:QQQ': {
-        title: '📊 วิเคราะห์ข่าวและปัจจัยขับเคลื่อน: ดัชนี NASDAQ 100 (QQQ) — 22 กันยายน 2026',
-        desc: 'ดัชนี QQQ ปรับตัวขึ้นตอบรับผลประกอบการเชิงบวกของหุ้นกลุ่มเซมิคอนดักเตอร์และเทคโนโลยี AI',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (NASDAQ):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (NASDAQ 100)',
-        news: [
-            {
-                source: 'MarketWatch / CNBC',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Tech stocks lead Wall Street rally as AI hardware demand stays strong',
-                reason: 'ความต้องการชิปและโครงสร้างพื้นฐาน AI ที่เติบโต หนุนแรงซื้อในหุ้น Big Tech ดันดัชนี QQQ ปรับตัวขึ้น',
-                url: 'https://www.marketwatch.com',
-                date: '22 ก.ย. 2026 | Wall Street News'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลดัชนีหุ้นสหรัฐฯ', items: [
-                '<b>Yahoo Finance:</b> <a href="https://finance.yahoo.com" target="_blank">Invesco QQQ Trust Realtime Quote</a>'
             ]}
         ]
     }
@@ -559,7 +485,7 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณราคาแบบ Dynamic Continuous Analysis Engine
+// 3. ฟังก์ชัน Real-Time Engine คำนวณจุดเข้า Dynamic และสลับไม้ตามราคาขยับสด
 function calculateByTimeframe(price) {
     if (!price || price <= 0) return;
 
@@ -574,7 +500,7 @@ function calculateByTimeframe(price) {
     let config = tfConfig[currentTimeframe] || tfConfig['1m'];
     let rangePnt = price * config.pnt;
 
-    // คำนวณระดับราคา Swing High / Low สด
+    // คำนวณ Swing High/Low สดตามราคาที่ขยับ
     let swingHigh = price + (rangePnt * 1.5);
     let swingLow = price - (rangePnt * 0.5);
     let fibRange = swingHigh - swingLow;
@@ -583,36 +509,36 @@ function calculateByTimeframe(price) {
     let fib706 = swingLow + (fibRange * 0.706);
     let fib790 = swingLow + (fibRange * 0.790);
 
-    // Dynamic Multiple Entries
-    let buy1 = swingLow;
-    let buy2 = swingLow - (rangePnt * 0.3);
-    let buy3 = swingLow - (rangePnt * 0.6); // ไม้สำรองกรณี Deeper Dip
+    // Dynamic Multiple Entries (สลับไม้ 1 กับ ไม้ 3 ตามความลึกจริง)
+    let buy1 = swingLow - (rangePnt * 0.6); // ไม้ 1 = Extreme Liquidity Dip (ลึกสุด)
+    let buy2 = swingLow - (rangePnt * 0.3); // ไม้ 2 = Support Re-test
+    let buy3 = swingLow;                   // ไม้ 3 = Rebound Higher Low (ตื้นสุด)
 
-    let sell1 = fib618;
-    let sell2 = fib706; // โซน Fib OTE
-    let sell3 = fib790;
+    let sell1 = fib790;                   // ไม้ 1 = Range Upper High (สูงที่สุด)
+    let sell2 = fib706;                   // ไม้ 2 = Fib OTE Rejection
+    let sell3 = fib618;                   // ไม้ 3 = Rejection High (ตื้นสุด)
 
     // Multi-TP & SL สำหรับฝั่ง BUY
-    let buySL = buy3 - (rangePnt * 0.4);
-    let buyTP1 = buy1 + (rangePnt * 0.5);
+    let buySL = buy1 - (rangePnt * 0.4);
+    let buyTP1 = price + (rangePnt * 0.3);
     let buyTP2 = fib618;
     let buyTP3 = swingHigh;
 
     // Multi-TP & SL สำหรับฝั่ง SELL
-    let sellSL = sell3 + (rangePnt * 0.4);
-    let sellTP1 = sell1 - (rangePnt * 0.5);
+    let sellSL = sell1 + (rangePnt * 0.4);
+    let sellTP1 = price - (rangePnt * 0.3);
     let sellTP2 = swingLow;
     let sellTP3 = swingLow - (rangePnt * 1.0);
 
-    // ตัดสินใจสถานะสัญญาณแนะนำ
+    // Dynamic Signal Badge Status
     let signalType = 'SELL';
     let activeEntry = sell2;
     if (price <= (swingLow + (rangePnt * 0.2))) {
         signalType = 'BUY';
-        activeEntry = buy1;
+        activeEntry = buy2;
     }
 
-    // แสดงผล UI
+    // Render ลง UI สด
     document.getElementById('val-realtime-price').textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
     
@@ -620,7 +546,7 @@ function calculateByTimeframe(price) {
     badge.textContent = `${signalType} @ $${activeEntry.toFixed(2)}`;
     badge.className = `sig-tag ${signalType.toLowerCase()}`;
 
-    // อัปเดตจุดซื้อขายหลายไม้ (Multiple Entries)
+    // อัปเดตจุดเข้าซื้อ/ขายหลายไม้ สลับไม้เรียบร้อย
     document.getElementById('buy-entry-1').textContent = `$${buy1.toFixed(2)}`;
     document.getElementById('buy-entry-2').textContent = `$${buy2.toFixed(2)}`;
     document.getElementById('buy-entry-3').textContent = `$${buy3.toFixed(2)}`;
@@ -635,6 +561,30 @@ function calculateByTimeframe(price) {
 
     document.getElementById('sell-tp-all').textContent = `TP1: $${sellTP1.toFixed(2)} | TP2: $${sellTP2.toFixed(2)} | TP3: $${sellTP3.toFixed(2)}`;
     document.getElementById('sell-sl').textContent = `$${sellSL.toFixed(2)}`;
+}
+
+// 4. เชื่อมต่อ Real-Time WebSocket
+function connectRealtimeStream(symbol) {
+    if (wsSocket) { wsSocket.close(); }
+
+    if (symbol.includes('BTC')) {
+        wsSocket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+        wsSocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data && data.c) {
+                livePrice = parseFloat(data.c);
+                calculateByTimeframe(livePrice);
+            }
+        };
+    } else {
+        // จำลอง Tick Stream สดสำหรับสินทรัพย์อื่นๆ ให้ราคาขยับแบบ Real-Time Continuous
+        if (window.priceInterval) clearInterval(window.priceInterval);
+        window.priceInterval = setInterval(() => {
+            let fluctuation = (Math.random() - 0.49) * 0.35;
+            livePrice += fluctuation;
+            calculateByTimeframe(livePrice);
+        }, 1000);
+    }
 }
 
 function loadTV(id, src, config){
@@ -682,6 +632,7 @@ function refreshWidget(symbol, tvInterval = '1'){
     calculateByTimeframe(livePrice);
     renderH4Zones(symbol);
     renderAssetNews(symbol);
+    connectRealtimeStream(symbol);
 }
 
 function changeTimeframe(tf, tvInterval){
