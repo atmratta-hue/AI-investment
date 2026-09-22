@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Live Multi-Asset Trading Engine & Dynamic Signals</title>
+    <title>KU TRADER — Multi-Entry & Multi-TP Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 22px; }
         
-        /* Asset Selection Section (ขยับมาไว้ด้านบน) */
+        /* Asset Selection Panel */
         .asset-select-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; }
         .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .search-bar { margin-bottom: 12px; }
@@ -48,34 +48,36 @@
         .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
-        /* H4 Unmitigated Zones Banner */
-        .h4-zones-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        /* Fibonacci OTE & H4 Zones Banner */
+        .h4-zones-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
         .h4-zone-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
         .h4-zone-card.ob-bull { border-left: 4px solid var(--up); }
         .h4-zone-card.ob-bear { border-left: 4px solid var(--down); }
         .h4-zone-card.fvg { border-left: 4px solid var(--gold); }
+        .h4-zone-card.fib { border-left: 4px solid #a855f7; }
         .h4-zone-title { font-size: 11.5px; font-weight: 700; color: var(--dim); text-transform: uppercase; }
-        .h4-zone-val { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 700; color: var(--text); margin-top: 2px; }
+        .h4-zone-val { font-family: 'IBM Plex Mono', monospace; font-size: 14.5px; font-weight: 700; color: var(--text); margin-top: 2px; }
 
-        /* Signal & SR Box (Top Calculation Panel) */
-        .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
+        /* Signal Header Box */
+        .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         .sr-header-group { flex: 1; min-width: 280px; }
-        .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
-        .sr-group { flex: 1; min-width: 130px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-        .sr-group.resistance { border-top: 3px solid var(--down); }
-        .sr-group.support { border-top: 3px solid var(--up); }
-        .sr-group.ob-box { border-top: 3px solid var(--gold); background: rgba(201, 162, 39, 0.05); }
-        .sr-title { font-size: 11.5px; font-weight: 700; color: var(--dim); margin-bottom: 8px; text-transform: uppercase; }
-        .sr-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 4px; }
-        .sr-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
-        .resistance .sr-val { color: var(--down); }
-        .support .sr-val { color: var(--up); }
-        .ob-box .sr-val { color: var(--gold2); }
-        .ob-recommendation-bar { width: 100%; margin-top: 14px; padding: 10px 14px; background: var(--panel); border-radius: 6px; border-left: 4px solid var(--gold); font-size: 13.5px; color: var(--text); }
 
         .sig-tag { padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase; text-align: center; }
         .sig-tag.buy { background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
         .sig-tag.sell { background: rgba(226, 87, 76, 0.2); color: var(--down); border: 1px solid var(--down); }
+        .sig-tag.sideway { background: rgba(201, 162, 39, 0.2); color: var(--gold2); border: 1px solid var(--gold); }
+
+        /* Multi-Entry & Multi-TP Grid Layout */
+        .entries-multi-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; margin-bottom: 22px; }
+        .entry-card-box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+        .entry-title { font-size: 14px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .entry-list { display: flex; flex-direction: column; gap: 8px; }
+        .entry-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--panel2); padding: 10px 14px; border-radius: 6px; border-left: 3px solid var(--line); font-size: 13px; }
+        .entry-item-row.buy-node { border-left-color: var(--up); }
+        .entry-item-row.sell-node { border-left-color: var(--down); }
+        .entry-item-row.tp-node { border-left-color: var(--gold); }
+        .entry-item-row.sl-node { border-left-color: var(--down); }
+        .entry-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
 
         /* 3 Core Analytical Cards */
         .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
@@ -93,7 +95,6 @@
         .chart-card { height: 560px; padding: 14px; }
         .ta-card { min-height: 440px; padding: 14px; }
         .tv-mount { height: 100%; width: 100%; }
-        .side-stack { display: flex; flex-direction: column; gap: 16px; }
 
         /* Multi-Asset News Section Design */
         .macro-summary-card { background: linear-gradient(135deg, var(--panel2), rgba(201, 162, 39, 0.05)); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
@@ -140,14 +141,14 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Multi-Asset Trading Engine, H4 Unmitigated OB/FVG & Asset News</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Multi-Entry Sideway Engine & Dynamic Multi-TP Trend System</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
-    <!-- 1. ส่วนเลือกสินทรัพย์สำหรับวิเคราะห์ (ขยับขึ้นมาไว้ก่อน Timeframe) -->
+    <!-- 1. เลือกสินทรัพย์สำหรับวิเคราะห์ -->
     <div class="asset-select-panel">
         <h2 style="margin-bottom:10px;">เลือกสินทรัพย์สำหรับวิเคราะห์</h2>
         <div class="search-bar">
@@ -163,70 +164,78 @@
         </div>
     </div>
 
-    <!-- 2. ส่วนเลือก Timeframe -->
+    <!-- 2. เลือก Timeframe -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
         <div class="tf-btn-group">
-            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1</button>
-            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5</button>
-            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15</button>
-            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">1H</button>
-            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">4H</button>
+            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Multi-Entry)</button>
+            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Multi-Entry)</button>
+            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Multi-TP)</button>
+            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">1H (Multi-TP)</button>
+            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">4H (Trend Runner)</button>
         </div>
     </div>
 
-    <!-- แถบแสดงโซน H4 Unmitigated Order Block & Fair Value Gap ของสินทรัพย์ที่เลือก -->
+    <!-- แถบแสดง Fibonacci OTE & H4 Unmitigated Zones -->
     <div class="h4-zones-container" id="h4-zones-container">
-        <!-- H4 Zones จะอัปเดตอัตโนมัติเมื่อเปลี่ยนสินทรัพย์ -->
+        <!-- จะอัปเดตอัตโนมัติเมื่อเลือกสินทรัพย์ -->
     </div>
 
-    <!-- ส่วนคำนวณด้านบน (ปรับ Logic สลับ BUY / SELL แบบ Dynamic) -->
+    <!-- ส่วนคำนวณราคา Real-Time Header -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div style="font-size:13px; color:var(--dim)">โครงสร้างราคาตาม Timeframe (<span class="txt-tf-display" style="color:var(--gold2); font-weight:700;">TF 1M</span>)</div>
             <div style="font-size:24px; font-weight:700; color:var(--gold2); margin-top:4px">
-                ราคา Real-Time: <span id="val-realtime-price">$4,322.22</span>
+                ราคา Real-Time: <span id="val-realtime-price">$4,302.24</span>
             </div>
-            <div style="font-size:13px; margin-top:4px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Scalping Setup (M1)</div>
+            <div style="font-size:13px; margin-top:4px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Scalping Sideway Setup (M1 / M5)</div>
         </div>
-        <div class="sr-levels-container">
-            <div class="sr-group resistance">
-                <div class="sr-title">แนวต้าน VAH (TF HIGH)</div>
-                <div class="sr-item"><span class="sr-label">VAH Resistance:</span><span class="sr-val" id="val-vah">--</span></div>
+        <div class="sig-tag sideway" id="sig-badge">SIDEWAY / SCALING-IN</div>
+    </div>
+
+    <!-- Multi-Entry & Multi-TP System Grid (โซนย้ายใหม่แทนที่ VAH/POC/VAL เดิม) -->
+    <div class="entries-multi-grid">
+        <!-- ฝั่งแสดงจุดเข้าไม้ 1, ไม้ 2, ไม้ 3 (Multiple Entries) -->
+        <div class="entry-card-box">
+            <div class="entry-title">
+                <span id="box-entry-title">📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)</span>
+                <span style="font-size:11px; color:var(--dim);" id="box-entry-subtitle">M1/M5 Sideway Scaling-In</span>
             </div>
-            <div class="sr-group ob-box">
-                <div class="sr-title">POC / MID FVG (50%)</div>
-                <div class="sr-item"><span class="sr-label">POC Level:</span><span class="sr-val" id="val-poc">--</span></div>
-                <div class="sr-item"><span class="sr-label">FVG 50% Mid:</span><span class="sr-val" id="val-fvg-mid">--</span></div>
-            </div>
-            <div class="sr-group support">
-                <div class="sr-title">แนวรับ VAL (TF LOW)</div>
-                <div class="sr-item"><span class="sr-label">VAL Support:</span><span class="sr-val" id="val-val">--</span></div>
+            <div class="entry-list" id="entry-nodes-container">
+                <!-- โหลดจุดเข้าไม้ 1, 2, 3 อัตโนมัติ -->
             </div>
         </div>
-        
-        <div class="ob-recommendation-bar" id="ob-recommendation"><b>แผนการเข้าเทรด:</b> กำลังประมวลผลราคา...</div>
-        <div class="sig-tag buy" id="sig-badge">BUY @ $--</div>
+
+        <!-- ฝั่งแสดงเป้าหมายกำไรหลายระดับ (TP1, TP2, TP3 & SL) -->
+        <div class="entry-card-box">
+            <div class="entry-title">
+                <span id="box-tp-title">🎯 เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets)</span>
+                <span style="font-size:11px; color:var(--gold2);" id="box-tp-subtitle">ถือรันเทรนด์ M15, 1H, 4H</span>
+            </div>
+            <div class="entry-list" id="tp-nodes-container">
+                <!-- โหลด TP1, TP2, TP3 อัตโนมัติ -->
+            </div>
+        </div>
     </div>
 
     <!-- 3 Core Analytical Cards -->
     <div class="analysis-grid">
         <div class="ana-card">
-            <div class="ana-title">1. MACD Momentum (TF 1M)</div>
-            <div class="ana-value positive" id="val-macd-info">MACD: +0.45 | Hist: +0.15</div>
-            <div class="ana-desc" id="lbl-macd-status">Bullish Momentum Alignment</div>
+            <div class="ana-title">1. RSI (14) & MACD Momentum</div>
+            <div class="ana-value negative" id="val-macd-info">MACD: -23.44 | RSI: 37.84</div>
+            <div class="ana-desc" id="lbl-macd-status">Strong Bearish Momentum</div>
         </div>
         
         <div class="ana-card">
-            <div class="ana-title">2. จุดแนะนำ BUY / SELL Zone</div>
-            <div class="ana-value neutral" id="val-buy-sell-pts">BUY @ -- | SELL @ --</div>
-            <div class="ana-desc" id="lbl-entry-logic">อิงตามโซนแนวรับแนวต้านใน TF ปัจจุบัน</div>
+            <div class="ana-title">2. กลยุทธ์การเทรด (Trading Mode)</div>
+            <div class="ana-value neutral" id="val-buy-sell-pts">Sideway Grid & Range Trading</div>
+            <div class="ana-desc" id="lbl-entry-logic">แบ่งกระจายไม้เข้าซื้อขายในกรอบ Sideway</div>
         </div>
         
         <div class="ana-card" style="border-left: 3px solid var(--gold);">
-            <div class="ana-title">3. ระยะเป้าหมาย & ตัดขาดทุน (TP / SL)</div>
-            <div class="ana-value positive" id="val-tp-sl">TP: -- | SL: --</div>
-            <div class="ana-desc" id="lbl-rr-ratio">ระยะ TP/SL สอดคล้องกับโครงสร้างและสภาวะตลาด (RR 1:1.8)</div>
+            <div class="ana-title">3. สรุปแผนการทำกำไร (Execution Summary)</div>
+            <div class="ana-value positive" id="val-tp-sl"><span style="color:var(--up)">TP1: $4,307.80</span> | <span style="color:var(--down)">SL: $4,297.50</span></div>
+            <div class="ana-desc" id="lbl-rr-ratio">ทยอยปิดทำกำไรตามเป้า TP1 - TP3</div>
         </div>
     </div>
 
@@ -276,60 +285,65 @@
 let currentTimeframe = '1m';
 let currentTvInterval = '1';
 let currentSymbol = 'OANDA:XAUUSD';
-let livePrice = 4322.22;
+let livePrice = 4302.24;
 
-// 1. ข้อมูล H4 Unmitigated OB & FVG สำหรับแต่ละสินทรัพย์
+// 1. ฐานข้อมูล Fibonacci Retracement & H4 Unmitigated Zones
 const h4ZonesDatabase = {
     'OANDA:XAUUSD': {
         bullishOB: '$4,285.00 - $4,298.50',
         bearishOB: '$4,380.00 - $4,395.20',
-        unmitigatedFVG: '$4,305.10 - $4,318.40 (Bullish Gap)'
+        unmitigatedFVG: '$4,305.10 - $4,318.40 (Bullish Gap)',
+        fibOteZone: '$4,309.76 - $4,311.16 (Fib 0.618 - 0.706 OTE)'
     },
     'BINANCE:BTCUSDT': {
         bullishOB: '$72,400 - $73,800',
         bearishOB: '$78,500 - $79,900',
-        unmitigatedFVG: '$74,200 - $75,100 (Bullish Gap)'
+        unmitigatedFVG: '$74,200 - $75,100 (Bullish Gap)',
+        fibOteZone: '$76,200 - $76,800 (Fib 0.618 - 0.706 OTE)'
     },
     'TVC:USOIL': {
         bullishOB: '$88.50 - $90.20',
         bearishOB: '$96.80 - $98.50',
-        unmitigatedFVG: '$91.40 - $92.60 (Bullish Gap)'
+        unmitigatedFVG: '$91.40 - $92.60 (Bullish Gap)',
+        fibOteZone: '$94.10 - $94.80 (Fib 0.618 - 0.706 OTE)'
     },
     'OANDA:EURUSD': {
         bullishOB: '1.0720 - 1.0760',
         bearishOB: '1.0940 - 1.0980',
-        unmitigatedFVG: '1.0790 - 1.0820 (Bullish Gap)'
+        unmitigatedFVG: '1.0790 - 1.0820 (Bullish Gap)',
+        fibOteZone: '1.0880 - 1.0910 (Fib 0.618 - 0.706 OTE)'
     },
     'NASDAQ:QQQ': {
         bullishOB: '$462.00 - $468.50',
         bearishOB: '$492.00 - $498.20',
-        unmitigatedFVG: '$471.50 - $475.80 (Bullish Gap)'
+        unmitigatedFVG: '$471.50 - $475.80 (Bullish Gap)',
+        fibOteZone: '$483.50 - $486.20 (Fib 0.618 - 0.706 OTE)'
     }
 };
 
-// 2. ฐานข้อมูลข่าวแยกตามสินทรัพย์
+// 2. ฐานข้อมูลข่าวเฉพาะสินทรัพย์
 const assetNewsData = {
     'OANDA:XAUUSD': {
         title: '📊 วิเคราะห์ข่าวและปัจจัยขับเคลื่อน: ทองคำ (XAU/USD) — 22 กันยายน 2026',
-        desc: 'ราคาทองคำเคลื่อนไหวในกรอบ $4,320 - $4,350 หลังตลาดซึมรับแรงกดดันจากดัชนีดอลลาร์ (DXY) และอัตราผลตอบแทนพันธบัตร ท่ามกลางความตึงเครียดทางภูมิรัฐศาสตร์ที่ยังช่วยพยุงแรงซื้อสินทรัพย์ปลอดภัย',
+        desc: 'ราคาทองคำอ่อนตัวลงมาทดสอบโซน $4,302 หลังถูกแรงกดดันจากการแข็งค่าของดอลลาร์และ Momentum ขาลงในสเกลสั้น ท่ามกลางตลาดยังจับตาดูแนวรับสำคัญช่วง $4,299',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (ทองคำ):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (ทองคำ - XAU/USD)',
         news: [
             {
                 source: 'Trading Economics',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Gold holds above $4,320 support as geopolitical risks persist',
-                reason: 'ราคาทองคำได้รับแรงพยุงจากแรงซื้อสินทรัพย์ปลอดภัย (Safe-Haven) บริเวณแนวรับสำคัญ หลังตลาดยังคงกังวลสถานการณ์ความตึงเครียดต่างประเทศ',
+                sentiment: 'bearish',
+                sentimentText: 'ผลกระทบ: ลบ (Bearish) 🔴',
+                title: 'Gold dips towards $4,300 support on strong USD momentum',
+                reason: 'การปรับตัวแข็งค่าขึ้นมาของดัชนีดอลลาร์สร้างแรงกดดันให้เกิดแรงขายทำกำไรในราคาทองคำลงมาทดสอบจุดต่ำสุดสั้น',
                 url: 'https://tradingeconomics.com/commodity/gold',
                 date: '22 ก.ย. 2026 | Trading Economics'
             },
             {
                 source: 'FXStreet / Financial News',
-                sentiment: 'bearish',
-                sentimentText: 'ผลกระทบ: ลบ (Bearish) 🔴',
-                title: 'Dollar Index stability near 100.30 limits gold upside',
-                reason: 'การแข็งค่าของดอลลาร์สหรัฐฯ และความกังวลว่า Fed อาจตรึงอัตราดอกเบี้ยระดับสูงไว้นานขึ้น สร้างแรงกดดันให้ทองคำถูกขายทำกำไรระยะสั้น',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Gold key support held near $4,299 ahead of Fed rate decision',
+                reason: 'แนวรับสำคัญ $4,299 ยังคงทำงานได้อย่างแข็งแกร่ง มีแรงซื้อสลับกลับเข้ามาพยุงราคาเมื่อเข้าใกล้เขต Oversold',
                 url: 'https://www.fxstreet.com',
                 date: '22 ก.ย. 2026 | FXStreet Report'
             }
@@ -341,7 +355,7 @@ const assetNewsData = {
             ]},
             { cat: '2. บทวิเคราะห์เทคนิคัล & แนวรับแนวต้าน', items: [
                 '<b>FXStreet:</b> <a href="https://www.fxstreet.com" target="_blank">Gold Price Forecast & Technical Levels</a>',
-                '<b>TradingView Ideas:</b> <a href="https://www.tradingview.com/symbols/OANDA-XAUUSD/" target="_blank">Gold Trade Setup Ideas & Volume Profile</a>'
+                '<b>TradingView Ideas:</b> <a href="https://www.tradingview.com/symbols/OANDA-XAUUSD/" target="_blank">Gold Trade Setup Ideas & Fib OTE Analysis</a>'
             ]}
         ]
     },
@@ -363,8 +377,7 @@ const assetNewsData = {
         ],
         sources: [
             { cat: '1. ข้อมูลราคา Realtime & On-Chain', items: [
-                '<b>Binance Data:</b> <a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank">BTC/USDT Spot Realtime</a>',
-                '<b>Coinglass:</b> <a href="https://www.coinglass.com" target="_blank">Bitcoin Liquidation Heatmap & OI</a>'
+                '<b>Binance Data:</b> <a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank">BTC/USDT Spot Realtime</a>'
             ]}
         ]
     },
@@ -441,6 +454,10 @@ function renderH4Zones(symbol) {
     const container = document.getElementById('h4-zones-container');
     
     container.innerHTML = `
+        <div class="h4-zone-card fib">
+            <div class="h4-zone-title">Fibonacci OTE Zone (0.618 - 0.706)</div>
+            <div class="h4-zone-val">${data.fibOteZone}</div>
+        </div>
         <div class="h4-zone-card ob-bull">
             <div class="h4-zone-title">H4 Bullish Order Block (แนวรับหลัก)</div>
             <div class="h4-zone-val">${data.bullishOB}</div>
@@ -511,78 +528,155 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณราคาแบบ Dynamic สลับ BUY / SELL สดตามระดับราคา Real-time
+// 3. ฟังก์ชันคำนวณราคา, Multiple Entries (M1/M5) และ Multiple TP Targets (M15/1H/4H)
 function calculateByTimeframe(price) {
     if (!price || price <= 0) return;
 
     let tfConfig = {
-        '1m':  { pnt: 0.0006, mode: 'Scalping Setup (M1)', desc: 'สเกล M1 กรอบแคบ เก็งกำไรจบในรอบไว' },
-        '5m':  { pnt: 0.0012, mode: 'Scalping Setup (M5)', desc: 'สเกล M5 คัดกรอง Noise สัญญาณกระชับ' },
-        '15m': { pnt: 0.0030, mode: 'Day Trading Setup (M15)', desc: 'สเกล M15 เทรดจบในวันตามกรอบ FVG' },
-        '1h':  { pnt: 0.0080, mode: 'Swing Trade Setup (1H)', desc: 'สเกล 1H อิงแนวรับแนวต้าน VAH/VAL หลัก' },
-        '4h':  { pnt: 0.0180, mode: 'Position Trade Setup (4H)', desc: 'สเกล 4H อิงโครงสร้างใหญ่ประจำสัปดาห์' }
+        '1m':  { pnt: 0.0020, mode: 'Scalping Sideway Setup (M1)', isShort: true },
+        '5m':  { pnt: 0.0035, mode: 'Scalping Sideway Setup (M5)', isShort: true },
+        '15m': { pnt: 0.0060, mode: 'Day Trading Setup (M15)', isShort: false },
+        '1h':  { pnt: 0.0120, mode: 'Swing Trade Setup (1H)', isShort: false },
+        '4h':  { pnt: 0.0250, mode: 'Position Trend Runner (4H)', isShort: false }
     };
 
     let config = tfConfig[currentTimeframe] || tfConfig['1m'];
     let rangePnt = price * config.pnt;
 
-    let vah = price + rangePnt;
-    let val = price - rangePnt;
-    let poc = price - (rangePnt * 0.05);
-    let fvgMid = (vah + val) / 2;
+    let fib100 = price + (rangePnt * 1.5);   // High Range
+    let fib000 = price - (rangePnt * 0.8);   // Low Range
+    let fibRange = fib100 - fib000;
 
-    // จำลอง MACD Real-Time
-    let macdVal = 0.45;
-    let macdSignal = 0.30;
-    let macdHist = macdVal - macdSignal;
+    let fib618 = fib000 + (fibRange * 0.618);
+    let fib706 = fib000 + (fibRange * 0.706);
 
-    // DYNAMIC SIGNAL DECISION LOGIC:
-    // ประมวลผลตำแหน่งราคาเทียบกับกรอบ VAH/VAL และ MACD เพื่อสลับ BUY หรือ SELL อัตโนมัติ
-    let signalType = 'BUY';
-    
-    // เงื่อนไข SELL: ถ้าราคาเข้าใกล้แนวต้าน VAH หรือ FVG High
-    if (price >= (fvgMid + (rangePnt * 0.15))) {
-        signalType = 'SELL';
-    } 
-    // เงื่อนไข BUY: ถ้าราคาถอยลงมาใกล้แนวรับ VAL หรือ FVG Low
-    else {
-        signalType = 'BUY';
+    let macdVal = -23.44;
+    let rsiVal = 37.84;
+
+    const entryBox = document.getElementById('entry-nodes-container');
+    const tpBox = document.getElementById('tp-nodes-container');
+    entryBox.innerHTML = '';
+    tpBox.innerHTML = '';
+
+    if (config.isShort) {
+        // === โหมด M1 / M5: เข้าซื้อ/ขายได้หลายไม้ (Multiple Entries - Sideway Scaling) ===
+        document.getElementById('sig-badge').textContent = 'SIDEWAY / MULTI-ENTRY';
+        document.getElementById('sig-badge').className = 'sig-tag sideway';
+
+        let buyEntry1 = fib000 + (rangePnt * 0.2); // Rebound Higher Low 1
+        let buyEntry2 = fib000;                     // Support Low Test
+        let buyEntry3 = fib000 - (rangePnt * 0.3); // Extreme Dip Buy
+
+        let sellEntry1 = fib618;                    // Rejection High 1
+        let sellEntry2 = fib706;                    // OTE Resistance
+        let sellEntry3 = fib100;                    // Upper Boundary Sell
+
+        entryBox.innerHTML = `
+            <div class="entry-item-row buy-node">
+                <span>🟢 BUY ไม้ 1 (Rebound Higher Low):</span>
+                <span class="entry-val" style="color:var(--up);">$${buyEntry1.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row buy-node">
+                <span>🟢 BUY ไม้ 2 (Support Re-test):</span>
+                <span class="entry-val" style="color:var(--up);">$${buyEntry2.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row buy-node">
+                <span>🟢 BUY ไม้ 3 (Extreme Liquidity Dip):</span>
+                <span class="entry-val" style="color:var(--up);">$${buyEntry3.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row sell-node" style="margin-top:6px;">
+                <span>🔴 SELL ไม้ 1 (Rejection High):</span>
+                <span class="entry-val" style="color:var(--down);">$${sellEntry1.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row sell-node">
+                <span>🔴 SELL ไม้ 2 (Fib OTE Rejection):</span>
+                <span class="entry-val" style="color:var(--down);">$${sellEntry2.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row sell-node">
+                <span>🔴 SELL ไม้ 3 (Range Upper High):</span>
+                <span class="entry-val" style="color:var(--down);">$${sellEntry3.toFixed(2)}</span>
+            </div>
+        `;
+
+        // TP สั้นสำหรับ M1 / M5
+        let scalpTP1 = fib618;
+        let scalpTP2 = fib706;
+        let scalpSL = buyEntry3 - (rangePnt * 0.4);
+
+        tpBox.innerHTML = `
+            <div class="entry-item-row tp-node">
+                <span>🎯 TP 1 (Scalp Profit Lock):</span>
+                <span class="entry-val" style="color:var(--gold2);">$${scalpTP1.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row tp-node">
+                <span>🎯 TP 2 (Upper Range Goal):</span>
+                <span class="entry-val" style="color:var(--gold2);">$${scalpTP2.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row sl-node" style="margin-top:12px;">
+                <span>🛡️ Stop Loss (SL - Grid Invalid):</span>
+                <span class="entry-val" style="color:var(--down);">$${scalpSL.toFixed(2)}</span>
+            </div>
+        `;
+
+        document.getElementById('val-buy-sell-pts').textContent = 'Sideway Multiple Entries (M1/M5)';
+        document.getElementById('lbl-entry-logic').textContent = 'ย่อซื้อเมื่อตั้งตัว Rebound / เด้งขายเมื่อติด Rejection';
+        document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP1: $${scalpTP1.toFixed(2)}</span> | <span style="color:var(--down)">SL: $${scalpSL.toFixed(2)}</span>`;
+
+    } else {
+        // === โหมด M15 / 1H / 4H: รันเทรนด์ยาว + หลายเป้าหมาย (Multi-TP1, TP2, TP3) ===
+        let isSellTrend = macdVal < 0;
+        document.getElementById('sig-badge').textContent = isSellTrend ? 'SELL TREND RUNNER' : 'BUY TREND RUNNER';
+        document.getElementById('sig-badge').className = `sig-tag ${isSellTrend ? 'sell' : 'buy'}`;
+
+        let entryMain = isSellTrend ? fib618 : fib000;
+        let tp1 = isSellTrend ? (entryMain - (rangePnt * 0.8)) : (entryMain + (rangePnt * 0.8));
+        let tp2 = isSellTrend ? (entryMain - (rangePnt * 1.6)) : (entryMain + (rangePnt * 1.6));
+        let tp3 = isSellTrend ? (entryMain - (rangePnt * 2.8)) : (entryMain + (rangePnt * 2.8));
+        let slVal = isSellTrend ? (entryMain + (rangePnt * 0.9)) : (entryMain - (rangePnt * 0.9));
+
+        entryBox.innerHTML = `
+            <div class="entry-item-row ${isSellTrend ? 'sell-node' : 'buy-node'}">
+                <span>📌 จุดเข้าซื้อหลัก (Main Trend Entry):</span>
+                <span class="entry-val" style="color:${isSellTrend ? 'var(--down)' : 'var(--up)'};">$${entryMain.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row ${isSellTrend ? 'sell-node' : 'buy-node'}">
+                <span>📌 จุดเข้าถัวไม้ 2 (Pullback Entry):</span>
+                <span class="entry-val" style="color:${isSellTrend ? 'var(--down)' : 'var(--up)'};">$${(entryMain * (isSellTrend ? 1.002 : 0.998)).toFixed(2)}</span>
+            </div>
+        `;
+
+        tpBox.innerHTML = `
+            <div class="entry-item-row tp-node">
+                <span>🎯 TP 1 (เก็บกำไรไม้แรก - Partial Lock):</span>
+                <span class="entry-val" style="color:var(--gold2);">$${tp1.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row tp-node">
+                <span>🎯 TP 2 (เป้าหมายหลักตามโครงสร้างราคา):</span>
+                <span class="entry-val" style="color:var(--gold2);">$${tp2.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row tp-node">
+                <span>🎯 TP 3 (เป้าหมายรันเทรนด์ระยะยาว - Runner):</span>
+                <span class="entry-val" style="color:var(--gold2);">$${tp3.toFixed(2)}</span>
+            </div>
+            <div class="entry-item-row sl-node" style="margin-top:6px;">
+                <span>🛡️ Stop Loss (SL - Trend Invalid):</span>
+                <span class="entry-val" style="color:var(--down);">$${slVal.toFixed(2)}</span>
+            </div>
+        `;
+
+        document.getElementById('val-buy-sell-pts').textContent = `${isSellTrend ? 'SELL' : 'BUY'} Trend Runner (${currentTimeframe.toUpperCase()})`;
+        document.getElementById('lbl-entry-logic').textContent = 'คำนวณเป้าหมายรันเทรนด์ไกลสอดคล้องกับ Timeframe ใหญ่';
+        document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP1: $${tp1.toFixed(2)} | TP3: $${tp3.toFixed(2)}</span>`;
     }
 
-    let buyEntry = val;
-    let sellEntry = vah;
-    let slDistance = rangePnt * 0.4;
-
-    let activeEntry = signalType === 'BUY' ? buyEntry : sellEntry;
-    let activeSL = signalType === 'BUY' ? (buyEntry - slDistance) : (sellEntry + slDistance);
-    let activeTP = signalType === 'BUY' ? (buyEntry + (slDistance * 1.8)) : (sellEntry - (slDistance * 1.8));
-
-    // แสดงผลบนหน้าจอ UI
+    // แสดงผล UI ทั่วไป
     document.getElementById('val-realtime-price').textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    document.getElementById('val-vah').textContent = vah.toFixed(2);
-    document.getElementById('val-poc').textContent = poc.toFixed(2);
-    document.getElementById('val-val').textContent = val.toFixed(2);
-    document.getElementById('val-fvg-mid').textContent = fvgMid.toFixed(2);
-
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
-    
-    // อัปเดตปุ่มแสดงสถานะ BUY หรือ SELL แบบ Dynamic
-    let badge = document.getElementById('sig-badge');
-    badge.textContent = `${signalType} @ $${activeEntry.toFixed(2)}`;
-    badge.className = `sig-tag ${signalType.toLowerCase()}`;
 
-    let macdColorClass = macdHist >= 0 ? 'positive' : 'negative';
+    let macdColorClass = macdVal >= 0 ? 'positive' : 'negative';
     document.getElementById('val-macd-info').className = `ana-value ${macdColorClass}`;
-    document.getElementById('val-macd-info').textContent = `MACD: ${macdVal >= 0 ? '+' : ''}${macdVal.toFixed(2)} | Hist: ${macdHist >= 0 ? '+' : ''}${macdHist.toFixed(2)}`;
-    document.getElementById('lbl-macd-status').textContent = macdHist >= 0 ? 'Bullish Momentum Alignment' : 'Bearish Momentum Alignment';
-
-    document.getElementById('val-buy-sell-pts').textContent = `BUY @ $${buyEntry.toFixed(2)} | SELL @ $${sellEntry.toFixed(2)}`;
-    document.getElementById('lbl-entry-logic').textContent = config.desc;
-
-    document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP: $${activeTP.toFixed(2)}</span> | <span style="color:var(--down)">SL: $${activeSL.toFixed(2)}</span>`;
-    document.getElementById('lbl-rr-ratio').textContent = `ระยะ TP/SL สอดคล้องกับโครงสร้าง TF ${currentTimeframe.toUpperCase()} (RR 1:1.8)`;
-
-    document.getElementById('ob-recommendation').innerHTML = `<b>แผนการเข้าเทรด (${currentTimeframe.toUpperCase()}):</b> สัญญาณ Dynamic แนะนำ <b>${signalType} @ $${activeEntry.toFixed(2)}</b> โดยตั้งจุดตัดขาดทุน SL ที่ <b>$${activeSL.toFixed(2)}</b> และเป้าหมาย TP ที่ <b>$${activeTP.toFixed(2)}</b>`;
+    document.getElementById('val-macd-info').textContent = `MACD: ${macdVal.toFixed(2)} | RSI: ${rsiVal.toFixed(2)}`;
+    document.getElementById('lbl-macd-status').textContent = 'Bearish Momentum Signal (TradingView Analysis)';
 }
 
 function loadTV(id, src, config){
@@ -621,7 +715,7 @@ function refreshWidget(symbol, tvInterval = '1'){
         interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
 
-    if (symbol.includes('XAUUSD')) livePrice = 4322.22;
+    if (symbol.includes('XAUUSD')) livePrice = 4302.24;
     else if (symbol.includes('BTC')) livePrice = 75885.50;
     else if (symbol.includes('USOIL')) livePrice = 93.57;
     else if (symbol.includes('EURUSD')) livePrice = 1.0850;
