@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Live Multi-Asset Trading Engine, H4 Unmitigated OB/FVG & News Analysis</title>
+    <title>KU TRADER — Live Multi-Asset Trading Engine & Dynamic Signals</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -30,8 +30,17 @@
         .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 98px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
         
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
-        section { margin-bottom: 28px; }
+        section { margin-bottom: 22px; }
         
+        /* Asset Selection Section (ขยับมาไว้ด้านบน) */
+        .asset-select-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; }
+        .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .search-bar { margin-bottom: 12px; }
+        input { flex: 1; min-width: 220px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; color: var(--text); font: 14px inherit; }
+        button { background: var(--gold); color: #1a1406; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
+        .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
+        .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
+
         /* Timeframe Selector Bar */
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
@@ -48,7 +57,7 @@
         .h4-zone-title { font-size: 11.5px; font-weight: 700; color: var(--dim); text-transform: uppercase; }
         .h4-zone-val { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 700; color: var(--text); margin-top: 2px; }
 
-        /* Signal & SR Box */
+        /* Signal & SR Box (Top Calculation Panel) */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
         .sr-header-group { flex: 1; min-width: 280px; }
         .sr-levels-container { display: flex; gap: 14px; flex-wrap: wrap; flex: 1.8; min-width: 320px; }
@@ -67,7 +76,6 @@
         .sig-tag { padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase; text-align: center; }
         .sig-tag.buy { background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
         .sig-tag.sell { background: rgba(226, 87, 76, 0.2); color: var(--down); border: 1px solid var(--down); }
-        .sig-tag.wait { background: rgba(122, 132, 150, 0.2); color: var(--dim); border: 1px solid var(--line); }
 
         /* 3 Core Analytical Cards */
         .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
@@ -79,14 +87,6 @@
         .ana-value.neutral { color: var(--gold2); }
         .ana-desc { font-size: 12px; margin-top: 4px; color: var(--dim); }
 
-        /* Search & Asset Chips */
-        .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .search-bar { margin-bottom: 14px; }
-        input { flex: 1; min-width: 220px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; color: var(--text); font: 14px inherit; }
-        button { background: var(--gold); color: #1a1406; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
-        .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
-        .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
-        
         /* Chart Layout */
         .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
         .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
@@ -95,7 +95,7 @@
         .tv-mount { height: 100%; width: 100%; }
         .side-stack { display: flex; flex-direction: column; gap: 16px; }
 
-        /* News Section Design */
+        /* Multi-Asset News Section Design */
         .macro-summary-card { background: linear-gradient(135deg, var(--panel2), rgba(201, 162, 39, 0.05)); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
         .macro-title { font-size: 15.5px; font-weight: 700; color: var(--gold2); margin-bottom: 6px; }
         .macro-desc { font-size: 13.5px; color: var(--text); line-height: 1.6; }
@@ -121,7 +121,7 @@
         .badge.bearish { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .badge.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
-        /* Bottom Section: Sources Reference Footer */
+        /* Dynamic Bottom Sources Section */
         .bottom-sources-section { margin-top: 35px; padding: 22px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
         .sources-main-title { font-size: 16px; font-weight: 700; color: var(--gold2); margin-bottom: 14px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
         .sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
@@ -140,14 +140,30 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Real-Time Trading Engine, H4 Unmitigated OB/FVG & Asset News</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Multi-Asset Trading Engine, H4 Unmitigated OB/FVG & Asset News</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
         </div>
     </div>
 
-    <!-- Timeframe Selector -->
+    <!-- 1. ส่วนเลือกสินทรัพย์สำหรับวิเคราะห์ (ขยับขึ้นมาไว้ก่อน Timeframe) -->
+    <div class="asset-select-panel">
+        <h2 style="margin-bottom:10px;">เลือกสินทรัพย์สำหรับวิเคราะห์</h2>
+        <div class="search-bar">
+            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น NASDAQ:AAPL, BINANCE:BTCUSDT">
+            <button onclick="handleSearch()">ค้นหา</button>
+        </div>
+        <div class="chip-row" id="chip-row">
+            <span class="chip active" data-symbol="OANDA:XAUUSD" data-label="ทองคำ (XAU/USD)">ทองคำ</span>
+            <span class="chip" data-symbol="BINANCE:BTCUSDT" data-label="บิทคอยน์ (BTC/USDT)">บิทคอยน์</span>
+            <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมันดิบ</span>
+            <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
+            <span class="chip" data-symbol="NASDAQ:QQQ" data-label="NASDAQ 100">NASDAQ</span>
+        </div>
+    </div>
+
+    <!-- 2. ส่วนเลือก Timeframe -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
         <div class="tf-btn-group">
@@ -164,7 +180,7 @@
         <!-- H4 Zones จะอัปเดตอัตโนมัติเมื่อเปลี่ยนสินทรัพย์ -->
     </div>
 
-    <!-- ส่วนคำนวณด้านบน (สเกลตรงตาม Timeframe และสลับ BUY/SELL สดตามราคา) -->
+    <!-- ส่วนคำนวณด้านบน (ปรับ Logic สลับ BUY / SELL แบบ Dynamic) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div style="font-size:13px; color:var(--dim)">โครงสร้างราคาตาม Timeframe (<span class="txt-tf-display" style="color:var(--gold2); font-weight:700;">TF 1M</span>)</div>
@@ -213,22 +229,6 @@
             <div class="ana-desc" id="lbl-rr-ratio">ระยะ TP/SL สอดคล้องกับโครงสร้างและสภาวะตลาด (RR 1:1.8)</div>
         </div>
     </div>
-
-    <!-- Asset Selection Section -->
-    <section>
-        <h2>เลือกสินทรัพย์สำหรับวิเคราะห์</h2>
-        <div class="search-bar">
-            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น NASDAQ:AAPL, BINANCE:BTCUSDT">
-            <button onclick="handleSearch()">ค้นหา</button>
-        </div>
-        <div class="chip-row" id="chip-row">
-            <span class="chip active" data-symbol="OANDA:XAUUSD" data-label="ทองคำ (XAU/USD)">ทองคำ</span>
-            <span class="chip" data-symbol="BINANCE:BTCUSDT" data-label="บิทคอยน์ (BTC/USDT)">บิทคอยน์</span>
-            <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมันดิบ</span>
-            <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
-            <span class="chip" data-symbol="NASDAQ:QQQ" data-label="NASDAQ 100">NASDAQ</span>
-        </div>
-    </section>
 
     <!-- Chart & Technical Widget Section -->
     <section>
@@ -307,7 +307,7 @@ const h4ZonesDatabase = {
     }
 };
 
-// 2. ฐานข้อมูลข่าวแยกตามสินทรัพย์ทุกหมวดหมู่ (Forex, Crypto, Commodities, Equities)
+// 2. ฐานข้อมูลข่าวแยกตามสินทรัพย์
 const assetNewsData = {
     'OANDA:XAUUSD': {
         title: '📊 วิเคราะห์ข่าวและปัจจัยขับเคลื่อน: ทองคำ (XAU/USD) — 22 กันยายน 2026',
@@ -359,15 +359,6 @@ const assetNewsData = {
                 reason: 'การสะสมออเดอร์ในโซน FVG ใหญ่บวกกับสถิติแรงซื้อ On-Chain บ่งชี้ว่า BTC มีลุ้นทดสอบเป้าหมายถัดไป',
                 url: 'https://siamblockchain.com/2026/09/22/the-signals-are-in-analysts-point-to-a-potential-bitcoin-surge-to-90000-if-this-happens/',
                 date: '22 ก.ย. 2026 | Siam Blockchain'
-            },
-            {
-                source: 'Economic Times',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Bitcoin leads risk appetite rally alongside Tech & AI stocks',
-                reason: 'การฟื้นตัวของตลาดหุ้นสายเทคโนโลยีหนุนแรงซื้อกลับในตลาด คริปโทฯ อย่างต่อเนื่อง',
-                url: 'https://m.economictimes.com',
-                date: '22 ก.ย. 2026 | Crypto Market'
             }
         ],
         sources: [
@@ -445,7 +436,6 @@ const assetNewsData = {
     }
 };
 
-// ฟังก์ชัน render แถบ H4 Unmitigated Zones
 function renderH4Zones(symbol) {
     const data = h4ZonesDatabase[symbol] || h4ZonesDatabase['OANDA:XAUUSD'];
     const container = document.getElementById('h4-zones-container');
@@ -466,7 +456,6 @@ function renderH4Zones(symbol) {
     `;
 }
 
-// ฟังก์ชัน render ข่าวประจำสินทรัพย์
 function renderAssetNews(symbol) {
     const data = assetNewsData[symbol] || assetNewsData['OANDA:XAUUSD'];
 
@@ -522,11 +511,10 @@ function renderAssetNews(symbol) {
     });
 }
 
-// ฟังก์ชันคำนวณราคาสเกลตรงตาม Timeframe จริง + สลับ BUY / SELL สด
+// 3. ฟังก์ชันคำนวณราคาแบบ Dynamic สลับ BUY / SELL สดตามระดับราคา Real-time
 function calculateByTimeframe(price) {
     if (!price || price <= 0) return;
 
-    // สเกลกรอบราคาที่กระชับ สมเหตุสมผลตาม Timeframe จริง
     let tfConfig = {
         '1m':  { pnt: 0.0006, mode: 'Scalping Setup (M1)', desc: 'สเกล M1 กรอบแคบ เก็งกำไรจบในรอบไว' },
         '5m':  { pnt: 0.0012, mode: 'Scalping Setup (M5)', desc: 'สเกล M5 คัดกรอง Noise สัญญาณกระชับ' },
@@ -546,23 +534,30 @@ function calculateByTimeframe(price) {
     // จำลอง MACD Real-Time
     let macdVal = 0.45;
     let macdSignal = 0.30;
-    let macdHist = macdVal - macdSignal; // +0.15 (Bullish Momentum)
+    let macdHist = macdVal - macdSignal;
 
-    // ตรวจสอบตำแหน่งราคาปัจจุบันเทียบกับกรอบเพื่อสลับสัญญาณ BUY / SELL สด
+    // DYNAMIC SIGNAL DECISION LOGIC:
+    // ประมวลผลตำแหน่งราคาเทียบกับกรอบ VAH/VAL และ MACD เพื่อสลับ BUY หรือ SELL อัตโนมัติ
+    let signalType = 'BUY';
+    
+    // เงื่อนไข SELL: ถ้าราคาเข้าใกล้แนวต้าน VAH หรือ FVG High
+    if (price >= (fvgMid + (rangePnt * 0.15))) {
+        signalType = 'SELL';
+    } 
+    // เงื่อนไข BUY: ถ้าราคาถอยลงมาใกล้แนวรับ VAL หรือ FVG Low
+    else {
+        signalType = 'BUY';
+    }
+
     let buyEntry = val;
     let sellEntry = vah;
     let slDistance = rangePnt * 0.4;
-
-    let signalType = 'BUY'; // สลับสถานะได้เมื่อราคาเข้าเงื่อนไข
-    if (price >= (fvgMid + (rangePnt * 0.3))) {
-        signalType = 'SELL';
-    }
 
     let activeEntry = signalType === 'BUY' ? buyEntry : sellEntry;
     let activeSL = signalType === 'BUY' ? (buyEntry - slDistance) : (sellEntry + slDistance);
     let activeTP = signalType === 'BUY' ? (buyEntry + (slDistance * 1.8)) : (sellEntry - (slDistance * 1.8));
 
-    // แสดงผลข้อมูลบน UI
+    // แสดงผลบนหน้าจอ UI
     document.getElementById('val-realtime-price').textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('val-vah').textContent = vah.toFixed(2);
     document.getElementById('val-poc').textContent = poc.toFixed(2);
@@ -571,12 +566,15 @@ function calculateByTimeframe(price) {
 
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
     
+    // อัปเดตปุ่มแสดงสถานะ BUY หรือ SELL แบบ Dynamic
     let badge = document.getElementById('sig-badge');
     badge.textContent = `${signalType} @ $${activeEntry.toFixed(2)}`;
     badge.className = `sig-tag ${signalType.toLowerCase()}`;
 
-    document.getElementById('val-macd-info').textContent = `MACD: +${macdVal.toFixed(2)} | Hist: +${macdHist.toFixed(2)}`;
-    document.getElementById('lbl-macd-status').textContent = `Bullish Momentum Alignment`;
+    let macdColorClass = macdHist >= 0 ? 'positive' : 'negative';
+    document.getElementById('val-macd-info').className = `ana-value ${macdColorClass}`;
+    document.getElementById('val-macd-info').textContent = `MACD: ${macdVal >= 0 ? '+' : ''}${macdVal.toFixed(2)} | Hist: ${macdHist >= 0 ? '+' : ''}${macdHist.toFixed(2)}`;
+    document.getElementById('lbl-macd-status').textContent = macdHist >= 0 ? 'Bullish Momentum Alignment' : 'Bearish Momentum Alignment';
 
     document.getElementById('val-buy-sell-pts').textContent = `BUY @ $${buyEntry.toFixed(2)} | SELL @ $${sellEntry.toFixed(2)}`;
     document.getElementById('lbl-entry-logic').textContent = config.desc;
@@ -584,7 +582,7 @@ function calculateByTimeframe(price) {
     document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP: $${activeTP.toFixed(2)}</span> | <span style="color:var(--down)">SL: $${activeSL.toFixed(2)}</span>`;
     document.getElementById('lbl-rr-ratio').textContent = `ระยะ TP/SL สอดคล้องกับโครงสร้าง TF ${currentTimeframe.toUpperCase()} (RR 1:1.8)`;
 
-    document.getElementById('ob-recommendation').innerHTML = `<b>แผนการเข้าเทรด (${currentTimeframe.toUpperCase()}):</b> สถานะปัจจุบันแนะนำ <b>${signalType} @ $${activeEntry.toFixed(2)}</b> โดยตั้งจุดตัดขาดทุน SL ที่ <b>$${activeSL.toFixed(2)}</b> และเป้าหมาย TP ที่ <b>$${activeTP.toFixed(2)}</b>`;
+    document.getElementById('ob-recommendation').innerHTML = `<b>แผนการเข้าเทรด (${currentTimeframe.toUpperCase()}):</b> สัญญาณ Dynamic แนะนำ <b>${signalType} @ $${activeEntry.toFixed(2)}</b> โดยตั้งจุดตัดขาดทุน SL ที่ <b>$${activeSL.toFixed(2)}</b> และเป้าหมาย TP ที่ <b>$${activeTP.toFixed(2)}</b>`;
 }
 
 function loadTV(id, src, config){
@@ -623,7 +621,6 @@ function refreshWidget(symbol, tvInterval = '1'){
         interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
 
-    // กำหนดราคา Real-Time ตั้งต้นตามสินทรัพย์
     if (symbol.includes('XAUUSD')) livePrice = 4322.22;
     else if (symbol.includes('BTC')) livePrice = 75885.50;
     else if (symbol.includes('USOIL')) livePrice = 93.57;
@@ -631,8 +628,8 @@ function refreshWidget(symbol, tvInterval = '1'){
     else if (symbol.includes('QQQ')) livePrice = 480.00;
 
     calculateByTimeframe(livePrice);
-    renderH4Zones(symbol);     // อัปเดต H4 OB & FVG ตามสินทรัพย์
-    renderAssetNews(symbol);   // อัปเดตข่าวประจำสินทรัพย์
+    renderH4Zones(symbol);
+    renderAssetNews(symbol);
 }
 
 function changeTimeframe(tf, tvInterval){
@@ -657,7 +654,6 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// โหลดระบบเริ่มต้น
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
