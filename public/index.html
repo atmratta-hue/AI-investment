@@ -45,7 +45,7 @@
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
-        .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
         /* Fibonacci OTE & H4 Zones Banner */
@@ -68,26 +68,17 @@
         .sig-tag.sideway { background: rgba(201, 162, 39, 0.2); color: var(--gold2); border: 1px solid var(--gold); }
 
         /* Multi-Entry & Multi-TP Grid Layout */
-        .entries-multi-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; margin-bottom: 22px; }
+        .entries-multi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
         .entry-card-box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
         .entry-title { font-size: 14px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .entry-list { display: flex; flex-direction: column; gap: 8px; }
-        .entry-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--panel2); padding: 10px 14px; border-radius: 6px; border-left: 3px solid var(--line); font-size: 13px; }
+        .entry-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--panel2); padding: 9px 14px; border-radius: 6px; border-left: 3px solid var(--line); font-size: 13px; }
         .entry-item-row.buy-node { border-left-color: var(--up); }
         .entry-item-row.sell-node { border-left-color: var(--down); }
-        .entry-item-row.tp-node { border-left-color: var(--gold); }
+        .entry-item-row.tp-buy-node { border-left-color: var(--up); }
+        .entry-item-row.tp-sell-node { border-left-color: var(--down); }
         .entry-item-row.sl-node { border-left-color: var(--down); }
         .entry-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
-
-        /* 3 Core Analytical Cards */
-        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
-        .ana-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
-        .ana-title { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
-        .ana-value { font: 700 16px 'IBM Plex Sans Thai'; letter-spacing: 0.5px; }
-        .ana-value.positive { color: var(--up); }
-        .ana-value.negative { color: var(--down); }
-        .ana-value.neutral { color: var(--gold2); }
-        .ana-desc { font-size: 12px; margin-top: 4px; color: var(--dim); }
 
         /* Chart Layout */
         .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
@@ -141,7 +132,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Multi-Entry Sideway Engine & Dynamic Multi-TP Trend System</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Multi-Entry Sideway Engine & Dynamic Multi-TP System</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -164,78 +155,55 @@
         </div>
     </div>
 
-    <!-- 2. เลือก Timeframe -->
+    <!-- 2. เลือก Timeframe (ปรับแก้ให้มีแค่ M1, M5, M15, H1, H4) -->
     <div class="tf-selector-bar">
-        <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
+        <span class="tf-label">เลือก Timeframe:</span>
         <div class="tf-btn-group">
-            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Multi-Entry)</button>
-            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Multi-Entry)</button>
-            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Multi-TP)</button>
-            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">1H (Multi-TP)</button>
-            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">4H (Trend Runner)</button>
+            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1</button>
+            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5</button>
+            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15</button>
+            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1</button>
+            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4</button>
         </div>
     </div>
 
     <!-- แถบแสดง Fibonacci OTE & H4 Unmitigated Zones -->
     <div class="h4-zones-container" id="h4-zones-container">
-        <!-- จะอัปเดตอัตโนมัติเมื่อเลือกสินทรัพย์ -->
+        <!-- อัปเดตอัตโนมัติเมื่อเลือกสินทรัพย์ -->
     </div>
 
     <!-- ส่วนคำนวณราคา Real-Time Header -->
     <div class="signal-box">
         <div class="sr-header-group">
-            <div style="font-size:13px; color:var(--dim)">โครงสร้างราคาตาม Timeframe (<span class="txt-tf-display" style="color:var(--gold2); font-weight:700;">TF 1M</span>)</div>
+            <div style="font-size:13px; color:var(--dim)">โครงสร้างราคาตาม Timeframe (<span class="txt-tf-display" style="color:var(--gold2); font-weight:700;">TF M1</span>)</div>
             <div style="font-size:24px; font-weight:700; color:var(--gold2); margin-top:4px">
                 ราคา Real-Time: <span id="val-realtime-price">$4,302.24</span>
             </div>
-            <div style="font-size:13px; margin-top:4px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Scalping Sideway Setup (M1 / M5)</div>
+            <div style="font-size:13px; margin-top:4px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Scalping Sideway Setup (M1)</div>
         </div>
-        <div class="sig-tag sideway" id="sig-badge">SIDEWAY / SCALING-IN</div>
+        <div class="sig-tag sideway" id="sig-badge">SIDEWAY / MULTI-ENTRY</div>
     </div>
 
-    <!-- Multi-Entry & Multi-TP System Grid (โซนย้ายใหม่แทนที่ VAH/POC/VAL เดิม) -->
+    <!-- Multi-Entry & Complete Multi-TP System Grid (เพิ่ม TP/SL ทั้งขา BUY และ SELL) -->
     <div class="entries-multi-grid">
         <!-- ฝั่งแสดงจุดเข้าไม้ 1, ไม้ 2, ไม้ 3 (Multiple Entries) -->
         <div class="entry-card-box">
             <div class="entry-title">
                 <span id="box-entry-title">📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)</span>
-                <span style="font-size:11px; color:var(--dim);" id="box-entry-subtitle">M1/M5 Sideway Scaling-In</span>
             </div>
             <div class="entry-list" id="entry-nodes-container">
                 <!-- โหลดจุดเข้าไม้ 1, 2, 3 อัตโนมัติ -->
             </div>
         </div>
 
-        <!-- ฝั่งแสดงเป้าหมายกำไรหลายระดับ (TP1, TP2, TP3 & SL) -->
+        <!-- ฝั่งแสดงเป้าหมายกำไรและจุดตัดขาดทุน (Complete Multi-TP & SL ทั้งขา BUY / SELL) -->
         <div class="entry-card-box">
             <div class="entry-title">
                 <span id="box-tp-title">🎯 เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets)</span>
-                <span style="font-size:11px; color:var(--gold2);" id="box-tp-subtitle">ถือรันเทรนด์ M15, 1H, 4H</span>
             </div>
             <div class="entry-list" id="tp-nodes-container">
-                <!-- โหลด TP1, TP2, TP3 อัตโนมัติ -->
+                <!-- โหลด TP1, TP2, TP3 & SL ของทั้งขา BUY และ SELL อัตโนมัติ -->
             </div>
-        </div>
-    </div>
-
-    <!-- 3 Core Analytical Cards -->
-    <div class="analysis-grid">
-        <div class="ana-card">
-            <div class="ana-title">1. RSI (14) & MACD Momentum</div>
-            <div class="ana-value negative" id="val-macd-info">MACD: -23.44 | RSI: 37.84</div>
-            <div class="ana-desc" id="lbl-macd-status">Strong Bearish Momentum</div>
-        </div>
-        
-        <div class="ana-card">
-            <div class="ana-title">2. กลยุทธ์การเทรด (Trading Mode)</div>
-            <div class="ana-value neutral" id="val-buy-sell-pts">Sideway Grid & Range Trading</div>
-            <div class="ana-desc" id="lbl-entry-logic">แบ่งกระจายไม้เข้าซื้อขายในกรอบ Sideway</div>
-        </div>
-        
-        <div class="ana-card" style="border-left: 3px solid var(--gold);">
-            <div class="ana-title">3. สรุปแผนการทำกำไร (Execution Summary)</div>
-            <div class="ana-value positive" id="val-tp-sl"><span style="color:var(--up)">TP1: $4,307.80</span> | <span style="color:var(--down)">SL: $4,297.50</span></div>
-            <div class="ana-desc" id="lbl-rr-ratio">ทยอยปิดทำกำไรตามเป้า TP1 - TP3</div>
         </div>
     </div>
 
@@ -528,7 +496,7 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณราคา, Multiple Entries (M1/M5) และ Multiple TP Targets (M15/1H/4H)
+// 3. ฟังก์ชันคำนวณราคา, Multiple Entries และ Multiple TP/SL ทั้งขา BUY และ SELL
 function calculateByTimeframe(price) {
     if (!price || price <= 0) return;
 
@@ -536,147 +504,123 @@ function calculateByTimeframe(price) {
         '1m':  { pnt: 0.0020, mode: 'Scalping Sideway Setup (M1)', isShort: true },
         '5m':  { pnt: 0.0035, mode: 'Scalping Sideway Setup (M5)', isShort: true },
         '15m': { pnt: 0.0060, mode: 'Day Trading Setup (M15)', isShort: false },
-        '1h':  { pnt: 0.0120, mode: 'Swing Trade Setup (1H)', isShort: false },
-        '4h':  { pnt: 0.0250, mode: 'Position Trend Runner (4H)', isShort: false }
+        '1h':  { pnt: 0.0120, mode: 'Swing Trade Setup (H1)', isShort: false },
+        '4h':  { pnt: 0.0250, mode: 'Position Trend Runner (H4)', isShort: false }
     };
 
     let config = tfConfig[currentTimeframe] || tfConfig['1m'];
     let rangePnt = price * config.pnt;
 
-    let fib100 = price + (rangePnt * 1.5);   // High Range
-    let fib000 = price - (rangePnt * 0.8);   // Low Range
+    let fib100 = price + (rangePnt * 1.5);   
+    let fib000 = price - (rangePnt * 0.8);   
     let fibRange = fib100 - fib000;
 
     let fib618 = fib000 + (fibRange * 0.618);
     let fib706 = fib000 + (fibRange * 0.706);
-
-    let macdVal = -23.44;
-    let rsiVal = 37.84;
 
     const entryBox = document.getElementById('entry-nodes-container');
     const tpBox = document.getElementById('tp-nodes-container');
     entryBox.innerHTML = '';
     tpBox.innerHTML = '';
 
+    let buyEntry1 = fib000 + (rangePnt * 0.2); 
+    let buyEntry2 = fib000;                     
+    let buyEntry3 = fib000 - (rangePnt * 0.3); 
+
+    let sellEntry1 = fib618;                    
+    let sellEntry2 = fib706;                    
+    let sellEntry3 = fib100;                    
+
+    // คำนวณ TP / SL ฝั่ง BUY
+    let buyTP1 = buyEntry1 + (rangePnt * 0.8);
+    let buyTP2 = buyEntry1 + (rangePnt * 1.5);
+    let buyTP3 = buyEntry1 + (rangePnt * 2.5);
+    let buySL  = buyEntry3 - (rangePnt * 0.5);
+
+    // คำนวณ TP / SL ฝั่ง SELL
+    let sellTP1 = sellEntry1 - (rangePnt * 0.8);
+    let sellTP2 = sellEntry1 - (rangePnt * 1.5);
+    let sellTP3 = sellEntry1 - (rangePnt * 2.5);
+    let sellSL  = sellEntry3 + (rangePnt * 0.5);
+
     if (config.isShort) {
-        // === โหมด M1 / M5: เข้าซื้อ/ขายได้หลายไม้ (Multiple Entries - Sideway Scaling) ===
         document.getElementById('sig-badge').textContent = 'SIDEWAY / MULTI-ENTRY';
         document.getElementById('sig-badge').className = 'sig-tag sideway';
-
-        let buyEntry1 = fib000 + (rangePnt * 0.2); // Rebound Higher Low 1
-        let buyEntry2 = fib000;                     // Support Low Test
-        let buyEntry3 = fib000 - (rangePnt * 0.3); // Extreme Dip Buy
-
-        let sellEntry1 = fib618;                    // Rejection High 1
-        let sellEntry2 = fib706;                    // OTE Resistance
-        let sellEntry3 = fib100;                    // Upper Boundary Sell
-
-        entryBox.innerHTML = `
-            <div class="entry-item-row buy-node">
-                <span>🟢 BUY ไม้ 1 (Rebound Higher Low):</span>
-                <span class="entry-val" style="color:var(--up);">$${buyEntry1.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row buy-node">
-                <span>🟢 BUY ไม้ 2 (Support Re-test):</span>
-                <span class="entry-val" style="color:var(--up);">$${buyEntry2.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row buy-node">
-                <span>🟢 BUY ไม้ 3 (Extreme Liquidity Dip):</span>
-                <span class="entry-val" style="color:var(--up);">$${buyEntry3.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row sell-node" style="margin-top:6px;">
-                <span>🔴 SELL ไม้ 1 (Rejection High):</span>
-                <span class="entry-val" style="color:var(--down);">$${sellEntry1.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row sell-node">
-                <span>🔴 SELL ไม้ 2 (Fib OTE Rejection):</span>
-                <span class="entry-val" style="color:var(--down);">$${sellEntry2.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row sell-node">
-                <span>🔴 SELL ไม้ 3 (Range Upper High):</span>
-                <span class="entry-val" style="color:var(--down);">$${sellEntry3.toFixed(2)}</span>
-            </div>
-        `;
-
-        // TP สั้นสำหรับ M1 / M5
-        let scalpTP1 = fib618;
-        let scalpTP2 = fib706;
-        let scalpSL = buyEntry3 - (rangePnt * 0.4);
-
-        tpBox.innerHTML = `
-            <div class="entry-item-row tp-node">
-                <span>🎯 TP 1 (Scalp Profit Lock):</span>
-                <span class="entry-val" style="color:var(--gold2);">$${scalpTP1.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row tp-node">
-                <span>🎯 TP 2 (Upper Range Goal):</span>
-                <span class="entry-val" style="color:var(--gold2);">$${scalpTP2.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row sl-node" style="margin-top:12px;">
-                <span>🛡️ Stop Loss (SL - Grid Invalid):</span>
-                <span class="entry-val" style="color:var(--down);">$${scalpSL.toFixed(2)}</span>
-            </div>
-        `;
-
-        document.getElementById('val-buy-sell-pts').textContent = 'Sideway Multiple Entries (M1/M5)';
-        document.getElementById('lbl-entry-logic').textContent = 'ย่อซื้อเมื่อตั้งตัว Rebound / เด้งขายเมื่อติด Rejection';
-        document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP1: $${scalpTP1.toFixed(2)}</span> | <span style="color:var(--down)">SL: $${scalpSL.toFixed(2)}</span>`;
-
     } else {
-        // === โหมด M15 / 1H / 4H: รันเทรนด์ยาว + หลายเป้าหมาย (Multi-TP1, TP2, TP3) ===
-        let isSellTrend = macdVal < 0;
-        document.getElementById('sig-badge').textContent = isSellTrend ? 'SELL TREND RUNNER' : 'BUY TREND RUNNER';
-        document.getElementById('sig-badge').className = `sig-tag ${isSellTrend ? 'sell' : 'buy'}`;
-
-        let entryMain = isSellTrend ? fib618 : fib000;
-        let tp1 = isSellTrend ? (entryMain - (rangePnt * 0.8)) : (entryMain + (rangePnt * 0.8));
-        let tp2 = isSellTrend ? (entryMain - (rangePnt * 1.6)) : (entryMain + (rangePnt * 1.6));
-        let tp3 = isSellTrend ? (entryMain - (rangePnt * 2.8)) : (entryMain + (rangePnt * 2.8));
-        let slVal = isSellTrend ? (entryMain + (rangePnt * 0.9)) : (entryMain - (rangePnt * 0.9));
-
-        entryBox.innerHTML = `
-            <div class="entry-item-row ${isSellTrend ? 'sell-node' : 'buy-node'}">
-                <span>📌 จุดเข้าซื้อหลัก (Main Trend Entry):</span>
-                <span class="entry-val" style="color:${isSellTrend ? 'var(--down)' : 'var(--up)'};">$${entryMain.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row ${isSellTrend ? 'sell-node' : 'buy-node'}">
-                <span>📌 จุดเข้าถัวไม้ 2 (Pullback Entry):</span>
-                <span class="entry-val" style="color:${isSellTrend ? 'var(--down)' : 'var(--up)'};">$${(entryMain * (isSellTrend ? 1.002 : 0.998)).toFixed(2)}</span>
-            </div>
-        `;
-
-        tpBox.innerHTML = `
-            <div class="entry-item-row tp-node">
-                <span>🎯 TP 1 (เก็บกำไรไม้แรก - Partial Lock):</span>
-                <span class="entry-val" style="color:var(--gold2);">$${tp1.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row tp-node">
-                <span>🎯 TP 2 (เป้าหมายหลักตามโครงสร้างราคา):</span>
-                <span class="entry-val" style="color:var(--gold2);">$${tp2.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row tp-node">
-                <span>🎯 TP 3 (เป้าหมายรันเทรนด์ระยะยาว - Runner):</span>
-                <span class="entry-val" style="color:var(--gold2);">$${tp3.toFixed(2)}</span>
-            </div>
-            <div class="entry-item-row sl-node" style="margin-top:6px;">
-                <span>🛡️ Stop Loss (SL - Trend Invalid):</span>
-                <span class="entry-val" style="color:var(--down);">$${slVal.toFixed(2)}</span>
-            </div>
-        `;
-
-        document.getElementById('val-buy-sell-pts').textContent = `${isSellTrend ? 'SELL' : 'BUY'} Trend Runner (${currentTimeframe.toUpperCase()})`;
-        document.getElementById('lbl-entry-logic').textContent = 'คำนวณเป้าหมายรันเทรนด์ไกลสอดคล้องกับ Timeframe ใหญ่';
-        document.getElementById('val-tp-sl').innerHTML = `<span style="color:var(--up)">TP1: $${tp1.toFixed(2)} | TP3: $${tp3.toFixed(2)}</span>`;
+        document.getElementById('sig-badge').textContent = 'TREND RUNNER MODE';
+        document.getElementById('sig-badge').className = 'sig-tag buy';
     }
 
-    // แสดงผล UI ทั่วไป
+    // 1. Render ฝั่งจุดเข้า (Entries)
+    entryBox.innerHTML = `
+        <div class="entry-item-row buy-node">
+            <span>🟢 BUY ไม้ 1 (Rebound Higher Low):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyEntry1.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row buy-node">
+            <span>🟢 BUY ไม้ 2 (Support Re-test):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyEntry2.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row buy-node">
+            <span>🟢 BUY ไม้ 3 (Extreme Liquidity Dip):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyEntry3.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row sell-node" style="margin-top:6px;">
+            <span>🔴 SELL ไม้ 1 (Rejection High):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellEntry1.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row sell-node">
+            <span>🔴 SELL ไม้ 2 (Fib OTE Rejection):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellEntry2.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row sell-node">
+            <span>🔴 SELL ไม้ 3 (Range Upper High):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellEntry3.toFixed(2)}</span>
+        </div>
+    `;
+
+    // 2. Render ฝั่งเป้าหมาย TP และ SL ทั้งขา BUY และ SELL
+    tpBox.innerHTML = `
+        <!-- BUY Targets Group -->
+        <div class="entry-item-row tp-buy-node">
+            <span>🎯 BUY TP 1 (Scalp / Quick Lock):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyTP1.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row tp-buy-node">
+            <span>🎯 BUY TP 2 (Structural Goal):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyTP2.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row tp-buy-node">
+            <span>🎯 BUY TP 3 (Trend Extension):</span>
+            <span class="entry-val" style="color:var(--up);">$${buyTP3.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row sl-node" style="margin-bottom:8px;">
+            <span>🛡️ BUY Stop Loss (SL):</span>
+            <span class="entry-val" style="color:var(--down);">$${buySL.toFixed(2)}</span>
+        </div>
+
+        <!-- SELL Targets Group -->
+        <div class="entry-item-row tp-sell-node">
+            <span>🎯 SELL TP 1 (Scalp / Quick Lock):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellTP1.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row tp-sell-node">
+            <span>🎯 SELL TP 2 (Structural Goal):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellTP2.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row tp-sell-node">
+            <span>🎯 SELL TP 3 (Trend Extension):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellTP3.toFixed(2)}</span>
+        </div>
+        <div class="entry-item-row sl-node">
+            <span>🛡️ SELL Stop Loss (SL):</span>
+            <span class="entry-val" style="color:var(--down);">$${sellSL.toFixed(2)}</span>
+        </div>
+    `;
+
+    // แสดงผล UI Header
     document.getElementById('val-realtime-price').textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
-
-    let macdColorClass = macdVal >= 0 ? 'positive' : 'negative';
-    document.getElementById('val-macd-info').className = `ana-value ${macdColorClass}`;
-    document.getElementById('val-macd-info').textContent = `MACD: ${macdVal.toFixed(2)} | RSI: ${rsiVal.toFixed(2)}`;
-    document.getElementById('lbl-macd-status').textContent = 'Bearish Momentum Signal (TradingView Analysis)';
 }
 
 function loadTV(id, src, config){
