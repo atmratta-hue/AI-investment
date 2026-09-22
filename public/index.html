@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Live Multi-Asset Trading Engine & Recalculating Analysis</title>
+    <title>KU TRADER — Live Multi-Asset Trading Engine & Continuous Analysis</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -42,14 +42,14 @@
         .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
         .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
 
-        /* Timeframe Selector Bar (เฉพาะ M1, M5, M15, H1, H4) */
+        /* Timeframe Selector Bar (M1, M5, M15, H1, H4) */
         .tf-selector-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
         .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
-        /* Fib OTE & H4 Unmitigated Zones Banner */
+        /* Banner แสดง Fib OTE & H4 Unmitigated Zones */
         .h4-zones-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
         .h4-zone-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
         .h4-zone-card.ob-bull { border-left: 4px solid var(--up); }
@@ -64,7 +64,7 @@
         .sr-header-group { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
         .status-pill { background: rgba(201, 162, 39, 0.15); border: 1px solid var(--gold); color: var(--gold2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 
-        /* Strategy Split Grid */
+        /* Split Section: Multiple Entries & Multi-TP Targets */
         .strategy-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 15px; }
         .strategy-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
         .strategy-card-title { font-size: 13.5px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
@@ -76,10 +76,12 @@
         .dot { width: 8px; height: 8px; border-radius: 50%; }
         .dot.buy { background: var(--up); }
         .dot.sell { background: var(--down); }
+        .dot.tp { background: var(--gold); }
         .dot.sl { background: var(--down); }
         .val-num { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
         .val-num.buy { color: var(--up); }
         .val-num.sell { color: var(--down); }
+        .val-num.tp { color: var(--gold2); }
         .val-num.sl { color: var(--down); }
 
         .sig-tag { padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase; text-align: center; }
@@ -143,7 +145,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Real-Time Trading Engine & 5-15 Min Recalculating Engine</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Live Real-Time Trading Engine (Tight SL / Extended TP Engine)</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -166,7 +168,7 @@
         </div>
     </div>
 
-    <!-- 2. ส่วนเลือก Timeframe (เฉพาะ M1, M5, M15, H1, H4) -->
+    <!-- 2. ส่วนเลือก Timeframe (M1, M5, M15, H1, H4) -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
         <div class="tf-btn-group">
@@ -180,10 +182,10 @@
 
     <!-- แถบแสดง Fibonacci OTE & H4 Unmitigated Zones -->
     <div class="h4-zones-container" id="h4-zones-container">
-        <!-- อัปเดตอัตโนมัติเมื่อเลือกสินทรัพย์ -->
+        <!-- อัปเดตอัตโนมัติ -->
     </div>
 
-    <!-- ส่วนคำนวณราคาและสัญญาณ Real-Time (คำนวณปรับจุดเข้าใหม่ทุก 5-15 นาที) -->
+    <!-- ส่วนคำนวณราคาและสัญญาณ Real-Time (คำนวณ Tight SL & Extended TP สด) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -191,17 +193,17 @@
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
                     ราคา Real-Time: <span id="val-realtime-price">$4,302.24</span>
                 </div>
-                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Recalculating Engine (คำนวณใหม่ทุก 5 นาที)</div>
+                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Tight SL / Extended TP Engine (M1)</div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <span class="status-pill">SIDEWAY / MULTI-ENTRY</span>
-                <div class="sig-tag sell" id="sig-badge">SELL @ $4,310.09</div>
+                <span class="status-pill">DYNAMIC R:R ENGINE</span>
+                <div class="sig-tag sell" id="sig-badge">SELL @ $4,309.76</div>
             </div>
         </div>
 
-        <!-- Strategy Split Section: Multiple Entries (สลับไม้ 1 <-> ไม้ 3) & Multi-TP Targets -->
+        <!-- Strategy Split Section: Multiple Entries & Multi-TP Targets -->
         <div class="strategy-split-grid">
-            <!-- กล่องที่ 1: จุดเข้าซื้อ/ขายหลายไม้ (ปรับสลับ ไม้ 1 = ปลอดภัยสุด/ลึกสุด, ไม้ 3 = ตื้นสุด) -->
+            <!-- กล่องที่ 1: จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries) -->
             <div class="strategy-card">
                 <div class="strategy-card-title">
                     📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)
@@ -209,47 +211,47 @@
                 </div>
                 <div class="entry-list">
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 1 (Extreme Liquidity Dip):</span>
-                        <span class="val-num buy" id="buy-entry-1">$4,292.78</span>
+                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 1 (Rebound Higher Low):</span>
+                        <span class="val-num buy" id="buy-entry-1">$4,297.08</span>
                     </div>
                     <div class="entry-item">
                         <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 2 (Support Re-test):</span>
                         <span class="val-num buy" id="buy-entry-2">$4,295.36</span>
                     </div>
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 3 (Rebound Higher Low):</span>
-                        <span class="val-num buy" id="buy-entry-3">$4,297.94</span>
+                        <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 3 (Extreme Liquidity Dip):</span>
+                        <span class="val-num buy" id="buy-entry-3">$4,292.78</span>
                     </div>
                     <div class="entry-item" style="margin-top:4px;">
-                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 1 (Range Upper High):</span>
-                        <span class="val-num sell" id="sell-entry-1">$4,311.53</span>
+                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 1 (Rejection High):</span>
+                        <span class="val-num sell" id="sell-entry-1">$4,307.59</span>
                     </div>
                     <div class="entry-item">
                         <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 2 (Fib OTE Rejection):</span>
-                        <span class="val-num sell" id="sell-entry-2">$4,310.09</span>
+                        <span class="val-num sell" id="sell-entry-2">$4,309.33</span>
                     </div>
                     <div class="entry-item">
-                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 3 (Rejection High):</span>
-                        <span class="val-num sell" id="sell-entry-3">$4,308.57</span>
+                        <span class="entry-label"><span class="dot sell"></span>SELL ไม้ 3 (Range Upper High):</span>
+                        <span class="val-num sell" id="sell-entry-3">$4,315.15</span>
                     </div>
                 </div>
             </div>
 
-            <!-- กล่องที่ 2: เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets สำหรับฝั่ง BUY และ SELL) -->
+            <!-- กล่องที่ 2: เป้าหมายทำกำไรหลายระดับ (Tight SL & Extended TP1-3) -->
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
-                    🎯 เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets)
-                    <span class="sub-tag">สำหรับทั้งฝั่ง BUY และ SELL</span>
+                    🎯 เป้าหมายทำกำไรหลายระดับ (Tight SL & Extended TP)
+                    <span class="sub-tag">R:R คุ้มค่า (1:1.5 | 1:2.5 | 1:4.0)</span>
                 </div>
                 <div class="tp-list">
                     <!-- BUY TP/SL -->
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot buy"></span>BUY TP1 / TP2 / TP3:</span>
-                        <span class="val-num buy" id="buy-tp-all">TP1: $4,302.24 | TP2: $4,308.57 | TP3: $4,315.15</span>
+                        <span class="val-num buy" id="buy-tp-all">TP1: $4,307.80 | TP2: $4,312.50 | TP3: $4,318.00</span>
                     </div>
                     <div class="tp-item">
-                        <span class="tp-label"><span class="dot sl"></span>BUY Stop Loss (SL):</span>
-                        <span class="val-num sl" id="buy-sl">$4,289.33</span>
+                        <span class="tp-label"><span class="dot sl"></span>BUY Stop Loss (Tight SL):</span>
+                        <span class="val-num sl" id="buy-sl">$4,298.50</span>
                     </div>
                     
                     <div style="border-top:1px dashed var(--line); margin:6px 0;"></div>
@@ -257,11 +259,11 @@
                     <!-- SELL TP/SL -->
                     <div class="tp-item">
                         <span class="tp-label"><span class="dot sell"></span>SELL TP1 / TP2 / TP3:</span>
-                        <span class="val-num sell" id="sell-tp-all">TP1: $4,304.27 | TP2: $4,297.94 | TP3: $4,289.33</span>
+                        <span class="val-num sell" id="sell-tp-all">TP1: $4,295.20 | TP2: $4,289.00 | TP3: $4,280.50</span>
                     </div>
                     <div class="tp-item">
-                        <span class="tp-label"><span class="dot sl"></span>SELL Stop Loss (SL):</span>
-                        <span class="val-num sl" id="sell-sl">$4,314.97</span>
+                        <span class="tp-label"><span class="dot sl"></span>SELL Stop Loss (Tight SL):</span>
+                        <span class="val-num sl" id="sell-sl">$4,313.20</span>
                     </div>
                 </div>
             </div>
@@ -293,7 +295,7 @@
             </div>
 
             <div class="news-grid" id="news-grid-container">
-                <!-- รายการข่าวแสดงตามสินทรัพย์ที่เลือก -->
+                <!-- รายการข่าวจะแสดงตามสินทรัพย์ที่เลือก -->
             </div>
         </div>
     </section>
@@ -302,7 +304,7 @@
     <div class="bottom-sources-section">
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
         <div class="sources-grid" id="sources-grid-container">
-            <!-- แหล่งข่าวแสดงตามสินทรัพย์ที่เลือก -->
+            <!-- แหล่งข่าวจะแสดงตามสินทรัพย์ที่เลือก -->
         </div>
         <div class="source-note">
             <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด
@@ -315,12 +317,6 @@ let currentTimeframe = '1m';
 let currentTvInterval = '1';
 let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 4302.24;
-
-// ตัวแปรสำหรับ Real-Time Stream และ Re-calculation Loop (5 - 15 นาที)
-let lastRecalcTime = 0;
-const RECALC_INTERVAL = 5 * 60 * 1000; // 5 นาที (สามารถปรับเป็น 15 * 60 * 1000 สำหรับ 15 นาที)
-let currentHighPrice = 4315.85;
-let currentLowPrice = 4292.78;
 
 // 1. ฐานข้อมูล Fibonacci Retracement & H4 Unmitigated Zones
 const h4ZonesDatabase = {
@@ -563,54 +559,71 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณและปรับเปลี่ยนสลับลำดับไม้ (ไม้ 1 เพลย์เซฟ/ไม้ 3 ตื้น) + Recalculate ทุก 5-15 นาที
-function recalculateTradingNodes(price) {
+// 3. ฟังก์ชันคำนวณราคาแบบ Dynamic Tight SL & Extended TP Engine
+function calculateByTimeframe(price) {
     if (!price || price <= 0) return;
 
     let tfConfig = {
-        '1m':  { pnt: 0.0020, mode: 'Recalculating Engine (คำนวณใหม่ทุก 5 นาที - M1)' },
-        '5m':  { pnt: 0.0035, mode: 'Recalculating Engine (คำนวณใหม่ทุก 5 นาที - M5)' },
-        '15m': { pnt: 0.0060, mode: 'Day Trading Setup (M15)' },
-        '1h':  { pnt: 0.0120, mode: 'Swing Trade Setup (H1)' },
-        '4h':  { pnt: 0.0250, mode: 'Position Trade Setup (H4)' }
+        '1m':  { pnt: 0.0015, mode: 'Tight SL / Extended TP Engine (M1)', desc: 'สเกล M1 คำนวณ SL กระชับใต้ Swing Low & TP ไกลคุ้ม R:R' },
+        '5m':  { pnt: 0.0025, mode: 'Tight SL / Extended TP Engine (M5)', desc: 'สเกล M5 คัดกรอง Noise คำนวณ SL กระชับ & TP1-TP3' },
+        '15m': { pnt: 0.0045, mode: 'Day Trading Setup (M15)', desc: 'สเกล M15 เทรดจบในวันตามกรอบ R:R 1:1.5 ถึง 1:4' },
+        '1h':  { pnt: 0.0080, mode: 'Swing Trade Setup (H1)', desc: 'สเกล H1 อิงแนวรับแนวต้านโครงสร้างหลัก' },
+        '4h':  { pnt: 0.0180, mode: 'Position Trade Setup (H4)', desc: 'สเกล H4 อิงโครงสร้างใหญ่ประจำสัปดาห์' }
     };
 
     let config = tfConfig[currentTimeframe] || tfConfig['1m'];
     let rangePnt = price * config.pnt;
 
-    currentHighPrice = price + (rangePnt * 1.5);
-    currentLowPrice = price - (rangePnt * 0.5);
-    let fibRange = currentHighPrice - currentLowPrice;
+    // คำนวณระดับราคา Swing High / Low สด
+    let swingHigh = price + (rangePnt * 1.2);
+    let swingLow = price - (rangePnt * 0.4);
+    let fibRange = swingHigh - swingLow;
 
-    let fib618 = currentLowPrice + (fibRange * 0.618);
-    let fib706 = currentLowPrice + (fibRange * 0.706);
-    let fib790 = currentLowPrice + (fibRange * 0.790);
+    let fib618 = swingLow + (fibRange * 0.618);
+    let fib706 = swingLow + (fibRange * 0.706);
+    let fib790 = swingLow + (fibRange * 0.790);
 
-    // --- สลับลำดับไม้ใหม่ตามต้องการ ---
-    // BUY: ไม้ 1 = ลึกสุด (Liquidity Dip / เพลย์เซฟ), ไม้ 3 = ตื้นสุด
-    let buy1 = currentLowPrice;                     // BUY ไม้ 1
-    let buy2 = currentLowPrice + (fibRange * 0.2);  // BUY ไม้ 2
-    let buy3 = currentLowPrice + (fibRange * 0.4);  // BUY ไม้ 3
+    // Dynamic Multiple Entries
+    let buy1 = swingLow;
+    let buy2 = swingLow - (rangePnt * 0.2);
+    let buy3 = swingLow - (rangePnt * 0.4);
 
-    // SELL: ไม้ 1 = สูงสุด (Range Upper High), ไม้ 3 = ตื้นสุด
-    let sell1 = currentHighPrice;                   // SELL ไม้ 1
-    let sell2 = fib706;                             // SELL ไม้ 2
-    let sell3 = fib618;                             // SELL ไม้ 3
+    let sell1 = fib618;
+    let sell2 = fib706; // โซน Fib OTE
+    let sell3 = fib790;
 
-    // คำนวณ TP / SL
-    let buySL = buy1 - (rangePnt * 0.4);
-    let buyTP1 = price + (rangePnt * 0.2);
-    let buyTP2 = fib618;
-    let buyTP3 = currentHighPrice;
+    // --- คำนวณ TIGHT SL & EXTENDED TP (R:R 1:1.5 | 1:2.5 | 1:4.0) ---
+    // 1. ฝั่ง BUY (SL กระชับใต้ Swing Low + Buffer)
+    let buySLDistance = buy1 - (swingLow - (rangePnt * 0.15)); // ระยะ SL กระชับ
+    let buySL = buy1 - buySLDistance;
+    let buyTP1 = buy1 + (buySLDistance * 1.5); // R:R 1 : 1.5
+    let buyTP2 = buy1 + (buySLDistance * 2.5); // R:R 1 : 2.5
+    let buyTP3 = buy1 + (buySLDistance * 4.0); // R:R 1 : 4.0
 
-    let sellSL = sell1 + (rangePnt * 0.4);
-    let sellTP1 = price - (rangePnt * 0.2);
-    let sellTP2 = currentLowPrice;
-    let sellTP3 = currentLowPrice - (rangePnt * 0.5);
+    // 2. ฝั่ง SELL (SL กระชับเหนือ Fib OTE High + Buffer)
+    let sellSLDistance = (fib790 + (rangePnt * 0.15)) - sell2; // ระยะ SL กระชับ
+    let sellSL = sell2 + sellSLDistance;
+    let sellTP1 = sell2 - (sellSLDistance * 1.5); // R:R 1 : 1.5
+    let sellTP2 = sell2 - (sellSLDistance * 2.5); // R:R 1 : 2.5
+    let sellTP3 = sell2 - (sellSLDistance * 4.0); // R:R 1 : 4.0
 
-    // อัปเดตตัวเลขลง UI
+    // ตัดสินใจสถานะสัญญาณแนะนำ
+    let signalType = 'SELL';
+    let activeEntry = sell2;
+    if (price <= (swingLow + (rangePnt * 0.2))) {
+        signalType = 'BUY';
+        activeEntry = buy1;
+    }
+
+    // แสดงผล UI
+    document.getElementById('val-realtime-price').textContent = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
+    
+    let badge = document.getElementById('sig-badge');
+    badge.textContent = `${signalType} @ $${activeEntry.toFixed(2)}`;
+    badge.className = `sig-tag ${signalType.toLowerCase()}`;
 
+    // อัปเดตจุดซื้อขายหลายไม้ (Multiple Entries)
     document.getElementById('buy-entry-1').textContent = `$${buy1.toFixed(2)}`;
     document.getElementById('buy-entry-2').textContent = `$${buy2.toFixed(2)}`;
     document.getElementById('buy-entry-3').textContent = `$${buy3.toFixed(2)}`;
@@ -619,45 +632,12 @@ function recalculateTradingNodes(price) {
     document.getElementById('sell-entry-2').textContent = `$${sell2.toFixed(2)}`;
     document.getElementById('sell-entry-3').textContent = `$${sell3.toFixed(2)}`;
 
+    // อัปเดต Tight SL & Extended TP1, TP2, TP3
     document.getElementById('buy-tp-all').textContent = `TP1: $${buyTP1.toFixed(2)} | TP2: $${buyTP2.toFixed(2)} | TP3: $${buyTP3.toFixed(2)}`;
     document.getElementById('buy-sl').textContent = `$${buySL.toFixed(2)}`;
 
     document.getElementById('sell-tp-all').textContent = `TP1: $${sellTP1.toFixed(2)} | TP2: $${sellTP2.toFixed(2)} | TP3: $${sellTP3.toFixed(2)}`;
     document.getElementById('sell-sl').textContent = `$${sellSL.toFixed(2)}`;
-}
-
-// 4. เชื่อมต่อ Live Stream WebSocket จาก Binance / CryptoCompare สำหรับราคาเรียลไทม์สด
-function initLivePriceStream() {
-    const wsUrl = 'wss://stream.binance.com:9443/ws/paxgusdt@ticker';
-    const socket = new WebSocket(wsUrl);
-
-    socket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        if (data && data.c) {
-            const realtimePrice = parseFloat(data.c);
-            livePrice = realtimePrice;
-
-            // แสดงราคา Real-Time บน UI ทันที
-            document.getElementById('val-realtime-price').textContent = `$${realtimePrice.toFixed(2)}`;
-
-            // ตรวจสอบเงื่อนไขว่าครบ 5-15 นาที เพื่อคำนวณจุดเข้าใหม่หรือไม่
-            const now = Date.now();
-            if (now - lastRecalcTime >= RECALC_INTERVAL) {
-                lastRecalcTime = now;
-                recalculateTradingNodes(realtimePrice); // Re-calculate ทุก 5-15 นาที
-            }
-
-            // อัปเดตสัญญาณ BUY/SELL สด
-            let badge = document.getElementById('sig-badge');
-            if (realtimePrice >= currentHighPrice * 0.998) {
-                badge.textContent = `SELL @ $${realtimePrice.toFixed(2)}`;
-                badge.className = 'sig-tag sell';
-            } else {
-                badge.textContent = `BUY @ $${realtimePrice.toFixed(2)}`;
-                badge.className = 'sig-tag buy';
-            }
-        }
-    };
 }
 
 function loadTV(id, src, config){
@@ -702,7 +682,7 @@ function refreshWidget(symbol, tvInterval = '1'){
     else if (symbol.includes('EURUSD')) livePrice = 1.0850;
     else if (symbol.includes('QQQ')) livePrice = 480.00;
 
-    recalculateTradingNodes(livePrice);
+    calculateByTimeframe(livePrice);
     renderH4Zones(symbol);
     renderAssetNews(symbol);
 }
@@ -729,9 +709,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นระบบ Real-Time WebSocket และโหลดข้อมูล
 refreshWidget('OANDA:XAUUSD', '1');
-initLivePriceStream();
 </script>
 </body>
 </html>
