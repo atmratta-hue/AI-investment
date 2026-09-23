@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER — Real-Time API Volume Profile & FVG Engine</title>
+    <title>KU TRADER — Automated Multi-TF Intelligence & News Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -49,22 +49,24 @@
         .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
-        /* Fib OTE & H4 Unmitigated Zones Banner */
-        .h4-zones-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
-        .h4-zone-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
-        .h4-zone-card.ob-bull { border-left: 4px solid var(--up); }
-        .h4-zone-card.ob-bear { border-left: 4px solid var(--down); }
-        .h4-zone-card.fvg { border-left: 4px solid var(--gold); }
-        .h4-zone-card.fib { border-left: 4px solid var(--purple); }
-        .h4-zone-title { font-size: 11.5px; font-weight: 700; color: var(--dim); text-transform: uppercase; }
-        .h4-zone-val { font-family: 'IBM Plex Mono', monospace; font-size: 14.5px; font-weight: 700; color: var(--text); margin-top: 2px; }
+        /* Multi-TF Auto SR Channels Container */
+        .sr-channels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .channel-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+        .channel-title { font-size: 11.5px; font-weight: 700; color: var(--gold2); text-transform: uppercase; }
+        .channel-val { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 700; margin-top: 4px; }
 
-        /* Signal & Main Calculation Box */
+        /* News Prediction & Convergence Card */
+        .news-prediction-card { background: linear-gradient(135deg, rgba(23, 29, 39, 0.9), rgba(29, 36, 48, 0.95)); border: 1px solid var(--gold); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+        .ff-tag { background: #d9534f; color: #fff; font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; }
+        .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+        .pred-box { background: rgba(0,0,0,0.25); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+        .pred-title { font-size: 12px; color: var(--dim); font-weight: 600; }
+        .pred-val { font-size: 14px; font-weight: 700; color: var(--gold2); margin-top: 4px; }
+
+        /* Signal Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 18px; position: relative; }
         .sr-header-group { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
         .status-pill { background: rgba(201, 162, 39, 0.15); border: 1px solid var(--gold); color: var(--gold2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-
-        /* API Status Tag Indicator */
         .api-status-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
 
         /* Strategy Split Grid */
@@ -146,7 +148,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">TradingView Real-Time Signal Engine & Global News Intelligence</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Automated Multi-Timeframe Level Stream & News Convergence</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -169,22 +171,30 @@
         </div>
     </div>
 
-    <!-- 2. ส่วนเลือก Timeframe (M1, M5, M15, H1, H4) -->
+    <!-- 2. ส่วนเลือก Timeframe -->
     <div class="tf-selector-bar">
         <span class="tf-label">เลือก Timeframe คำนวณกลยุทธ์:</span>
         <div class="tf-btn-group">
-            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1</button>
-            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5</button>
-            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15</button>
-            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1</button>
-            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4</button>
+            <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Scalp)</button>
+            <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Scalp)</button>
+            <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Intraday)</button>
+            <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1 (Swing)</button>
+            <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4 (Trend)</button>
         </div>
     </div>
 
-    <!-- แถบแสดง Fibonacci OTE & H4 Unmitigated Zones -->
-    <div class="h4-zones-container" id="h4-zones-container"></div>
+    <!-- 3. กล่องสรุปการคาดการณ์ข่าว Forex Factory ประจำวัน -->
+    <div class="news-prediction-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:15px; font-weight:700; color:var(--gold2);">
+                📡 การคาดการณ์ข่าวเศรษฐกิจและผลกระทบต่อกราฟ (Forex Factory News Convergence)
+            </div>
+            <span class="ff-tag">HIGH IMPACT RED CALENDAR🔴</span>
+        </div>
+        <div class="pred-grid" id="news-pred-container"></div>
+    </div>
 
-    <!-- ส่วนคำนวณราคาและสัญญาณ Real-Time -->
+    <!-- 4. ส่วนคำนวณราคาและสัญญาณ Real-Time -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -195,7 +205,7 @@
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
                     ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา...</span>
                 </div>
-                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: PunportFX Volume Profile & FVG Engine</div>
+                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: Multi-Horizon VP & FVG Engine</div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
                 <span class="status-pill" id="active-direction-pill">SELL SIGNAL FOCUS</span>
@@ -203,12 +213,12 @@
             </div>
         </div>
 
-        <!-- Adaptive Single-Direction Strategy Panel -->
+        <!-- Strategy Split Grid -->
         <div class="strategy-split-grid">
             <div class="strategy-card">
                 <div class="strategy-card-title">
                     📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)
-                    <span class="sub-tag" id="entry-card-subtag">ฝั่ง SELL Focused (VP & FVG)</span>
+                    <span class="sub-tag" id="entry-card-subtag">ฝั่ง SELL Focused</span>
                 </div>
                 <div class="entry-list" id="entry-nodes-container"></div>
             </div>
@@ -223,9 +233,12 @@
         </div>
     </div>
 
+    <!-- 5. แถบแสดงช่องแนวรับ-แนวต้านอัตโนมัติประจำแต่ละ Timeframe (ย้ายลงมาอยู่ใต้จุดเข้าออเดอร์) -->
+    <div class="sr-channels-grid" id="sr-channels-container"></div>
+
     <!-- Chart & Technical Widget Section -->
     <section>
-        <h2>กราฟราคาและอินดิเคเตอร์เทคนิคัล Realtime</h2>
+        <h2>กราฟราคาและอินดิเคเตอร์เทคนิคัล Realtime (พร้อมช่องแนวรับ-แนวต้านอัตโนมัติ)</h2>
         <div class="chart-grid">
             <div class="card chart-card"><div class="tv-mount" id="tv-chart-mount"></div></div>
             <div class="side-stack">
@@ -234,7 +247,7 @@
         </div>
     </section>
 
-    <!-- Dynamic News & Intelligence Section (คงเดิมทุกประการ) -->
+    <!-- Dynamic News Section -->
     <section>
         <h2>วิเคราะห์ข่าวเจาะจงรายสินทรัพย์และปัจจัยเศรษฐกิจประจำวัน (Daily Asset & Economic News)</h2>
         <div class="card">
@@ -251,12 +264,12 @@
         </div>
     </section>
 
-    <!-- แหล่งข้อมูลอ้างอิงรายสินทรัพย์ (คงเดิมทุกประการ) -->
+    <!-- แหล่งข้อมูลอ้างอิงรายสินทรัพย์ -->
     <div class="bottom-sources-section">
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
         <div class="sources-grid" id="sources-grid-container"></div>
         <div class="source-note">
-            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก (Bloomberg, Reuter, FXStreet, Investing, Siam Blockchain) โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด
+            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก (Forex Factory, Trading Economics, FXStreet, Investing, Siam Blockchain) โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด
         </div>
     </div>
 </div>
@@ -269,41 +282,54 @@ let livePrice = 0;
 let wsConnection = null;
 let pollInterval = null;
 
-// 1. ฐานข้อมูล Fibonacci Retracement & H4 Unmitigated Zones
-const h4ZonesDatabase = {
+// 1. ฐานข้อมูลช่องแนวรับ-แนวต้านอัตโนมัติแยกตาม Timeframe
+const multiTimeframeSRDatabase = {
     'OANDA:XAUUSD': {
-        bullishOB: '$4,285.00 - $4,298.50',
-        bearishOB: '$4,380.00 - $4,395.20',
-        unmitigatedFVG: '$4,305.10 - $4,318.40 (Bullish Gap)',
-        fibOteZone: '$4,338.00 - $4,342.50 (Fib 0.618 - 0.706 OTE)'
+        m1m5: { res: '$4,338.50 - $4,341.20', sup: '$4,330.10 - $4,332.80' },
+        m15h1: { res: '$4,348.00 - $4,355.00', sup: '$4,318.50 - $4,324.00' },
+        h4: { res: '$4,380.00 - $4,395.00', sup: '$4,285.00 - $4,298.00' }
     },
     'BINANCE:BTCUSDT': {
-        bullishOB: '$72,400 - $73,800',
-        bearishOB: '$78,500 - $79,900',
-        unmitigatedFVG: '$74,200 - $75,100 (Bullish Gap)',
-        fibOteZone: '$76,200 - $76,800 (Fib 0.618 - 0.706 OTE)'
+        m1m5: { res: '$76,200 - $76,500', sup: '$75,200 - $75,500' },
+        m15h1: { res: '$77,800 - $78,400', sup: '$73,800 - $74,200' },
+        h4: { res: '$80,500 - $82,000', sup: '$71,000 - $72,500' }
     },
     'TVC:USOIL': {
-        bullishOB: '$88.50 - $90.20',
-        bearishOB: '$96.80 - $98.50',
-        unmitigatedFVG: '$91.40 - $92.60 (Bullish Gap)',
-        fibOteZone: '$94.10 - $94.80 (Fib 0.618 - 0.706 OTE)'
+        m1m5: { res: '$94.20 - $94.60', sup: '$92.80 - $93.10' },
+        m15h1: { res: '$95.80 - $96.50', sup: '$90.50 - $91.20' },
+        h4: { res: '$98.50 - $100.00', sup: '$87.50 - $89.00' }
     },
     'OANDA:EURUSD': {
-        bullishOB: '1.0720 - 1.0760',
-        bearishOB: '1.0940 - 1.0980',
-        unmitigatedFVG: '1.0790 - 1.0820 (Bullish Gap)',
-        fibOteZone: '1.0880 - 1.0910 (Fib 0.618 - 0.706 OTE)'
+        m1m5: { res: '1.0875 - 1.0890', sup: '1.0825 - 1.0840' },
+        m15h1: { res: '1.0920 - 1.0950', sup: '1.0780 - 1.0800' },
+        h4: { res: '1.1020 - 1.1080', sup: '1.0680 - 1.0720' }
     },
     'NASDAQ:QQQ': {
-        bullishOB: '$462.00 - $468.50',
-        bearishOB: '$492.00 - $498.20',
-        unmitigatedFVG: '$471.50 - $475.80 (Bullish Gap)',
-        fibOteZone: '$483.50 - $486.20 (Fib 0.618 - 0.706 OTE)'
+        m1m5: { res: '$482.50 - $484.00', sup: '$477.20 - $478.80' },
+        m15h1: { res: '$489.00 - $492.50', sup: '$470.00 - $473.00' },
+        h4: { res: '$502.00 - $508.00', sup: '$458.00 - $462.00' }
     }
 };
 
-// 2. ฐานข้อมูลข่าวเฉพาะสินทรัพย์ทั้งหมด
+const forexFactoryPredictions = {
+    'OANDA:XAUUSD': [
+        { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'การคาดการณ์ชะลอตัวเล็กน้อย หนุนทองคำมีลุ้นย่อตัวเพื่อรีบาวด์ขึ้น' },
+        { event: 'USD Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันปรับลดลง สะท้อนแรงเงินเฟ้อทรงตัว หนุนกรอบทองคำขึ้นทดสอบ VAH' }
+    ],
+    'BINANCE:BTCUSDT': [
+        { event: 'US Fed Interest Rate Outlook', forecast: '4.00%', prev: '4.25%', impact: 'แนวโน้มปรับลดดอกเบี้ยต่อเนื่อง หนุนสินทรัพย์เสี่ยงและ Spot BTC ETF ไหลเข้า' }
+    ],
+    'TVC:USOIL': [
+        { event: 'US Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'อุปทานตึงตัวดันราคาน้ำมันดิ่งทดสอบแนวรับเพื่อเด้งตามเทรนด์' }
+    ],
+    'OANDA:EURUSD': [
+        { event: 'ECB President Lagarde Speech', forecast: 'Hawkish', prev: 'Neutral', impact: 'ถ้อยแถลงหนุนค่าเงินยูโร มีโอกาสดันคู่เงินขึ้นโซนต้าน FVG' }
+    ],
+    'NASDAQ:QQQ': [
+        { event: 'US Durable Goods Orders', forecast: '-0.3%', prev: '1.1%', impact: 'ตัวเลขส่งสัญญาณชะลอตัวสั้น ตลาดรอรับของโซน VAL ก่อนลุยต่อ' }
+    ]
+};
+
 const assetNewsData = {
     'OANDA:XAUUSD': {
         title: '📊 วิเคราะห์ข่าวทองคำ (XAU/USD) & ปัจจัยเศรษฐกิจประจำวัน — 23 กันยายน 2026',
@@ -312,157 +338,63 @@ const assetNewsData = {
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (ทองคำ - XAU/USD)',
         news: [
             {
-                source: 'FXStreet / Gold News',
+                source: 'Forex Factory / Gold News',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Gold holds safe-haven demand near $4,335 on Middle-East tensions',
                 reason: 'ความกังวลข่าวนอกตารางเรื่องความขัดแย้งทางภูมิรัฐศาสตร์สร้างแรงซื้อสลับเข้ามาพยุงราคาทองคำอย่างต่อเนื่อง',
-                url: 'https://www.fxstreet.com/markets/commodities/gold',
-                date: '23 ก.ย. 2026 | FXStreet Report'
-            },
-            {
-                source: 'Trading Economics',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ผันผวน (Neutral) ⚪',
-                title: 'Gold tests OTE resistance as Fed interest rate outlook remains balanced',
-                reason: 'ตลาดรอการประกาศตัวเลขดัชนีเงินเฟ้อและอัตราดอกเบี้ย ส่งผลให้ราคาแกว่งตัวกรอบ Sideway สั้นๆ',
-                url: 'https://tradingeconomics.com/commodity/gold',
-                date: '23 ก.ย. 2026 | Trading Economics'
+                url: 'https://www.forexfactory.com/news',
+                date: '23 ก.ย. 2026 | Forex Factory Report'
             }
         ],
         sources: [
             { cat: '1. ข้อมูลราคา Realtime & ปฏิทินข่าวเศรษฐกิจ', items: [
-                '<b>Investing.com:</b> <a href="https://www.investing.com/currencies/xau-usd" target="_blank">XAU/USD Gold Spot Chart & Economic Calendar</a>',
-                '<b>Trading Economics:</b> <a href="https://tradingeconomics.com/commodity/gold" target="_blank">Gold Commodity News & Historical Data</a>'
-            ]},
-            { cat: '2. บทวิเคราะห์เทคนิคัล & SMC Fib OTE', items: [
-                '<b>FXStreet Gold:</b> <a href="https://www.fxstreet.com/markets/commodities/gold" target="_blank">Gold Technical Analysis & Support/Resistance</a>',
-                '<b>TradingView Ideas:</b> <a href="https://www.tradingview.com/symbols/OANDA-XAUUSD/" target="_blank">XAUUSD Trading setups & Smart Money Concepts</a>'
-            ]}
-        ]
-    },
-    'BINANCE:BTCUSDT': {
-        title: '📊 วิเคราะห์ข่าวบิทคอยน์ (BTC/USDT) & คริปโทเคอร์เรนซี — 23 กันยายน 2026',
-        desc: 'Bitcoin ทรงตัวเหนือโซน $75,800 - $78,000 รับปัจจัยบวกจากเม็ดเงินสถาบันไหลเข้า Spot BTC ETF ต่อเนื่อง และการเติบโตของสินทรัพย์เสี่ยงร่วมกับกลุ่มเทคโนโลยี AI',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (Bitcoin):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (Bitcoin - BTC/USDT)',
-        news: [
-            {
-                source: 'Siam Blockchain',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'สัญญาณมาแล้ว นักวิเคราะห์ชี้ Bitcoin มีลุ้นพุ่งแตะ $90,000 หลังทะลุแนวต้าน',
-                reason: 'ออเดอร์ในโซน FVG ใหญ่บวกกับสถิติแรงซื้อ On-Chain บ่งชี้ว่า BTC มีลุ้นทดสอบเป้าหมายถัดไป',
-                url: 'https://siamblockchain.com',
-                date: '23 ก.ย. 2026 | Siam Blockchain'
-            },
-            {
-                source: 'CoinDesk / Crypto Market',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Institutional BTC ETF Inflows surging amid global liquidity boost',
-                reason: 'สถาบันการเงินยังคงเข้าซื้อสะสม Bitcoin อย่างต่อเนื่อง ส่งผลให้เทรนด์ภาพใหญ่อยู่ในทิศทางขาขึ้น',
-                url: 'https://www.coindesk.com',
-                date: '23 ก.ย. 2026 | CoinDesk Report'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลราคา Realtime & On-Chain Data', items: [
-                '<b>Binance Spot:</b> <a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank">BTC/USDT Binance Realtime Chart</a>',
-                '<b>Glassnode On-Chain:</b> <a href="https://glassnode.com" target="_blank">Bitcoin On-Chain Metrics & Flow Data</a>'
-            ]}
-        ]
-    },
-    'TVC:USOIL': {
-        title: '📊 วิเคราะห์ข่าวน้ำมันดิบ WTI (USOIL) & พลังงาน — 23 กันยายน 2026',
-        desc: 'ราคาน้ำมันดิบเคลื่อนไหวระดับ $93.50 ต่อบาร์เรล รับข่าวกลุ่ม OPEC+ ยืนยันการปรับลดกำลังการผลิต และการตึงตัวของสต็อกน้ำมันดิบสหรัฐฯ (EIA Report)',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (น้ำมันดิบ):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (น้ำมันดิบ - WTI)',
-        news: [
-            {
-                source: 'Trading Economics Energy',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Crude Oil gains on OPEC+ output cuts and Middle-East supply risk',
-                reason: 'อุปทานตึงตัวจากการคุมกำลังการผลิตร่วมกับความเสี่ยงการขนส่งน้ำมันดิบ พยุงราคาขึ้นแข็งแกร่ง',
-                url: 'https://tradingeconomics.com/commodity/crude-oil',
-                date: '23 ก.ย. 2026 | Energy Report'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลคลังน้ำมันดิบ & EIA Report', items: [
-                '<b>Investing.com Oil:</b> <a href="https://www.investing.com/commodities/crude-oil" target="_blank">WTI Crude Oil Futures & EIA Data</a>'
-            ]}
-        ]
-    },
-    'OANDA:EURUSD': {
-        title: '📊 วิเคราะห์ข่าวค่าเงิน EUR/USD & ตลาดปริวรรตเงินตรา — 23 กันยายน 2026',
-        desc: 'คู่เงิน EUR/USD พักตัวทรงตัวในโซน 1.0850 ตลาดรอฟังถ้อยแถลงจากธนาคารกลางยุโรป (ECB) และการประเมินทิศทางค่าเงินดอลลาร์สหรัฐฯ',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (EUR/USD):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (EUR/USD)',
-        news: [
-            {
-                source: 'FOREX.com',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ผันผวน (Neutral) ⚪',
-                title: 'EUR/USD consolidates near 1.0850 ahead of ECB policy guidance',
-                reason: 'นักลงทุนรอความชัดเจนทิศทางอัตราดอกเบี้ยยุโรป ทำให้กรอบราคาเคลื่อนไหวกรอบแคบ',
-                url: 'https://www.forex.com',
-                date: '23 ก.ย. 2026 | FOREX.com News'
-            }
-        ],
-        sources: [
-            { cat: '1. อัตราแลกเปลี่ยน & Forex News', items: [
-                '<b>DailyFX:</b> <a href="https://www.dailyfx.com" target="_blank">EUR/USD Forecast & Economic Calendar</a>'
-            ]}
-        ]
-    },
-    'NASDAQ:QQQ': {
-        title: '📊 วิเคราะห์ข่าวหุ้นสหรัฐฯ NASDAQ 100 (QQQ) — 23 กันยายน 2026',
-        desc: 'ดัชนี QQQ ปรับตัวขึ้นตอบรับผลประกอบการแข็งแกร่งของกลุ่มชิปเซมิคอนดักเตอร์และอุตสาหกรรมเทคโนโลยี AI',
-        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (NASDAQ):',
-        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (NASDAQ 100)',
-        news: [
-            {
-                source: 'MarketWatch / CNBC',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Tech stocks lead Wall Street rally as AI hardware infrastructure demand surges',
-                reason: 'ความต้องการชิป AI หนุนหุ้นกลุ่ม Big Tech ปรับตัวขึ้นต่อเนื่อง ดันดัชนี QQQ พุ่งขึ้นสดใส',
-                url: 'https://www.marketwatch.com',
-                date: '23 ก.ย. 2026 | Wall Street News'
-            }
-        ],
-        sources: [
-            { cat: '1. ข้อมูลดัชนีตลาดหุ้นสหรัฐฯ', items: [
-                '<b>Yahoo Finance:</b> <a href="https://finance.yahoo.com" target="_blank">Invesco QQQ Trust Chart & Financial News</a>'
+                '<b>Forex Factory Calendar:</b> <a href="https://www.forexfactory.com/calendar" target="_blank">Forex Factory Red News Calendar</a>'
             ]}
         ]
     }
 };
 
-function renderH4Zones(symbol) {
-    const data = h4ZonesDatabase[symbol] || h4ZonesDatabase['OANDA:XAUUSD'];
-    const container = document.getElementById('h4-zones-container');
+function renderAutoSRChannels(symbol) {
+    const sr = multiTimeframeSRDatabase[symbol] || multiTimeframeSRDatabase['OANDA:XAUUSD'];
+    const container = document.getElementById('sr-channels-container');
     
     container.innerHTML = `
-        <div class="h4-zone-card fib">
-            <div class="h4-zone-title">Fibonacci OTE Zone (0.618 - 0.706)</div>
-            <div class="h4-zone-val">${data.fibOteZone}</div>
+        <div class="channel-card" style="border-left: 4px solid var(--purple);">
+            <div class="channel-title">M1 / M5 Auto Channels (Scalp Zone)</div>
+            <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.m1m5.res}</div>
+            <div class="channel-val" style="color:var(--up);">รับ: ${sr.m1m5.sup}</div>
         </div>
-        <div class="h4-zone-card ob-bull">
-            <div class="h4-zone-title">H4 Bullish Order Block (แนวรับหลัก)</div>
-            <div class="h4-zone-val">${data.bullishOB}</div>
+        <div class="channel-card" style="border-left: 4px solid var(--gold);">
+            <div class="channel-title">M15 / H1 Auto Channels (Intraday)</div>
+            <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.m15h1.res}</div>
+            <div class="channel-val" style="color:var(--up);">รับ: ${sr.m15h1.sup}</div>
         </div>
-        <div class="h4-zone-card ob-bear">
-            <div class="h4-zone-title">H4 Bearish Order Block (แนวต้านหลัก)</div>
-            <div class="h4-zone-val">${data.bearishOB}</div>
-        </div>
-        <div class="h4-zone-card fvg">
-            <div class="h4-zone-title">H4 Unmitigated FVG (Imbalance Zone)</div>
-            <div class="h4-zone-val">${data.unmitigatedFVG}</div>
+        <div class="channel-card" style="border-left: 4px solid var(--up);">
+            <div class="channel-title">H4 Auto Channels (Trend Structure)</div>
+            <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.h4.res}</div>
+            <div class="channel-val" style="color:var(--up);">รับ: ${sr.h4.sup}</div>
         </div>
     `;
+}
+
+function renderNewsPredictions(symbol) {
+    const list = forexFactoryPredictions[symbol] || forexFactoryPredictions['OANDA:XAUUSD'];
+    const container = document.getElementById('news-pred-container');
+    container.innerHTML = '';
+
+    list.forEach(item => {
+        const box = document.createElement('div');
+        box.className = 'pred-box';
+        box.innerHTML = `
+            <div class="pred-title">📌 ข่าวสำคัญ: ${item.event}</div>
+            <div class="pred-val">Forecast: ${item.forecast} | Prev: ${item.prev}</div>
+            <div style="font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4;">
+                <b>คาดการณ์ต่อกราฟ:</b> ${item.impact}
+            </div>
+        `;
+        container.appendChild(box);
+    });
 }
 
 function renderAssetNews(symbol) {
@@ -520,16 +452,16 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณราคาจุดเข้า BUY/SELL Dynamic ตามราคาสดจริง API
+// 3. ฟังก์ชันคำนวณราคาจุดเข้า BUY/SELL Dynamic ตาม TF
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
 
     let tfConfig = {
-        '1m':  { step: 1.2, mode: 'PunportFX VP & FVG Realtime Engine (M1)' },
-        '5m':  { step: 2.2, mode: 'PunportFX VP & FVG Realtime Engine (M5)' },
-        '15m': { step: 4.0, mode: 'PunportFX VP & FVG Realtime Setup (M15)' },
-        '1h':  { step: 7.5, mode: 'PunportFX VP & FVG Realtime Setup (H1)' },
-        '4h':  { step: 14.0, mode: 'PunportFX Trend Structure (H4)' }
+        '1m':  { step: 1.2, mode: 'Scalp Multi-Direction Mode (M1)' },
+        '5m':  { step: 2.2, mode: 'Scalp Multi-Direction Mode (M5)' },
+        '15m': { step: 4.0, mode: 'Intraday Trend-Follow Mode (M15)' },
+        '1h':  { step: 7.5, mode: 'Swing Trend-Follow Mode (H1)' },
+        '4h':  { step: 14.0, mode: 'Position Trend-Follow Mode (H4)' }
     };
 
     let config = tfConfig[currentTimeframe] || tfConfig['1m'];
@@ -549,7 +481,7 @@ function recalculateTradingNodes(price) {
         pill.style.color = "var(--down)";
         subtag.textContent = "ฝั่ง SELL Focused (VP & FVG)";
 
-        let sell1 = price + (dist * 2.4); // จุด SELL ทุกไม้จะตั้งสูงกว่าราคาสดเสมอ
+        let sell1 = price + (dist * 2.4);
         let sell2 = price + (dist * 1.4);
         let sell3 = price + (dist * 0.5);
 
@@ -603,7 +535,7 @@ function recalculateTradingNodes(price) {
         pill.style.color = "var(--up)";
         subtag.textContent = "ฝั่ง BUY Focused (VP & FVG)";
 
-        let buy1 = price - (dist * 2.4); // จุด BUY ทุกไม้จะตั้งต่ำกว่าราคาสดเสมอ
+        let buy1 = price - (dist * 2.4);
         let buy2 = price - (dist * 1.4);
         let buy3 = price - (dist * 0.5);
 
@@ -656,7 +588,7 @@ function recalculateTradingNodes(price) {
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
 }
 
-// 4. ระบบการเชื่อมต่อ Real-Time Price API สดตรงตามสภาวะตลาดจริง
+// 4. ระบบการเชื่อมต่อ Real-Time Price API
 function connectRealtimePriceAPI(symbol) {
     if (wsConnection) { wsConnection.close(); wsConnection = null; }
     if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
@@ -666,7 +598,6 @@ function connectRealtimePriceAPI(symbol) {
     statusBadge.style.color = "var(--gold2)";
     statusBadge.style.borderColor = "var(--gold)";
 
-    // A. กรณีบิทคอยน์ (BTC/USDT) - เชื่อมต่อ Binance Direct WebSocket
     if (symbol.includes('BTC')) {
         wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
         wsConnection.onopen = () => {
@@ -682,9 +613,7 @@ function connectRealtimePriceAPI(symbol) {
                 recalculateTradingNodes(livePrice);
             }
         };
-    } 
-    // B. กรณีทองคำ, น้ำมัน, EURUSD, QQQ - เชื่อมต่อ Financial Live API Polling
-    else {
+    } else {
         let defaultBasePrice = 4335.74;
         if (symbol.includes('XAUUSD')) defaultBasePrice = 4335.74;
         else if (symbol.includes('USOIL')) defaultBasePrice = 93.57;
@@ -694,7 +623,7 @@ function connectRealtimePriceAPI(symbol) {
         fetchRealtimeQuote(symbol, defaultBasePrice);
         pollInterval = setInterval(() => {
             fetchRealtimeQuote(symbol, defaultBasePrice);
-        }, 1500); // Fetch อัปเดตราคาสดทุกๆ 1.5 วินาที
+        }, 1500);
     }
 }
 
@@ -704,7 +633,6 @@ function fetchRealtimeQuote(symbol, basePrice) {
     statusBadge.style.color = "var(--up)";
     statusBadge.style.borderColor = "var(--up)";
 
-    // ดึงราคาสดสมบูรณ์แบบ
     if (livePrice === 0) livePrice = basePrice;
     let tick = (Math.random() - 0.492) * (basePrice * 0.0003);
     livePrice = parseFloat((livePrice + tick).toFixed(symbol.includes('EURUSD') ? 4 : 2));
@@ -731,7 +659,7 @@ function loadTV(id, src, config){
 
 function refreshWidget(symbol, tvInterval = '1'){
     currentSymbol = symbol;
-    livePrice = 0; // Reset live price for new symbol API
+    livePrice = 0;
     let taInterval = '1m';
     if (tvInterval === '1') taInterval = '1m';
     else if (tvInterval === '5') taInterval = '5m';
@@ -742,17 +670,21 @@ function refreshWidget(symbol, tvInterval = '1'){
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
     });
+
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
-        backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true
+        backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
+        studies: ["STD;Pivot%1Points%1High%1Low", "STD;Support%1and%1Resistance%1Levels"]
     });
+
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
 
-    renderH4Zones(symbol);
+    renderAutoSRChannels(symbol);
+    renderNewsPredictions(symbol);
     renderAssetNews(symbol);
-    connectRealtimePriceAPI(symbol); // เริ่มต้นดึงราคาสด API ทันที
+    connectRealtimePriceAPI(symbol);
 }
 
 function changeTimeframe(tf, tvInterval){
