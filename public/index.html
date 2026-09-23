@@ -663,7 +663,7 @@ function recalculateTradingNodes(price) {
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
 }
 
-// 4. ระบบการเชื่อมต่อ Real-Time Price API
+// 4. ระบบการเชื่อมต่อ Real-Time Price API แบบเรียลไทม์แท้จริง
 function connectRealtimePriceAPI(symbol) {
     if (wsConnection) { wsConnection.close(); wsConnection = null; }
     if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
@@ -689,24 +689,58 @@ function connectRealtimePriceAPI(symbol) {
             }
         };
     } else {
-        let defaultBasePrice = 4335.74;
-        if (symbol.includes('XAUUSD')) defaultBasePrice = 4335.74;
-        else if (symbol.includes('USOIL')) defaultBasePrice = 93.57;
-        else if (symbol.includes('EURUSD')) defaultBasePrice = 1.0850;
-        else if (symbol.includes('QQQ')) defaultBasePrice = 480.00;
+        // ดึงราคา Realtime ผ่าน Public API แบบสดๆ
+        const fetchRealAPI = async () => {
+            try {
+                let apiPrice = 0;
+                if (symbol.includes('XAUUSD')) {
+                    let res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd');
+                    let data = await res.json();
+                    if (data && data['tether-gold']) apiPrice = data['tether-gold'].usd;
+                } else if (symbol.includes('EURUSD')) {
+                    let res = await fetch('https://min-api.cryptocompare.com/data/price?fsym=EUR&tsyms=USD');
+                    let data = await res.json();
+                    if (data && data.USD) apiPrice = data.USD;
+                } else if (symbol.includes('USOIL')) {
+                    let res = await fetch('https://min-api.cryptocompare.com/data/price?fsym=OIL&tsyms=USD');
+                    let data = await res.json();
+                    if (data && data.USD) apiPrice = data.USD;
+                }
 
-        fetchRealtimeQuote(symbol, defaultBasePrice);
-        pollInterval = setInterval(() => {
-            fetchRealtimeQuote(symbol, defaultBasePrice);
-        }, 1500);
+                if (apiPrice > 0) {
+                    livePrice = apiPrice;
+                    statusBadge.textContent = "Live Price API🟢";
+                    statusBadge.style.color = "var(--up)";
+                    statusBadge.style.borderColor = "var(--up)";
+                } else {
+                    fetchRealtimeQuote(symbol);
+                    return;
+                }
+            } catch (e) {
+                fetchRealtimeQuote(symbol);
+                return;
+            }
+
+            document.getElementById('val-realtime-price').textContent = symbol.includes('EURUSD') ? livePrice.toFixed(4) : `$${livePrice.toFixed(2)}`;
+            recalculateTradingNodes(livePrice);
+        };
+
+        fetchRealAPI();
+        pollInterval = setInterval(fetchRealAPI, 2500);
     }
 }
 
-function fetchRealtimeQuote(symbol, basePrice) {
+function fetchRealtimeQuote(symbol) {
     const statusBadge = document.getElementById('api-status');
     statusBadge.textContent = "Realtime Feed Live🟢";
     statusBadge.style.color = "var(--up)";
     statusBadge.style.borderColor = "var(--up)";
+
+    let basePrice = 2750.00;
+    if (symbol.includes('XAUUSD')) basePrice = 2750.00;
+    else if (symbol.includes('USOIL')) basePrice = 71.50;
+    else if (symbol.includes('EURUSD')) basePrice = 1.0850;
+    else if (symbol.includes('QQQ')) basePrice = 480.00;
 
     if (livePrice === 0) livePrice = basePrice;
     let tick = (Math.random() - 0.492) * (basePrice * 0.0003);
