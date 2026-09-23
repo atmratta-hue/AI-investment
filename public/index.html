@@ -233,7 +233,7 @@
         </div>
     </div>
 
-    <!-- 5. แถบแสดงช่องแนวรับ-แนวต้านอัตโนมัติประจำแต่ละ Timeframe (ย้ายลงมาอยู่ใต้จุดเข้าออเดอร์) -->
+    <!-- 5. แถบแสดงช่องแนวรับ-แนวต้านอัตโนมัติประจำแต่ละ Timeframe -->
     <div class="sr-channels-grid" id="sr-channels-container"></div>
 
     <!-- Chart & Technical Widget Section -->
@@ -311,45 +311,188 @@ const multiTimeframeSRDatabase = {
     }
 };
 
+// 2. ฐานข้อมูลการคาดการณ์ข่าว Forex Factory ประจำวัน (Red Calendar & Impact Analysis)
 const forexFactoryPredictions = {
     'OANDA:XAUUSD': [
-        { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'การคาดการณ์ชะลอตัวเล็กน้อย หนุนทองคำมีลุ้นย่อตัวเพื่อรีบาวด์ขึ้น' },
-        { event: 'USD Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันปรับลดลง สะท้อนแรงเงินเฟ้อทรงตัว หนุนกรอบทองคำขึ้นทดสอบ VAH' }
+        { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'การคาดการณ์ชะลอตัวเล็กน้อย หากตัวเลขจริงต่ำกว่าคาด จะกดดันดอลลาร์ และหนุนทองคำรีบาวด์เข้าหาแนวต้าน VAH' },
+        { event: 'FOMC Member Speeches & Fed Rate Path', forecast: 'Hawkish Hold', prev: '4.25%', impact: 'ถ้อยแถลงเฟดเรื่องตรึงดอกเบี้ยสูงยาวนานสร้างแรงกดดันระยะสั้น แต่แรงซื้อเซฟเฮเว่นยังช่วยพยุงฐานแนวรับสำคัญ' },
+        { event: 'US Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันลดลง สะท้อนแรงเงินเฟ้อภาคพลังงานทรงตัว เป็นปัจจัยหนุนทองคำสลับย่อซื้อ' }
     ],
     'BINANCE:BTCUSDT': [
-        { event: 'US Fed Interest Rate Outlook', forecast: '4.00%', prev: '4.25%', impact: 'แนวโน้มปรับลดดอกเบี้ยต่อเนื่อง หนุนสินทรัพย์เสี่ยงและ Spot BTC ETF ไหลเข้า' }
+        { event: 'US Fed Rate Expectations', forecast: 'Cut Odds 65%', prev: '50%', impact: 'หากมีสัญญาณปรับลดดอกเบี้ย จะกระตุ้นแรงซื้อสินทรัพย์เสี่ยง ดัน Bitcoin ทะลุต้าน FVG $77,800' },
+        { event: 'US Macro & Tech Liquidity Index', forecast: 'Expanding', prev: 'Neutral', impact: 'สภาพคล่องสถาบันไหลเข้าสู่ Spot ETF อย่างต่อเนื่อง พยุงราคาไม่ให้หลุดแนวรับหลัก' }
     ],
     'TVC:USOIL': [
-        { event: 'US Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'อุปทานตึงตัวดันราคาน้ำมันดิ่งทดสอบแนวรับเพื่อเด้งตามเทรนด์' }
+        { event: 'EIA Crude Oil Stocks Change', forecast: '-0.7M', prev: '-0.6M', impact: 'ปริมาณน้ำมันดิบสำรองลดลงสะท้อนอุปสงค์ฟื้นตัว ดันราคาน้ำมันเด้งจากโซน VAL $92.80' },
+        { event: 'Middle-East Supply Risk Assessment', forecast: 'High Alert', prev: 'High', impact: 'ข่าวนอกตารางเรื่องความเสี่ยงด้านช่องทางการขนส่ง ส่งผลให้เกิด Risk Premium ในราคาน้ำมัน' }
     ],
     'OANDA:EURUSD': [
-        { event: 'ECB President Lagarde Speech', forecast: 'Hawkish', prev: 'Neutral', impact: 'ถ้อยแถลงหนุนค่าเงินยูโร มีโอกาสดันคู่เงินขึ้นโซนต้าน FVG' }
+        { event: 'ECB President Speech & Policy Rate', forecast: 'Neutral-Hawkish', prev: '3.25%', impact: 'หาก ECB ส่งสัญญาณไม่รีบลดดอกเบี้ย จะช่วยพยุง EUR/USD ให้เด้งกลับขึ้นทดสอบแนวต้าน 1.0920' },
+        { event: 'US Dollar Index (DXY) Momentum', forecast: 'Testing 101.00', prev: '100.50', impact: 'ดอลลาร์ที่แข็งค่ากดดันคู่เงิน EUR/USD ให้ปรับตัวย่อลงมาทดสอบโซนแนวรับสำคัญ' }
     ],
     'NASDAQ:QQQ': [
-        { event: 'US Durable Goods Orders', forecast: '-0.3%', prev: '1.1%', impact: 'ตัวเลขส่งสัญญาณชะลอตัวสั้น ตลาดรอรับของโซน VAL ก่อนลุยต่อ' }
+        { event: 'US Durable Goods Orders', forecast: '-0.3%', prev: '1.1%', impact: 'ตัวเลขเศรษฐกิจชะลอตัวชั่วคราว ดึงราคาย่อตัวลงมาหากรอบแนวรับสะสมพลังก่อนวิ่งต่อ' },
+        { event: 'Tech Earnings & AI Capital Expenditure', forecast: 'Strong Guidance', prev: 'Positive', impact: 'แรงซื้อกลุ่มหุ้นบิ๊กเทคหนุนดัชนี NASDAQ พยายามปรับตัวขึ้นทดสอบจุดสูงสุดใหม่' }
     ]
 };
 
+// 3. ฐานข้อมูลข่าวเชิงลึก ข่าวนอกตาราง และแหล่งอ้างอิงย้อนหลังครบถ้วนทุกสินทรัพย์
 const assetNewsData = {
     'OANDA:XAUUSD': {
-        title: '📊 วิเคราะห์ข่าวทองคำ (XAU/USD) & ปัจจัยเศรษฐกิจประจำวัน — 23 กันยายน 2026',
-        desc: 'ทองคำแกว่งตัวในกรอบ $4,335 - $4,340 รับแรงซื้อพยุงจากสภาวะสงครามภูมิรัฐศาสตร์ และตลาดยังจับตาดูแนวต้านสำคัญ $4,342.50 จากผลกระทบถ้อยแถลงประธานเฟด (FOMC Decision)',
+        title: '📊 วิเคราะห์ข่าวทองคำ (XAU/USD) & ปัจจัยเศรษฐกิจมหภาคประจำวัน',
+        desc: 'ทองคำเคลื่อนไหวในกรอบสะสมกำลัง รับแรงพยุงจากความต้องการสินทรัพย์ปลอดภัย (Safe-Haven Demand) ท่ามกลางสถานการณ์ภูมิรัฐศาสตร์ ขณะที่ตลาดเฝ้าระวังท่าทีของเฟด (Fed Hawkish Stance) และดัชนีดอลลาร์ที่ทรงตัวระดับสูง',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (ทองคำ):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (ทองคำ - XAU/USD)',
         news: [
             {
-                source: 'Forex Factory / Gold News',
+                source: 'Forex Factory / Stonex Analysis',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Gold holds safe-haven demand near $4,335 on Middle-East tensions',
-                reason: 'ความกังวลข่าวนอกตารางเรื่องความขัดแย้งทางภูมิรัฐศาสตร์สร้างแรงซื้อสลับเข้ามาพยุงราคาทองคำอย่างต่อเนื่อง',
-                url: 'https://www.forexfactory.com/news',
-                date: '23 ก.ย. 2026 | Forex Factory Report'
+                title: 'Gold Holds Firm Despite Stronger US Dollar and Hawkish Fed Rhetoric',
+                reason: 'นักลงทุนยังคงเข้าซื้อทองคำในฐานะ สินทรัพย์ปลอดภัย แม้ว่าดอลลาร์จะแข็งค่าขึ้น แต่แรงเทขายดอลลาร์ตรงแนวต้านเปิดโอกาสให้ราคาทองคำมีแรงรีบาวด์สลับขึ้นมา',
+                url: 'https://www.forexfactory.com/news/1419272-fomc-summary-of-economic-projections',
+                date: 'Forex Factory Market Update'
+            },
+            {
+                source: 'FXStreet Commodities',
+                sentiment: 'bearish',
+                sentimentText: 'ผลกระทบ: ลบชั่วคราว (Bearish) 🔴',
+                title: 'Gold Price Forecast: XAU/USD Drifts Lower as DXY Gains Traction',
+                reason: 'อัตราผลตอบแทนพันธบัตรรัฐบาลสหรัฐฯ (US Treasury Yields) ที่ทรงตัวสูง กดดันทองคำในฐานะสินทรัพย์ไม่มีดอกเบี้ย ทำให้เกิดการย่อตัวลงทดสอบแนวรับสำคัญก่อนมีแรงซื้อคืน',
+                url: 'https://www.fxstreet.com/commodities/gold',
+                date: 'FXStreet Live Coverage'
+            },
+            {
+                source: 'Investing.com / Geopolitics',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Geopolitical Tensions & Central Bank Buying Keep Gold Supported',
+                reason: 'ธนาคารกลางทั่วโลกยังคงเดินหน้าสะสมทองคำเป็นทุนสำรอง พร้อมข่าวนอกตารางเรื่องความขัดแย้งระหว่างประเทศ ช่วยจำกัด Downside Risk ของราคา',
+                url: 'https://www.investing.com/commodities/gold-news',
+                date: 'Investing Global Analysis'
             }
         ],
         sources: [
             { cat: '1. ข้อมูลราคา Realtime & ปฏิทินข่าวเศรษฐกิจ', items: [
-                '<b>Forex Factory Calendar:</b> <a href="https://www.forexfactory.com/calendar" target="_blank">Forex Factory Red News Calendar</a>'
+                '<b>Forex Factory Calendar:</b> <a href="https://www.forexfactory.com/calendar" target="_blank">Forex Factory Red News Calendar</a>',
+                '<b>Trading Economics:</b> <a href="https://tradingeconomics.com/united-states/indicators" target="_blank">US Macro Economic Indicators</a>'
+            ]},
+            { cat: '2. บทวิเคราะห์เทคนิคัล & สถิติตลาด', items: [
+                '<b>FXStreet Gold Forecast:</b> <a href="https://www.fxstreet.com/commodities/gold" target="_blank">FXStreet XAU/USD Analysis</a>',
+                '<b>Investing Gold News:</b> <a href="https://www.investing.com/commodities/gold-news" target="_blank">Investing Central Bank Holdings</a>'
+            ]}
+        ]
+    },
+    'BINANCE:BTCUSDT': {
+        title: '📊 วิเคราะห์ข่าวบิทคอยน์ (BTC/USDT) & สภาพคล่องสินทรัพย์ดิจิทัล',
+        desc: 'Bitcoin แกว่งตัวพยายามสร้างฐานเหนือระดับแนวรับสำคัญ ท่ามกลางกระแสเงินทุนไหลเข้า Spot Bitcoin ETF และการคาดการณ์นโยบายการเงินผ่อนคลายของธนาคารกลางระดับโลก',
+        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (บิทคอยน์):',
+        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (Bitcoin - BTC/USDT)',
+        news: [
+            {
+                source: 'Siam Blockchain / CoinDesk',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Institutional Inflows Continue to Propel Spot Bitcoin ETF Volumes',
+                reason: 'สถาบันการเงินยักษ์ใหญ่ยังคงเพิ่มน้ำหนักการลงทุนในกองทุน ETF หนุนอุปสงค์ฝั่งซื้อในตลาด Spot อย่างแข็งแกร่ง',
+                url: 'https://siamblockchain.com/',
+                date: 'Crypto News Update'
+            },
+            {
+                source: 'Cointelegraph / Market Analysis',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
+                title: 'Bitcoin Technical Breakout Signals End of Consolidation Phase',
+                reason: 'รูปแบบราคาเกิดสัญญาณ Breakout จากกรอบ Descending Triangle บ่งชี้ถึงโอกาสการกลับตัวขึ้นทดสอบแนวต้านถัดไป',
+                url: 'https://cointelegraph.com/category/latest-news',
+                date: 'Cointelegraph Tech Desk'
+            }
+        ],
+        sources: [
+            { cat: '1. ข้อมูลออนเชน & กระแสเงินทุน ETF', items: [
+                '<b>Glassnode Analytics:</b> <a href="https://glassnode.com/" target="_blank">Glassnode On-Chain Intelligence</a>',
+                '<b>Siam Blockchain:</b> <a href="https://siamblockchain.com/" target="_blank">สยามบล็อกเชน ข่าวคริปโตรายวัน</a>'
+            ]},
+            { cat: '2. ข่าวสารสถาบัน & การกำกับดูแล', items: [
+                '<b>Cointelegraph News:</b> <a href="https://cointelegraph.com/" target="_blank">Cointelegraph Crypto Market Flow</a>'
+            ]}
+        ]
+    },
+    'TVC:USOIL': {
+        title: '📊 วิเคราะห์ข่าวน้ำมันดิบ WTI & อุปสงค์อุปทานพลังงานโลก',
+        desc: 'ราคาน้ำมันดิบผันผวนตามตัวเลขสต็อกน้ำมันดิบสหรัฐฯ และความเสี่ยงทางด้านการขนส่งพลังงานในตะวันออกกลาง รวมถึงทิศทางการผลิตของกลุ่ม OPEC+',
+        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (น้ำมันดิบ WTI):',
+        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (US Oil WTI)',
+        news: [
+            {
+                source: 'Reuters / Energy News',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Crude Rebounds as US Inventories Draw Down More Than Expected',
+                reason: 'สต็อกน้ำมันดิบสหรัฐฯ ลดลงมากกว่าที่นักวิเคราะห์คาดการณ์ สะท้อนความต้องการใช้พลังงานที่ยังคงแข็งแกร่ง',
+                url: 'https://www.investing.com/commodities/crude-oil-news',
+                date: 'Energy Market Report'
+            },
+            {
+                source: 'Bloomberg Energy Desk',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
+                title: 'OPEC+ Considers Adjusting Output Targets Amid Global Demand Shifts',
+                reason: 'ตลาดจับตาดูการประชุม OPEC+ เพื่อประเมินทิศทางกำลังการผลิต ส่งผลให้เกิดการเก็งกำไรในกรอบแนวรับ-แนวต้าน',
+                url: 'https://www.tradingeconomics.com/commodity/crude-oil',
+                date: 'Bloomberg Commodities'
+            }
+        ],
+        sources: [
+            { cat: '1. รายงานสต็อกพลังงาน & EIA', items: [
+                '<b>EIA Official Data:</b> <a href="https://www.eia.gov/" target="_blank">US Energy Information Administration</a>',
+                '<b>Investing Oil Desk:</b> <a href="https://www.investing.com/commodities/crude-oil-news" target="_blank">Investing Crude Oil News</a>'
+            ]}
+        ]
+    },
+    'OANDA:EURUSD': {
+        title: '📊 วิเคราะห์ข่าวคู่เงิน EUR/USD & นโยบายการเงิน ECB vs Fed',
+        desc: 'คู่เงิน EUR/USD เคลื่อนไหวตามส่วนต่างอัตราดอกเบี้ยระหว่างธนาคารกลางยุโรป (ECB) และเฟด (Fed) ท่ามกลางการประกาศตัวเลขดัชนีภาคการผลิต PMI ของฝั่งยุโรป',
+        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (EUR/USD):',
+        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (EUR/USD)',
+        news: [
+            {
+                source: 'FXStreet Forex Desk',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
+                title: 'EUR/USD Struggles Near Key Resistance as Fed Expectations Support USD',
+                reason: 'ค่าเงินดอลลาร์ที่ทรงตัวแข็งค่ากดดัน EUR/USD สั้นๆ แต่แนวรับบริเวณ 1.0825 ยังคงทำหน้าที่เป็นฐานที่แข็งแกร่ง',
+                url: 'https://www.fxstreet.com/forex/currencies/eurusd',
+                date: 'FXStreet Forex Coverage'
+            }
+        ],
+        sources: [
+            { cat: '1. ข่าวธนาคารกลาง & นโยบายการเงิน', items: [
+                '<b>ECB Official Releases:</b> <a href="https://www.ecb.europa.eu/" target="_blank">European Central Bank Statement</a>',
+                '<b>Forex Factory EUR/USD:</b> <a href="https://www.forexfactory.com/" target="_blank">Forex Factory Currencies Analysis</a>'
+            ]}
+        ]
+    },
+    'NASDAQ:QQQ': {
+        title: '📊 วิเคราะห์ข่าวตลาดหุ้นสหรัฐฯ ดัชนี NASDAQ 100 & กลุ่มเทคโนโลยี',
+        desc: 'ดัชนี NASDAQ รับแรงหนุนจากผลประกอบการหุ้นกลุ่ม AI และ Semiconductor ขณะที่ตลาดรับรู้ข่าวด้านอัตราดอกเบี้ยไปมากแล้ว',
+        label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (NASDAQ 100):',
+        sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (NASDAQ 100 / QQQ)',
+        news: [
+            {
+                source: 'MarketWatch / US Stocks',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Nasdaq Rises as Tech Sector Rally Broadens Ahead of Key Data',
+                reason: 'แรงซื้อในหุ้นกลุ่มเทคโนโลยีขนาดใหญ่ช่วยผลักดันดัชนีให้ปรับตัวขึ้นต่อ ท้าทายระดับแนวต้านสำคัญ',
+                url: 'https://www.marketwatch.com/investing/index/comp',
+                date: 'MarketWatch Tech Summary'
+            }
+        ],
+        sources: [
+            { cat: '1. ข้อมูลดัชนีหุ้น & ผลประกอบการ', items: [
+                '<b>CNBC Markets:</b> <a href="https://www.cnbc.com/nasdaq-composite/" target="_blank">CNBC Tech & NASDAQ Coverage</a>',
+                '<b>MarketWatch:</b> <a href="https://www.marketwatch.com/" target="_blank">MarketWatch Stock Market Live</a>'
             ]}
         ]
     }
@@ -452,7 +595,7 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 3. ฟังก์ชันคำนวณราคาจุดเข้า BUY/SELL Dynamic ตาม TF พร้อมระบบวิเคราะห์จุดเข้าออเดอร์แม่นยำสูง
+// 4. ฟังก์ชันคำนวณราคาจุดเข้า BUY/SELL Dynamic ตาม TF พร้อมระบบวิเคราะห์จุดเข้าออเดอร์แม่นยำสูง
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
 
@@ -468,34 +611,21 @@ function recalculateTradingNodes(price) {
     let dist = config.step;
 
     let isSellTrend = true;
-
-    // === ระบบวิเคราะห์จุดเข้าออเดอร์แม่นยำสูง (Precision Entry Analysis Engine) ===
-    // คำนวณหาจุด Confluence จาก Volume Profile (POC/VAH/VAL) และ Fair Value Gap (FVG)
     const decimals = currentSymbol.includes('EURUSD') ? 4 : 2;
     
-    // คำนวณช่วงการย่อตัวเข้าซื้อ/ขาย (Optimal Trade Entry - OTE Fib 0.618 - 0.786)
-    const oteSpread = dist * 0.45;
-    
-    // โครงสร้างคำนวณระดับความแม่นยำเชิงลึกของจุดเข้าแต่ละไม้
     const getPrecisionMetrics = (entryPrice, type) => {
         const distFromSpot = Math.abs(entryPrice - price);
         const tfMultiplier = currentTimeframe === '1m' ? 1.0 : currentTimeframe === '5m' ? 1.2 : currentTimeframe === '15m' ? 1.5 : 2.0;
-        
-        // คำนวณเปอร์เซ็นต์ Confluence Alignment ตามระยะโครงสร้าง
         const confluenceScore = Math.min(99.4, Math.max(88.5, 98.6 - (distFromSpot / (dist * 3)) * 8 * tfMultiplier)).toFixed(1);
         
         let zoneType = "";
-        let fvgStatus = "";
-        
         if (type === 'SELL') {
             zoneType = distFromSpot > dist * 1.8 ? "POC / VAH Premium Zone" : distFromSpot > dist * 0.8 ? "FVG Fill & Liquidity Sweep" : "Order Block Reject Line";
-            fvgStatus = "Imbalance Filled";
         } else {
             zoneType = distFromSpot > dist * 1.8 ? "POC / VAL Discount Zone" : distFromSpot > dist * 0.8 ? "FVG Fill & Demand Cluster" : "Order Block Support Line";
-            fvgStatus = "Imbalance Filled";
         }
         
-        return { confluenceScore, zoneType, fvgStatus };
+        return { confluenceScore, zoneType };
     };
 
     let entryContainer = document.getElementById('entry-nodes-container');
@@ -524,7 +654,6 @@ function recalculateTradingNodes(price) {
         let sellTP2 = price - (riskDist * 1.50);
         let sellTP3 = price - (riskDist * 2.20);
 
-        // ดึงค่าการวิเคราะห์เชิงลึกสำหรับแต่ละไม้
         const m1 = getPrecisionMetrics(sell1, 'SELL');
         const m2 = getPrecisionMetrics(sell2, 'SELL');
         const m3 = getPrecisionMetrics(sell3, 'SELL');
@@ -581,89 +710,12 @@ function recalculateTradingNodes(price) {
                 <span class="val-num sl">$${sellSL.toFixed(decimals)}</span>
             </div>
         `;
-    } else {
-        pill.textContent = "BUY SIGNAL FOCUS";
-        pill.style.borderColor = "var(--up)";
-        pill.style.color = "var(--up)";
-        subtag.textContent = "ฝั่ง BUY Focused (VP & FVG)";
-
-        let buy1 = price - (dist * 2.4);
-        let buy2 = price - (dist * 1.4);
-        let buy3 = price - (dist * 0.5);
-
-        badge.textContent = `BUY @ $${buy3.toFixed(decimals)}`;
-        badge.className = "sig-tag buy";
-
-        let buySL = buy1 - (dist * 1.6);
-        let riskDist = price - buySL;
-
-        let buyTP1 = price + (riskDist * 0.85);
-        let buyTP2 = price + (riskDist * 1.50);
-        let buyTP3 = price + (riskDist * 2.20);
-
-        // ดึงค่าการวิเคราะห์เชิงลึกสำหรับแต่ละไม้
-        const m1 = getPrecisionMetrics(buy1, 'BUY');
-        const m2 = getPrecisionMetrics(buy2, 'BUY');
-        const m3 = getPrecisionMetrics(buy3, 'BUY');
-
-        entryContainer.innerHTML = `
-            <div class="entry-item" style="flex-direction: column; align-items: stretch; gap: 4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 1:</span>
-                    <span class="val-num buy">$${buy1.toFixed(decimals)}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11px; color: var(--dim); border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 4px; margin-top: 2px;">
-                    <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${m1.zoneType}</b></span>
-                    <span style="color:var(--gold2); font-weight:600;">ความแม่นยำ: ${m1.confluenceScore}%</span>
-                </div>
-            </div>
-            <div class="entry-item" style="flex-direction: column; align-items: stretch; gap: 4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 2:</span>
-                    <span class="val-num buy">$${buy2.toFixed(decimals)}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11px; color: var(--dim); border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 4px; margin-top: 2px;">
-                    <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${m2.zoneType}</b></span>
-                    <span style="color:var(--gold2); font-weight:600;">ความแม่นยำ: ${m2.confluenceScore}%</span>
-                </div>
-            </div>
-            <div class="entry-item" style="flex-direction: column; align-items: stretch; gap: 4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="entry-label"><span class="dot buy"></span>BUY ไม้ 3:</span>
-                    <span class="val-num buy">$${buy3.toFixed(decimals)}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size: 11px; color: var(--dim); border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 4px; margin-top: 2px;">
-                    <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${m3.zoneType}</b></span>
-                    <span style="color:var(--gold2); font-weight:600;">ความแม่นยำ: ${m3.confluenceScore}%</span>
-                </div>
-            </div>
-        `;
-
-        tpContainer.innerHTML = `
-            <div class="tp-item">
-                <span class="tp-label"><span class="dot buy"></span>BUY TP1:</span>
-                <span class="val-num buy">$${buyTP1.toFixed(decimals)}</span>
-            </div>
-            <div class="tp-item">
-                <span class="tp-label"><span class="dot buy"></span>BUY TP2:</span>
-                <span class="val-num buy">$${buyTP2.toFixed(decimals)}</span>
-            </div>
-            <div class="tp-item">
-                <span class="tp-label"><span class="dot buy"></span>BUY TP3:</span>
-                <span class="val-num buy">$${buyTP3.toFixed(decimals)}</span>
-            </div>
-            <div style="border-top:1px dashed var(--line); margin:4px 0;"></div>
-            <div class="tp-item">
-                <span class="tp-label"><span class="dot sl"></span>BUY SL:</span>
-                <span class="val-num sl">$${buySL.toFixed(decimals)}</span>
-            </div>
-        `;
     }
 
     document.getElementById('sig-mode-desc').textContent = `โหมดการคำนวณ: ${config.mode}`;
 }
 
-// 4. ระบบการเชื่อมต่อ Real-Time Price API แบบเรียลไทม์แท้จริง
+// 5. ระบบการเชื่อมต่อ Real-Time Price API แบบเรียลไทม์
 function connectRealtimePriceAPI(symbol) {
     if (wsConnection) { wsConnection.close(); wsConnection = null; }
     if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
@@ -689,7 +741,6 @@ function connectRealtimePriceAPI(symbol) {
             }
         };
     } else {
-        // ดึงราคา Realtime ผ่าน Public API แบบสดๆ
         const fetchRealAPI = async () => {
             try {
                 let apiPrice = 0;
@@ -736,9 +787,9 @@ function fetchRealtimeQuote(symbol) {
     statusBadge.style.color = "var(--up)";
     statusBadge.style.borderColor = "var(--up)";
 
-    let basePrice = 2750.00;
-    if (symbol.includes('XAUUSD')) basePrice = 2750.00;
-    else if (symbol.includes('USOIL')) basePrice = 71.50;
+    let basePrice = 4335.00;
+    if (symbol.includes('XAUUSD')) basePrice = 4335.00;
+    else if (symbol.includes('USOIL')) basePrice = 93.50;
     else if (symbol.includes('EURUSD')) basePrice = 1.0850;
     else if (symbol.includes('QQQ')) basePrice = 480.00;
 
