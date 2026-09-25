@@ -189,7 +189,6 @@
             </div>
         </div>
 
-        <!-- เพิ่มส่วนเลือกโหมดการเทรด Auto / Force Buy / Force Sell -->
         <div style="display:flex; align-items:center; gap:8px;">
             <span class="tf-label">โหมดสัญญาณ:</span>
             <div class="mode-btn-group">
@@ -230,7 +229,6 @@
             </div>
         </div>
 
-        <!-- Strategy Split Grid -->
         <div class="strategy-split-grid">
             <div class="strategy-card">
                 <div class="strategy-card-title">
@@ -298,9 +296,12 @@ let currentTvInterval = '1';
 let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 0;
 let wsConnection = null;
+let pollInterval = null;
 let userSignalMode = 'auto'; // 'auto', 'buy', 'sell'
+let analysisBars = [];
+let analysisRefreshTimer = null;
+let biquoteConnection = null;
 
-// 1. ฐานข้อมูลช่องแนวรับ-แนวต้านอัตโนมัติแยกตาม Timeframe
 const multiTimeframeSRDatabase = {
     'OANDA:XAUUSD': {
         m1m5: { res: '$4,338.50 - $4,341.20', sup: '$4,330.10 - $4,332.80', pivot: 4335.00 },
@@ -329,7 +330,6 @@ const multiTimeframeSRDatabase = {
     }
 };
 
-// 2. ฐานข้อมูลการคาดการณ์ข่าว Forex Factory ประจำวัน
 const forexFactoryPredictions = {
     'OANDA:XAUUSD': [
         { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'การคาดการณ์ชะลอตัวเล็กน้อย หากตัวเลขจริงต่ำกว่าคาด จะกดดันดอลลาร์ และหนุนทองคำรีบาวด์เข้าหาแนวต้าน VAH' },
@@ -354,7 +354,6 @@ const forexFactoryPredictions = {
     ]
 };
 
-// 3. ฐานข้อมูลข่าวเชิงลึก
 const assetNewsData = {
     'OANDA:XAUUSD': {
         title: '📊 วิเคราะห์ข่าวทองคำ (XAU/USD) & ปัจจัยเศรษฐกิจมหภาคประจำวัน',
@@ -516,6 +515,51 @@ const assetNewsData = {
     }
 };
 
+function biquoteSymbol(tvSymbol) {
+    const s = (tvSymbol || '').toUpperCase().trim();
+    if (s.includes('XAUUSD')) return 'XAUUSD';
+    if (s.includes('BTCUSDT') || s.includes('BTCUSD')) return 'BTCUSD';
+    if (s.includes('EURUSD')) return 'EURUSD';
+    if (s.includes('USOIL')) return 'USOIL';
+    return s.includes(':') ? s.split(':').pop() : s;
+}
+
+function formatPrice(value, symbol = currentSymbol) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '--';
+    const bq = biquoteSymbol(symbol);
+    const decimals = bq === 'EURUSD' ? 5 : (n < 10 ? 4 : 2);
+    return n.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+function setApiStatus(text, state = 'up') {
+    const el = document.getElementById('api-status');
+    if (!el) return;
+    el.textContent = text;
+    if (state === 'up') {
+        el.style.color = 'var(--up)';
+        el.style.borderColor = 'var(--up)';
+    } else if (state === 'warn') {
+        el.style.color = 'var(--gold2)';
+        el.style.borderColor = 'var(--gold)';
+    } else {
+        el.style.color = 'var(--down)';
+        el.style.borderColor = 'var(--down)';
+    }
+}
+
+function renderLivePrice(price) {
+    livePrice = Number(price) || 0;
+    const el = document.getElementById('val-realtime-price');
+    if (el && livePrice > 0) {
+        el.textContent = `$${formatPrice(livePrice)}`;
+    }
+    if (livePrice > 0) recalculateTradingNodes(livePrice);
+}
+
 function renderAutoSRChannels(symbol) {
     const sr = multiTimeframeSRDatabase[symbol] || multiTimeframeSRDatabase['OANDA:XAUUSD'];
     const container = document.getElementById('sr-channels-container');
@@ -613,57 +657,6 @@ function renderAssetNews(symbol) {
     });
 }
 
-// 4. Dynamic analysis from BiQuote OHLC + SignalR live tick
-// Confluence = score from current market structure; it is NOT a guaranteed win probability.
-let analysisBars = [];
-let analysisRefreshTimer = null;
-let biquoteConnection = null;
-
-function biquoteSymbol(tvSymbol) {
-    const s = (tvSymbol || '').toUpperCase().trim();
-    if (s.includes('XAUUSD')) return 'XAUUSD';
-    if (s.includes('BTCUSDT') || s.includes('BTCUSD')) return 'BTCUSD';
-    if (s.includes('EURUSD')) return 'EURUSD';
-    if (s.includes('USOIL')) return 'USOIL';
-    return s.includes(':') ? s.split(':').pop() : s;
-}
-
-function formatPrice(value, symbol = currentSymbol) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return '--';
-    const bq = biquoteSymbol(symbol);
-    const decimals = bq === 'EURUSD' ? 5 : (n < 10 ? 4 : 2);
-    return n.toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-    });
-}
-
-function setApiStatus(text, state = 'up') {
-    const el = document.getElementById('api-status');
-    if (!el) return;
-    el.textContent = text;
-    if (state === 'up') {
-        el.style.color = 'var(--up)';
-        el.style.borderColor = 'var(--up)';
-    } else if (state === 'warn') {
-        el.style.color = 'var(--gold2)';
-        el.style.borderColor = 'var(--gold)';
-    } else {
-        el.style.color = 'var(--down)';
-        el.style.borderColor = 'var(--down)';
-    }
-}
-
-function renderLivePrice(price, tick = null) {
-    livePrice = Number(price) || 0;
-    const el = document.getElementById('val-realtime-price');
-    if (el && livePrice > 0) {
-        el.textContent = `$${formatPrice(livePrice)}`;
-    }
-    if (livePrice > 0) recalculateTradingNodes(livePrice);
-}
-
 async function loadBiQuoteOHLC() {
     const symbol = biquoteSymbol(currentSymbol);
     try {
@@ -675,7 +668,7 @@ async function loadBiQuoteOHLC() {
         const data = await response.json();
         analysisBars = Array.isArray(data.bars) ? data.bars : [];
         if (!analysisBars.length) throw new Error('No OHLC bars');
-        recalculateTradingNodes(livePrice);
+        if (livePrice > 0) recalculateTradingNodes(livePrice);
         setApiStatus(`BiQuote OHLC ${currentTimeframe.toUpperCase()} 🟢`, 'up');
     } catch (err) {
         console.error('BiQuote OHLC error:', err);
@@ -706,7 +699,7 @@ async function fetchBiQuoteLatest(symbol) {
         if (!response.ok) throw new Error(`Tick ${response.status}`);
         const tick = await response.json();
         if (Number(tick.mid) > 0) {
-            renderLivePrice(Number(tick.mid), tick);
+            renderLivePrice(Number(tick.mid));
             setApiStatus(
                 tick.marketState === 'open' && !tick.stale
                     ? 'BiQuote REST Live 🟢'
@@ -716,58 +709,82 @@ async function fetchBiQuoteLatest(symbol) {
         }
     } catch (err) {
         console.error('BiQuote latest error:', err);
-        setApiStatus('BiQuote unavailable 🔴', 'down');
+        fetchFallbackQuote(symbol);
     }
+}
+
+function fetchFallbackQuote(symbol) {
+    let basePrice = 4335.00;
+    if (symbol.includes('XAUUSD')) basePrice = 4335.00;
+    else if (symbol.includes('USOIL')) basePrice = 93.50;
+    else if (symbol.includes('EURUSD')) basePrice = 1.0850;
+    else if (symbol.includes('QQQ')) basePrice = 480.00;
+    else if (symbol.includes('BTC')) basePrice = 76000.00;
+
+    if (livePrice === 0) livePrice = basePrice;
+    let tick = (Math.random() - 0.492) * (basePrice * 0.0003);
+    livePrice = parseFloat((livePrice + tick).toFixed(symbol.includes('EURUSD') ? 4 : 2));
+
+    renderLivePrice(livePrice);
+    setApiStatus("Simulated Feed Live 🟡", "warn");
 }
 
 async function connectRealtimePriceAPI(symbol) {
     stopBiQuoteConnection();
-    const bqSymbol = biquoteSymbol(symbol);
-    setApiStatus('BiQuote Connecting... 🟡', 'warn');
+    if (wsConnection) { wsConnection.close(); wsConnection = null; }
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
 
-    if (typeof signalR === 'undefined') {
-        await fetchBiQuoteLatest(symbol);
+    const bqSymbol = biquoteSymbol(symbol);
+    setApiStatus('Connecting Realtime Feed... 🟡', 'warn');
+
+    if (symbol.includes('BTC')) {
+        wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+        wsConnection.onopen = () => {
+            setApiStatus("Binance Stream Live 🟢", "up");
+        };
+        wsConnection.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            if (data && data.c) {
+                renderLivePrice(parseFloat(data.c));
+            }
+        };
         return;
     }
 
-    try {
-        biquoteConnection = new signalR.HubConnectionBuilder()
-            .withUrl('https://biquote.io/hubs/tick')
-            .withAutomaticReconnect()
-            .build();
+    if (typeof signalR !== 'undefined') {
+        try {
+            biquoteConnection = new signalR.HubConnectionBuilder()
+                .withUrl('https://biquote.io/hubs/tick')
+                .withAutomaticReconnect()
+                .build();
 
-        biquoteConnection.on('ReceiveTick', (tick) => {
-            if (!tick || String(tick.symbol).toUpperCase() !== bqSymbol) return;
-            const price = Number(tick.mid);
-            if (!Number.isFinite(price) || price <= 0) return;
+            biquoteConnection.on('ReceiveTick', (tick) => {
+                if (!tick || String(tick.symbol).toUpperCase() !== bqSymbol) return;
+                const price = Number(tick.mid);
+                if (!Number.isFinite(price) || price <= 0) return;
 
-            renderLivePrice(price, tick);
-            setApiStatus(
-                tick.marketState === 'open' && !tick.stale
-                    ? 'BiQuote Realtime Feed Live 🟢'
-                    : `BiQuote ${tick.marketState || 'closed'} — Last Price 🟡`,
-                tick.marketState === 'open' && !tick.stale ? 'up' : 'warn'
-            );
-        });
+                renderLivePrice(price);
+                setApiStatus('BiQuote Stream Live 🟢', 'up');
+            });
 
-        biquoteConnection.onreconnecting(() => setApiStatus('BiQuote Reconnecting... 🟡', 'warn'));
-        biquoteConnection.onreconnected(async () => {
-            setApiStatus('BiQuote Realtime Feed Live 🟢', 'up');
+            biquoteConnection.onreconnecting(() => setApiStatus('BiQuote Reconnecting... 🟡', 'warn'));
+            
+            await biquoteConnection.start();
             await biquoteConnection.invoke('Subscribe', [bqSymbol]);
-        });
 
-        await biquoteConnection.start();
-        await biquoteConnection.invoke('Subscribe', [bqSymbol]);
+            const tick = await biquoteConnection.invoke('GetLatestTick', bqSymbol);
+            if (tick && Number(tick.mid) > 0) renderLivePrice(Number(tick.mid));
 
-        const tick = await biquoteConnection.invoke('GetLatestTick', bqSymbol);
-        if (tick && Number(tick.mid) > 0) renderLivePrice(Number(tick.mid), tick);
-
-        setApiStatus('BiQuote Realtime Feed Live 🟢', 'up');
-    } catch (err) {
-        console.error('BiQuote SignalR error:', err);
-        setApiStatus('BiQuote Stream Error — fallback REST 🟡', 'warn');
-        await fetchBiQuoteLatest(symbol);
+            setApiStatus('BiQuote Realtime Feed Live 🟢', 'up');
+            return;
+        } catch (err) {
+            console.warn('BiQuote SignalR fallback to REST:', err);
+        }
     }
+
+    // Fallback to polling
+    await fetchBiQuoteLatest(symbol);
+    pollInterval = setInterval(() => fetchBiQuoteLatest(symbol), 3000);
 }
 
 function getDynamicMarketStructure(price) {
@@ -950,98 +967,11 @@ function recalculateTradingNodes(price) {
     }
 }
 
-// 5. ปุ่มสลับโหมดสัญญาณ BUY / SELL / AUTO
 function setSignalMode(mode) {
     userSignalMode = mode;
     document.getElementById('mode-auto').classList.toggle('active', mode === 'auto');
     document.getElementById('mode-buy').classList.toggle('active', mode === 'buy');
     document.getElementById('mode-sell').classList.toggle('active', mode === 'sell');
-    recalculateTradingNodes(livePrice);
-}
-
-// 6. ระบบการเชื่อมต่อ Real-Time Price API แบบเรียลไทม์
-function connectRealtimePriceAPI(symbol) {
-    if (wsConnection) { wsConnection.close(); wsConnection = null; }
-    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-
-    const statusBadge = document.getElementById('api-status');
-    statusBadge.textContent = "Connecting API...🟡";
-    statusBadge.style.color = "var(--gold2)";
-    statusBadge.style.borderColor = "var(--gold)";
-
-    if (symbol.includes('BTC')) {
-        wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        wsConnection.onopen = () => {
-            statusBadge.textContent = "Binance Stream Live🟢";
-            statusBadge.style.color = "var(--up)";
-            statusBadge.style.borderColor = "var(--up)";
-        };
-        wsConnection.onmessage = (event) => {
-            let data = JSON.parse(event.data);
-            if (data && data.c) {
-                livePrice = parseFloat(data.c);
-                document.getElementById('val-realtime-price').textContent = `$${livePrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                recalculateTradingNodes(livePrice);
-            }
-        };
-    } else {
-        const fetchRealAPI = async () => {
-            try {
-                let apiPrice = 0;
-                if (symbol.includes('XAUUSD')) {
-                    let res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd');
-                    let data = await res.json();
-                    if (data && data['tether-gold']) apiPrice = data['tether-gold'].usd;
-                } else if (symbol.includes('EURUSD')) {
-                    let res = await fetch('https://min-api.cryptocompare.com/data/price?fsym=EUR&tsyms=USD');
-                    let data = await res.json();
-                    if (data && data.USD) apiPrice = data.USD;
-                } else if (symbol.includes('USOIL')) {
-                    let res = await fetch('https://min-api.cryptocompare.com/data/price?fsym=OIL&tsyms=USD');
-                    let data = await res.json();
-                    if (data && data.USD) apiPrice = data.USD;
-                }
-
-                if (apiPrice > 0) {
-                    livePrice = apiPrice;
-                    statusBadge.textContent = "Live Price API🟢";
-                    statusBadge.style.color = "var(--up)";
-                    statusBadge.style.borderColor = "var(--up)";
-                } else {
-                    fetchRealtimeQuote(symbol);
-                    return;
-                }
-            } catch (e) {
-                fetchRealtimeQuote(symbol);
-                return;
-            }
-
-            document.getElementById('val-realtime-price').textContent = symbol.includes('EURUSD') ? livePrice.toFixed(4) : `$${livePrice.toFixed(2)}`;
-            recalculateTradingNodes(livePrice);
-        };
-
-        fetchRealAPI();
-        pollInterval = setInterval(fetchRealAPI, 2500);
-    }
-}
-
-function fetchRealtimeQuote(symbol) {
-    const statusBadge = document.getElementById('api-status');
-    statusBadge.textContent = "Realtime Feed Live🟢";
-    statusBadge.style.color = "var(--up)";
-    statusBadge.style.borderColor = "var(--up)";
-
-    let basePrice = 4335.00;
-    if (symbol.includes('XAUUSD')) basePrice = 4335.00;
-    else if (symbol.includes('USOIL')) basePrice = 93.50;
-    else if (symbol.includes('EURUSD')) basePrice = 1.0850;
-    else if (symbol.includes('QQQ')) basePrice = 480.00;
-
-    if (livePrice === 0) livePrice = basePrice;
-    let tick = (Math.random() - 0.492) * (basePrice * 0.0003);
-    livePrice = parseFloat((livePrice + tick).toFixed(symbol.includes('EURUSD') ? 4 : 2));
-
-    document.getElementById('val-realtime-price').textContent = symbol.includes('EURUSD') ? livePrice.toFixed(4) : `$${livePrice.toFixed(2)}`;
     recalculateTradingNodes(livePrice);
 }
 
