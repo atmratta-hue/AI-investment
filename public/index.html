@@ -33,7 +33,6 @@
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 22px; }
         
-        /* Asset Selection Panel */
         .asset-select-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; }
         .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .search-bar { margin-bottom: 12px; }
@@ -42,25 +41,21 @@
         .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
         .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
 
-        /* Timeframe Selector Bar */
         .tf-selector-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
         .tf-label { font-size: 13.5px; color: var(--dim); font-weight: 500; }
         .tf-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
         .tf-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
-        /* Direction Mode Controls */
         .mode-btn-group { display: flex; gap: 6px; }
         .mode-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .mode-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
-        /* Multi-TF Auto SR Channels Container */
         .sr-channels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
         .channel-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
         .channel-title { font-size: 11.5px; font-weight: 700; color: var(--gold2); text-transform: uppercase; }
         .channel-val { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 700; margin-top: 4px; }
 
-        /* News Prediction & Convergence Card */
         .news-prediction-card { background: linear-gradient(135deg, rgba(23, 29, 39, 0.9), rgba(29, 36, 48, 0.95)); border: 1px solid var(--gold); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
         .ff-tag { background: #d9534f; color: #fff; font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; }
         .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
@@ -68,13 +63,11 @@
         .pred-title { font-size: 12px; color: var(--dim); font-weight: 600; }
         .pred-val { font-size: 14px; font-weight: 700; color: var(--gold2); margin-top: 4px; }
 
-        /* Signal Box */
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 18px; position: relative; }
         .sr-header-group { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
         .status-pill { background: rgba(201, 162, 39, 0.15); border: 1px solid var(--gold); color: var(--gold2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
         .api-status-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
 
-        /* Strategy Split Grid */
         .strategy-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
         .strategy-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
         .strategy-card-title { font-size: 13.5px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
@@ -96,14 +89,12 @@
         .sig-tag.buy { background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
         .sig-tag.sell { background: rgba(226, 87, 76, 0.2); color: var(--down); border: 1px solid var(--down); }
 
-        /* Chart Layout */
         .chart-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px; }
         .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
         .chart-card { height: 560px; padding: 14px; }
         .ta-card { min-height: 440px; padding: 14px; }
         .tv-mount { height: 100%; width: 100%; }
 
-        /* Dynamic News Section Design */
         .macro-summary-card { background: linear-gradient(135deg, var(--panel2), rgba(201, 162, 39, 0.05)); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
         .macro-title { font-size: 15.5px; font-weight: 700; color: var(--gold2); margin-bottom: 6px; }
         .macro-desc { font-size: 13.5px; color: var(--text); line-height: 1.6; }
@@ -129,7 +120,6 @@
         .badge.bearish { background: #e2574c26; color: var(--down); border: 1px solid var(--down); }
         .badge.neutral { background: #7a849626; color: #7a8496; border: 1px solid #7a8496; }
 
-        /* Bottom Sources Section */
         .bottom-sources-section { margin-top: 35px; padding: 22px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
         .sources-main-title { font-size: 16px; font-weight: 700; color: var(--gold2); margin-bottom: 14px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
         .sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
@@ -232,7 +222,7 @@
         <div class="strategy-split-grid">
             <div class="strategy-card">
                 <div class="strategy-card-title">
-                    📌 จุดเข้าซื้อ/ขายหลายไม้ (Multiple Entries)
+                    📌 ช่วงราคาจุดเข้าซื้อ/ขายหลายไม้ (Entry Zones)
                     <span class="sub-tag" id="entry-card-subtag">รอการคำนวณ...</span>
                 </div>
                 <div class="entry-list" id="entry-nodes-container"></div>
@@ -240,8 +230,8 @@
 
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
-                    🎯 เป้าหมายทำกำไรหลายระดับ (Multi-TP Targets)
-                    <span class="sub-tag">VP & FVG R:R Model</span>
+                    🎯 ช่วงราคาทำกำไรหลายระดับ (Multi-TP Zones)
+                    <span class="sub-tag">VP & FVG R:R Zone Model</span>
                 </div>
                 <div class="tp-list" id="tp-nodes-container"></div>
             </div>
@@ -566,17 +556,17 @@ function renderAutoSRChannels(symbol) {
     
     container.innerHTML = `
         <div class="channel-card" style="border-left: 4px solid var(--purple);">
-            <div class="channel-title">M1 / M5 Auto Channels (Scalp Zone)</div>
+            <div class="channel-title">M1 / M5 Auto Zones (Scalp)</div>
             <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.m1m5.res}</div>
             <div class="channel-val" style="color:var(--up);">รับ: ${sr.m1m5.sup}</div>
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--gold);">
-            <div class="channel-title">M15 / H1 Auto Channels (Intraday)</div>
+            <div class="channel-title">M15 / H1 Auto Zones (Intraday)</div>
             <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.m15h1.res}</div>
             <div class="channel-val" style="color:var(--up);">รับ: ${sr.m15h1.sup}</div>
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--up);">
-            <div class="channel-title">H4 Auto Channels (Trend Structure)</div>
+            <div class="channel-title">H4 Auto Zones (Trend Structure)</div>
             <div class="channel-val" style="color:var(--down);">ต้าน: ${sr.h4.res}</div>
             <div class="channel-val" style="color:var(--up);">รับ: ${sr.h4.sup}</div>
         </div>
@@ -782,7 +772,6 @@ async function connectRealtimePriceAPI(symbol) {
         }
     }
 
-    // Fallback to polling
     await fetchBiQuoteLatest(symbol);
     pollInterval = setInterval(() => fetchBiQuoteLatest(symbol), 3000);
 }
@@ -828,6 +817,7 @@ function getDynamicMarketStructure(price) {
     };
 }
 
+// ฟังก์ชันคำนวณราคาจุดเข้าและ TP แบบเป็นช่วง (Range/Zone)
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
 
@@ -852,6 +842,9 @@ function recalculateTradingNodes(price) {
     if (userSignalMode === 'buy') isBuyTrend = true;
     else if (userSignalMode === 'sell') isBuyTrend = false;
     else isBuyTrend = momentum >= 0 && rangePosition < 0.72;
+
+    // คำนวณช่วงกว้างของแต่ละ Zone โดยอิงจาก ATR (ความผันผวนจริง)
+    const zoneWidth = atr * 0.25; 
 
     const buy1 = Math.min(price - atr * 0.25, structure.support + atr * 0.35);
     const buy2 = structure.support + atr * 0.15;
@@ -880,6 +873,13 @@ function recalculateTradingNodes(price) {
     const sellTP2 = price - sellRisk * 1.5;
     const sellTP3 = price - sellRisk * 2.2;
 
+    // ฟังก์ชันย่อยสำหรับจัดฟอร์แมตแสดงผลแบบช่วงราคา (Zone Format)
+    const formatZone = (centerPrice, isUpper = false) => {
+        const low = isUpper ? centerPrice : centerPrice - zoneWidth;
+        const high = isUpper ? centerPrice + zoneWidth : centerPrice;
+        return `$${low.toFixed(decimals)} – $${high.toFixed(decimals)}`;
+    };
+
     const entryContainer = document.getElementById('entry-nodes-container');
     const tpContainer = document.getElementById('tp-nodes-container');
     const badge = document.getElementById('sig-badge');
@@ -889,8 +889,8 @@ function recalculateTradingNodes(price) {
     const renderEntries = (side, entries) => entries.map(([p, zone], i) => `
         <div class="entry-item" style="flex-direction:column;align-items:stretch;gap:4px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span class="entry-label"><span class="dot ${side.toLowerCase()}"></span>${side} ไม้ ${i + 1}:</span>
-                <span class="val-num ${side.toLowerCase()}">$${p.toFixed(decimals)}</span>
+                <span class="entry-label"><span class="dot ${side.toLowerCase()}"></span>${side} โซนไม้ ${i + 1}:</span>
+                <span class="val-num ${side.toLowerCase()}">${formatZone(p)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);border-top:1px dashed rgba(255,255,255,.08);padding-top:4px;">
                 <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${zone}</b></span>
@@ -904,7 +904,7 @@ function recalculateTradingNodes(price) {
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
         subtag.textContent = 'BUY Focused — Dynamic Demand / FVG';
-        badge.textContent = `BUY @ $${buy1.toFixed(decimals)}`;
+        badge.textContent = `BUY Zone @ ${formatZone(buy1)}`;
         badge.className = 'sig-tag buy';
 
         entryContainer.innerHTML = renderEntries('BUY', [
@@ -914,9 +914,9 @@ function recalculateTradingNodes(price) {
         ]);
 
         tpContainer.innerHTML = `
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP1:</span><span class="val-num buy">$${buyTP1.toFixed(decimals)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP2:</span><span class="val-num buy">$${buyTP2.toFixed(decimals)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP3:</span><span class="val-num buy">$${buyTP3.toFixed(decimals)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP1 Zone:</span><span class="val-num buy">${formatZone(buyTP1, true)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP2 Zone:</span><span class="val-num buy">${formatZone(buyTP2, true)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP3 Zone:</span><span class="val-num buy">${formatZone(buyTP3, true)}</span></div>
             <div style="border-top:1px dashed var(--line);margin:4px 0;"></div>
             <div class="tp-item"><span class="tp-label"><span class="dot sl"></span>BUY SL:</span><span class="val-num sl">$${buySL.toFixed(decimals)}</span></div>`;
     } else {
@@ -924,7 +924,7 @@ function recalculateTradingNodes(price) {
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
         subtag.textContent = 'SELL Focused — Dynamic Supply / FVG';
-        badge.textContent = `SELL @ $${sell1.toFixed(decimals)}`;
+        badge.textContent = `SELL Zone @ ${formatZone(sell1, true)}`;
         badge.className = 'sig-tag sell';
 
         entryContainer.innerHTML = renderEntries('SELL', [
@@ -934,9 +934,9 @@ function recalculateTradingNodes(price) {
         ]);
 
         tpContainer.innerHTML = `
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP1:</span><span class="val-num sell">$${sellTP1.toFixed(decimals)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP2:</span><span class="val-num sell">$${sellTP2.toFixed(decimals)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP3:</span><span class="val-num sell">$${sellTP3.toFixed(decimals)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP1 Zone:</span><span class="val-num sell">${formatZone(sellTP1)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP2 Zone:</span><span class="val-num sell">${formatZone(sellTP2)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP3 Zone:</span><span class="val-num sell">${formatZone(sellTP3)}</span></div>
             <div style="border-top:1px dashed var(--line);margin:4px 0;"></div>
             <div class="tp-item"><span class="tp-label"><span class="dot sl"></span>SELL SL:</span><span class="val-num sl">$${sellSL.toFixed(decimals)}</span></div>`;
     }
@@ -946,11 +946,17 @@ function recalculateTradingNodes(price) {
 
     const srContainer = document.getElementById('sr-channels-container');
     if (srContainer) {
+        // คำนวณช่วง Dynamic Support & Resistance แบบกรอบราคา
+        const resZoneLow = structure.resistance - (atr * 0.15);
+        const resZoneHigh = structure.resistance + (atr * 0.15);
+        const supZoneLow = structure.support - (atr * 0.15);
+        const supZoneHigh = structure.support + (atr * 0.15);
+
         srContainer.innerHTML = `
             <div class="channel-card" style="border-left:4px solid var(--purple);">
-                <div class="channel-title">${currentTimeframe.toUpperCase()} Dynamic Channel</div>
-                <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(structure.resistance)}</div>
-                <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(structure.support)}</div>
+                <div class="channel-title">${currentTimeframe.toUpperCase()} Dynamic Zone</div>
+                <div class="channel-val" style="color:var(--down);">ต้าน: $${resZoneLow.toFixed(decimals)} – $${resZoneHigh.toFixed(decimals)}</div>
+                <div class="channel-val" style="color:var(--up);">รับ: $${supZoneLow.toFixed(decimals)} – $${supZoneHigh.toFixed(decimals)}</div>
             </div>
             <div class="channel-card" style="border-left:4px solid var(--gold);">
                 <div class="channel-title">Market Structure</div>
