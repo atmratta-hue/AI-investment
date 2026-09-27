@@ -561,7 +561,7 @@ function getDynamicMarketStructure(price) {
 }
 
 // =====================================================
-// FIXED SYMMETRICAL BUY / SELL TRADING ZONES
+// FIXED BUY/SELL ENTRY ZONE CALCULATION (REALISTIC ZONES)
 // =====================================================
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
@@ -590,34 +590,29 @@ function recalculateTradingNodes(price) {
     else if (userSignalMode === 'sell') isBuyTrend = false;
     else isBuyTrend = momentum >= 0 && rangePosition < 0.75;
 
-    // -------------------------------------------------------------
-    // กำหนดระยะ Offset ของโซน ให้ BUY และ SELL สมมาตรกัน 100%
-    // -------------------------------------------------------------
-    // ฝั่ง BUY (ย่อลงจากราคาปัจจุบันในสัดส่วนเดียวกับ SELL)
-    const buy1 = price - (atr * 0.15);
-    const buy2 = price - (atr * 0.40);
-    const buy3 = price - (atr * 0.75);
+    // แก้ไขจุดเข้าซื้อ (Entry Nodes): ไม่ลอยต่ำเกินไป อิงตามโซนราคาปัจจุบัน - (ATR * Ratio)
+    const buy1 = price - (atr * 0.15); // ไม้แรกเข้าสเกลใกล้ราคาปัจจุบันเมื่อย่อตัวเล็กน้อย
+    const buy2 = Math.max(price - (atr * 0.40), structure.support + (atr * 0.10)); // ไม้ 2 ตรง Demand Zone
+    const buy3 = Math.max(price - (atr * 0.75), structure.support - (atr * 0.10)); // ไม้ 3 ปลายแนวรับ
 
-    // ฝั่ง SELL (เด้งขึ้นจากราคาปัจจุบัน)
     const sell1 = price + (atr * 0.15);
-    const sell2 = price + (atr * 0.40);
-    const sell3 = price + (atr * 0.75);
+    const sell2 = Math.min(price + (atr * 0.40), structure.resistance - (atr * 0.10));
+    const sell3 = Math.min(price + (atr * 0.75), structure.resistance + (atr * 0.10));
 
     const zoneWidth = atr * 0.12;
 
-    // คำนวณ SL & TP แบบสมมาตร
-    const buySL = buy3 - (atr * 0.50);
-    const sellSL = sell3 + (atr * 0.50);
+    const buySL = buy3 - (atr * 0.5);
+    const sellSL = sell3 + (atr * 0.5);
+    const buyRisk = Math.max(price - buySL, atr);
+    const sellRisk = Math.max(sellSL - price, atr);
 
-    const riskDistance = atr * 1.25; // ระยะ Risk พื้นฐานที่เท่ากันทั้งสองฝั่ง
+    const buyTP1 = price + (buyRisk * 0.8);
+    const buyTP2 = price + (buyRisk * 1.5);
+    const buyTP3 = price + (buyRisk * 2.2);
 
-    const buyTP1 = price + (riskDistance * 0.8);
-    const buyTP2 = price + (riskDistance * 1.5);
-    const buyTP3 = price + (riskDistance * 2.2);
-
-    const sellTP1 = price - (riskDistance * 0.8);
-    const sellTP2 = price - (riskDistance * 1.5);
-    const sellTP3 = price - (riskDistance * 2.2);
+    const sellTP1 = price - (sellRisk * 0.8);
+    const sellTP2 = price - (sellRisk * 1.5);
+    const sellTP3 = price - (sellRisk * 2.2);
 
     const formatZone = (centerPrice, isUpper = false) => {
         const low = isUpper ? centerPrice : centerPrice - zoneWidth;
@@ -641,7 +636,7 @@ function recalculateTradingNodes(price) {
         <div class="entry-item" style="flex-direction:column;align-items:stretch;gap:4px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span class="entry-label"><span class="dot ${side.toLowerCase()}"></span>${side} โซนไม้ ${i + 1}:</span>
-                <span class="val-num ${side.toLowerCase()}">${formatZone(p, side === 'SELL')}</span>
+                <span class="val-num ${side.toLowerCase()}">${formatZone(p)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);border-top:1px dashed rgba(255,255,255,.08);padding-top:4px;">
                 <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${zone}</b></span>
@@ -659,9 +654,9 @@ function recalculateTradingNodes(price) {
         badge.className = 'sig-tag buy';
 
         entryContainer.innerHTML = renderEntries('BUY', [
-            [buy1, 'Demand Zone 1 (Pullback 1)'],
-            [buy2, 'Order Block Zone (Pullback 2)'],
-            [buy3, 'Discount Zone (Major Support)']
+            [buy1, 'Demand Zone ใกล้ราคาปัจจุบัน (Pullback 1)'],
+            [buy2, 'FVG / Order Block Zone (Pullback 2)'],
+            [buy3, 'Discount Zone บริเวณแนวรับหลัก (Major Support)']
         ]);
 
         tpContainer.innerHTML = `
@@ -679,9 +674,9 @@ function recalculateTradingNodes(price) {
         badge.className = 'sig-tag sell';
 
         entryContainer.innerHTML = renderEntries('SELL', [
-            [sell1, 'Supply Zone 1 (Rally 1)'],
+            [sell1, 'Supply Zone ใกล้ราคาปัจจุบัน (Rally 1)'],
             [sell2, 'FVG / Resistance Zone (Rally 2)'],
-            [sell3, 'Premium Zone (Major Resistance)']
+            [sell3, 'Premium Zone บริเวณแนวต้านหลัก (Major Resistance)']
         ]);
 
         tpContainer.innerHTML = `
@@ -771,6 +766,7 @@ function go(symbol, label){
         }
     });
 
+    // หากเป็นสัญลักษณ์ใหม่ที่ไม่มีใน Chip ให้สร้าง Chip เพิ่มให้อัตโนมัติทันที
     if (!found) {
         const chipRow = document.getElementById('chip-row');
         const newChip = document.createElement('span');
@@ -793,6 +789,7 @@ function handleSearch(){
     if (!input) return;
 
     let symbol = input;
+    // ปรับรูปแบบอัตโนมัติหากผู้ใช้พิมพ์สัญลักษณ์สั้นๆ
     if (!symbol.includes(':')) {
         if (symbol.includes('BTC') || symbol.includes('ETH') || symbol.includes('USDT')) symbol = 'BINANCE:' + symbol;
         else if (symbol.includes('XAU') || symbol.includes('EUR') || symbol.includes('GBP') || symbol.includes('JPY')) symbol = 'OANDA:' + symbol;
@@ -807,6 +804,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
+// เริ่มต้นใช้งาน Real-Time Stream
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>

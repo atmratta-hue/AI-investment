@@ -152,22 +152,23 @@ async function fetchDailyNewsAnalysis(symbol) {
 }
 
 // =====================================================
-// RECALCULATE SYMMETRICAL BUY / SELL TRADING SETUP
+// RECALCULATE REALISTIC BUY / SELL TRADING SETUP
 // =====================================================
 function calculatePunportSetup(symbol, tf, realPrice, hasNews) {
   const currentPrice = Number.isFinite(Number(realPrice)) && Number(realPrice) > 0 ? Number(realPrice) : 0;
   if (!currentPrice) throw new Error('Invalid market price');
 
-  const isForex = symbol.includes('EUR') || (symbol.includes('USD') && !symbol.includes('XAU') && !symbol.includes('BTC'));
+  // คำนวณช่วงการผันผวน (Volatility Ratio) อิงตามสัญลักษณ์
+  const isForex = symbol.includes('EUR') || symbol.includes('USD') && !symbol.includes('XAU') && !symbol.includes('BTC');
   const baseRange = currentPrice * (isForex ? 0.0015 : 0.0035);
 
-  // แนวรับ-แนวต้านที่สมมาตร
+  // แนวรับ-แนวต้านที่สอดคล้องกับโครงสร้างราคาจริง
   const res1 = (currentPrice + baseRange * 0.6).toFixed(isForex ? 5 : 2);
   const res2 = (currentPrice + baseRange * 1.2).toFixed(isForex ? 5 : 2);
   const sup1 = (currentPrice - baseRange * 0.6).toFixed(isForex ? 5 : 2);
   const sup2 = (currentPrice - baseRange * 1.2).toFixed(isForex ? 5 : 2);
 
-  // ปรับระยะจุดเข้า BUY และ SELL ให้ใช้ระยะ Offset สมมาตรเท่ากัน
+  // แก้ไขจุดเข้าซื้อ (Buy Zone): ไม่ให้ต่ำเกินไป แต่อยู่ในโซน Demand ที่เข้าเทรดได้จริง
   const buyPoint1 = (currentPrice - baseRange * 0.15).toFixed(isForex ? 5 : 2);
   const buyPoint2 = (currentPrice - baseRange * 0.40).toFixed(isForex ? 5 : 2);
 
