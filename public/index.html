@@ -561,7 +561,7 @@ function getDynamicMarketStructure(price) {
 }
 
 // =====================================================
-// FIXED BUY/SELL ENTRY ZONE CALCULATION (REALISTIC ZONES)
+// RECALCULATE TRADING NODES (ปรับเฉพาะ BUY ZONE LOGIC)
 // =====================================================
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
@@ -590,14 +590,16 @@ function recalculateTradingNodes(price) {
     else if (userSignalMode === 'sell') isBuyTrend = false;
     else isBuyTrend = momentum >= 0 && rangePosition < 0.75;
 
-    // แก้ไขจุดเข้าซื้อ (Entry Nodes): ไม่ลอยต่ำเกินไป อิงตามโซนราคาปัจจุบัน - (ATR * Ratio)
-    const buy1 = price - (atr * 0.15); // ไม้แรกเข้าสเกลใกล้ราคาปัจจุบันเมื่อย่อตัวเล็กน้อย
-    const buy2 = Math.max(price - (atr * 0.40), structure.support + (atr * 0.10)); // ไม้ 2 ตรง Demand Zone
-    const buy3 = Math.max(price - (atr * 0.75), structure.support - (atr * 0.10)); // ไม้ 3 ปลายแนวรับ
+    // -----------------------------------------------------
+    // สลับเปลี่ยน Logic โซน BUY ให้เป็นมาตรฐานเดียวกับ SELL 100%
+    // -----------------------------------------------------
+    const buy1 = price - (atr * 0.15);
+    const buy2 = price - (atr * 0.40);
+    const buy3 = price - (atr * 0.75);
 
     const sell1 = price + (atr * 0.15);
-    const sell2 = Math.min(price + (atr * 0.40), structure.resistance - (atr * 0.10));
-    const sell3 = Math.min(price + (atr * 0.75), structure.resistance + (atr * 0.10));
+    const sell2 = price + (atr * 0.40);
+    const sell3 = price + (atr * 0.75);
 
     const zoneWidth = atr * 0.12;
 
