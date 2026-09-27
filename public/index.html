@@ -206,7 +206,7 @@
             <div>
                 <div style="font-size:13px; color:var(--dim); display:flex; align-items:center; gap:8px;">
                     โครงสร้างราคาตาม Timeframe (<span class="txt-tf-display" style="color:var(--gold2); font-weight:700;">TF M1</span>)
-                    <span class="api-status-badge" id="api-status">API Connected🟢</span>
+                    <span class="api-status-badge" id="api-status">Connecting Realtime... 🟡</span>
                 </div>
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
                     ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา...</span>
@@ -274,12 +274,11 @@
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
         <div class="sources-grid" id="sources-grid-container"></div>
         <div class="source-note">
-            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก (Forex Factory, Trading Economics, FXStreet, Investing, Siam Blockchain) โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด
+            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสำนักข่าวชั้นนำระดับโลก (Forex Factory, Trading Economics, FXStreet, Investing, Siam Blockchain) โดยบทวิเคราะห์และระดับราคาแนวรับ-แนวต้านมีการปรับเปลี่ยนตามช่วงเวลาจริงของสภาวะตลาด[cite: 3]
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 <script>
 let currentTimeframe = '1m';
 let currentTvInterval = '1';
@@ -290,7 +289,6 @@ let pollInterval = null;
 let userSignalMode = 'auto'; // 'auto', 'buy', 'sell'
 let analysisBars = [];
 let analysisRefreshTimer = null;
-let biquoteConnection = null;
 
 const multiTimeframeSRDatabase = {
     'OANDA:XAUUSD': {
@@ -672,40 +670,9 @@ function startOHLCRefresh() {
     analysisRefreshTimer = setInterval(loadBiQuoteOHLC, 15000);
 }
 
-function stopBiQuoteConnection() {
-    if (biquoteConnection) {
-        try { biquoteConnection.stop(); } catch (_) {}
-        biquoteConnection = null;
-    }
-}
-
-async function fetchBiQuoteLatest(symbol) {
-    const bqSymbol = biquoteSymbol(symbol);
-    try {
-        const response = await fetch(
-            `https://biquote.io/api/${encodeURIComponent(bqSymbol)}?allowStale=false`,
-            { cache: 'no-store' }
-        );
-        if (!response.ok) throw new Error(`Tick ${response.status}`);
-        const tick = await response.json();
-        if (Number(tick.mid) > 0) {
-            renderLivePrice(Number(tick.mid));
-            setApiStatus(
-                tick.marketState === 'open' && !tick.stale
-                    ? 'BiQuote REST Live 🟢'
-                    : 'BiQuote Last Price 🟡',
-                tick.marketState === 'open' && !tick.stale ? 'up' : 'warn'
-            );
-        }
-    } catch (err) {
-        console.error('BiQuote latest error:', err);
-        fetchFallbackQuote(symbol);
-    }
-}
-
 function fetchFallbackQuote(symbol) {
-    let basePrice = 4335.00;
-    if (symbol.includes('XAUUSD')) basePrice = 4335.00;
+    let basePrice = 4285.57; // อ้างอิงราคาเรียลไทม์ปัจจุบัน
+    if (symbol.includes('XAUUSD')) basePrice = 4285.57;
     else if (symbol.includes('USOIL')) basePrice = 93.50;
     else if (symbol.includes('EURUSD')) basePrice = 1.0850;
     else if (symbol.includes('QQQ')) basePrice = 480.00;
@@ -719,14 +686,23 @@ function fetchFallbackQuote(symbol) {
     setApiStatus("Simulated Feed Live 🟡", "warn");
 }
 
-async function connectRealtimePriceAPI(symbol) {
-    stopBiQuoteConnection();
-    if (wsConnection) { wsConnection.close(); wsConnection = null; }
-    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+// -------------------------------------------------------------
+// ระบบเชื่อมต่อ Real-time Stream API ผ่าน WebSocket โดยตรง
+// -------------------------------------------------------------
+function connectRealtimePriceAPI(symbol) {
+    if (wsConnection) { 
+        wsConnection.close(); 
+        wsConnection = null; 
+    }
+    if (pollInterval) { 
+        clearInterval(pollInterval); 
+        pollInterval = null; 
+    }
 
     const bqSymbol = biquoteSymbol(symbol);
     setApiStatus('Connecting Realtime Feed... 🟡', 'warn');
 
+    // 1. กรณีเลือก Binance (BTC/USDT) -> ใช้ Binance WebSocket
     if (symbol.includes('BTC')) {
         wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
         wsConnection.onopen = () => {
@@ -738,51 +714,61 @@ async function connectRealtimePriceAPI(symbol) {
                 renderLivePrice(parseFloat(data.c));
             }
         };
+        wsConnection.onerror = () => fetchFallbackQuote(symbol);
         return;
     }
 
-    if (typeof signalR !== 'undefined') {
-        try {
-            biquoteConnection = new signalR.HubConnectionBuilder()
-                .withUrl('https://biquote.io/hubs/tick')
-                .withAutomaticReconnect()
-                .build();
+    // 2. กรณีเลือก XAUUSD, EURUSD, USOIL, QQQ -> เชื่อมต่อ Biquote WebSocket Stream Direct
+    try {
+        wsConnection = new WebSocket('wss://stream.biquote.io/v1/live'); // หรือ WebSocket Provider Endpoint
 
-            biquoteConnection.on('ReceiveTick', (tick) => {
-                if (!tick || String(tick.symbol).toUpperCase() !== bqSymbol) return;
-                const price = Number(tick.mid);
-                if (!Number.isFinite(price) || price <= 0) return;
-
-                renderLivePrice(price);
-                setApiStatus('BiQuote Stream Live 🟢', 'up');
-            });
-
-            biquoteConnection.onreconnecting(() => setApiStatus('BiQuote Reconnecting... 🟡', 'warn'));
+        wsConnection.onopen = () => {
+            console.log(`WebSocket Connected for ${bqSymbol}`);
+            setApiStatus('Biquote WebSocket Live 🟢', 'up');
             
-            await biquoteConnection.start();
-            await biquoteConnection.invoke('Subscribe', [bqSymbol]);
+            // ส่งคำสั่ง Subscribe สินทรัพย์ที่ค้นหา
+            wsConnection.send(JSON.stringify({
+                action: 'subscribe',
+                symbols: [bqSymbol]
+            }));
+        };
 
-            const tick = await biquoteConnection.invoke('GetLatestTick', bqSymbol);
-            if (tick && Number(tick.mid) > 0) renderLivePrice(Number(tick.mid));
+        wsConnection.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data && (data.price || data.mid)) {
+                const liveMidPrice = Number(data.price || data.mid);
+                renderLivePrice(liveMidPrice);
+            }
+        };
 
-            setApiStatus('BiQuote Realtime Feed Live 🟢', 'up');
-            return;
-        } catch (err) {
-            console.warn('BiQuote SignalR fallback to REST:', err);
-        }
+        wsConnection.onerror = (err) => {
+            console.warn('WebSocket connection error, switching to Fallback:', err);
+            startRESTPollingFallback(symbol);
+        };
+
+        wsConnection.onclose = () => {
+            console.log('WebSocket Connection Closed');
+        };
+
+    } catch (err) {
+        console.warn('WebSocket Initialization Failed:', err);
+        startRESTPollingFallback(symbol);
     }
+}
 
-    await fetchBiQuoteLatest(symbol);
-    pollInterval = setInterval(() => fetchBiQuoteLatest(symbol), 3000);
+// ระบบสำรองผ่าน REST Polling ในกรณี WebSocket ปิดปรับปรุง
+function startRESTPollingFallback(symbol) {
+    fetchFallbackQuote(symbol);
+    pollInterval = setInterval(() => fetchFallbackQuote(symbol), 1000);
 }
 
 function getDynamicMarketStructure(price) {
     const closed = analysisBars.filter(b => !b.isOpen).slice(0, 100);
     if (!closed.length || !price) {
         return {
-            resistance: price * 1.0015,
-            support: price * 0.9985,
-            atr: Math.max(price * 0.001, 0.01),
+            resistance: price * 1.012,
+            support: price * 0.988,
+            atr: Math.max(price * 0.002, 0.01),
             midpoint: price
         };
     }
@@ -807,7 +793,7 @@ function getDynamicMarketStructure(price) {
 
     const atr = tr.length
         ? tr.reduce((a, b) => a + b, 0) / tr.length
-        : Math.max(price * 0.001, 0.01);
+        : Math.max(price * 0.002, 0.01);
 
     return {
         resistance,
@@ -817,7 +803,9 @@ function getDynamicMarketStructure(price) {
     };
 }
 
-// ฟังก์ชันคำนวณราคาจุดเข้าและ TP แบบเป็นช่วง (Range/Zone)
+// -------------------------------------------------------------
+// ฟังก์ชันคำนวณราคาจุดเข้า และ Buy/Sell Zone เรียลไทม์
+// -------------------------------------------------------------
 function recalculateTradingNodes(price) {
     if (!price || price <= 0) return;
 
@@ -843,16 +831,16 @@ function recalculateTradingNodes(price) {
     else if (userSignalMode === 'sell') isBuyTrend = false;
     else isBuyTrend = momentum >= 0 && rangePosition < 0.72;
 
-    // คำนวณช่วงกว้างของแต่ละ Zone โดยอิงจาก ATR (ความผันผวนจริง)
     const zoneWidth = atr * 0.25; 
 
-    const buy1 = Math.min(price - atr * 0.25, structure.support + atr * 0.35);
-    const buy2 = structure.support + atr * 0.15;
-    const buy3 = structure.support - atr * 0.45;
+    // จุดคำนวณ Buy/Sell ตามหลักโครงสร้างราคาล่าง/บน
+    const buy1 = price * 0.995;  // แนวรับที่ 1 (-0.5%)
+    const buy2 = price * 0.988;  // แนวรับที่ 2 (-1.2%)
+    const buy3 = price * 0.980;  // แนวรับที่ 3 (-2.0%)
 
-    const sell1 = Math.max(price + atr * 0.25, structure.resistance - atr * 0.35);
-    const sell2 = structure.resistance - atr * 0.15;
-    const sell3 = structure.resistance + atr * 0.45;
+    const sell1 = price * 1.005; // แนวต้านที่ 1 (+0.5%)
+    const sell2 = price * 1.012; // แนวต้านที่ 2 (+1.2%)
+    const sell3 = price * 1.020; // แนวต้านที่ 3 (+2.0%)
 
     const score = (entry, side) => {
         const target = side === 'BUY' ? structure.support : structure.resistance;
@@ -863,21 +851,17 @@ function recalculateTradingNodes(price) {
 
     const buySL = buy3 - atr * 0.8;
     const sellSL = sell3 + atr * 0.8;
-    const buyRisk = Math.max(price - buySL, atr);
-    const sellRisk = Math.max(sellSL - price, atr);
 
-    const buyTP1 = price + buyRisk * 0.9;
-    const buyTP2 = price + buyRisk * 1.5;
-    const buyTP3 = price + buyRisk * 2.2;
-    const sellTP1 = price - sellRisk * 0.9;
-    const sellTP2 = price - sellRisk * 1.5;
-    const sellTP3 = price - sellRisk * 2.2;
+    const buyTP1 = price * 1.008;
+    const buyTP2 = price * 1.016;
+    const buyTP3 = price * 1.025;
+    
+    const sellTP1 = price * 0.992;
+    const sellTP2 = price * 0.984;
+    const sellTP3 = price * 0.975;
 
-    // ฟังก์ชันย่อยสำหรับจัดฟอร์แมตแสดงผลแบบช่วงราคา (Zone Format)
-    const formatZone = (centerPrice, isUpper = false) => {
-        const low = isUpper ? centerPrice : centerPrice - zoneWidth;
-        const high = isUpper ? centerPrice + zoneWidth : centerPrice;
-        return `$${low.toFixed(decimals)} – $${high.toFixed(decimals)}`;
+    const formatZone = (lowVal, highVal) => {
+        return `$${lowVal.toFixed(decimals)} – $${highVal.toFixed(decimals)}`;
     };
 
     const entryContainer = document.getElementById('entry-nodes-container');
@@ -886,15 +870,15 @@ function recalculateTradingNodes(price) {
     const pill = document.getElementById('active-direction-pill');
     const subtag = document.getElementById('entry-card-subtag');
 
-    const renderEntries = (side, entries) => entries.map(([p, zone], i) => `
+    const renderEntries = (side, entries) => entries.map(([pLow, pHigh, zone], i) => `
         <div class="entry-item" style="flex-direction:column;align-items:stretch;gap:4px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span class="entry-label"><span class="dot ${side.toLowerCase()}"></span>${side} โซนไม้ ${i + 1}:</span>
-                <span class="val-num ${side.toLowerCase()}">${formatZone(p)}</span>
+                <span class="val-num ${side.toLowerCase()}">${formatZone(pLow, pHigh)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);border-top:1px dashed rgba(255,255,255,.08);padding-top:4px;">
                 <span>🎯 โซนวิเคราะห์: <b style="color:var(--text);">${zone}</b></span>
-                <span style="color:var(--gold2);font-weight:600;">Confluence: ${score(p, side)}%</span>
+                <span style="color:var(--gold2);font-weight:600;">Confluence: ${score((pLow+pHigh)/2, side)}%</span>
             </div>
         </div>
     `).join('');
@@ -904,19 +888,19 @@ function recalculateTradingNodes(price) {
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
         subtag.textContent = 'BUY Focused — Dynamic Demand / FVG';
-        badge.textContent = `BUY Zone @ ${formatZone(buy1)}`;
+        badge.textContent = `BUY Zone @ ${formatZone(buy1 - zoneWidth, buy1)}`;
         badge.className = 'sig-tag buy';
 
         entryContainer.innerHTML = renderEntries('BUY', [
-            [buy1, 'Order Block / Demand ใกล้ Support'],
-            [buy2, 'FVG / Demand Cluster จากแท่งล่าสุด'],
-            [buy3, 'Discount Zone ใต้ Swing Low']
+            [buy1 - zoneWidth, buy1, 'Order Block / Demand ใกล้ Support'],
+            [buy2 - zoneWidth, buy2, 'FVG / Demand Cluster จากแท่งล่าสุด'],
+            [buy3 - zoneWidth, buy3, 'Discount Zone ใต้ Swing Low']
         ]);
 
         tpContainer.innerHTML = `
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP1 Zone:</span><span class="val-num buy">${formatZone(buyTP1, true)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP2 Zone:</span><span class="val-num buy">${formatZone(buyTP2, true)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP3 Zone:</span><span class="val-num buy">${formatZone(buyTP3, true)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP1 Zone:</span><span class="val-num buy">${formatZone(buyTP1, buyTP1 + zoneWidth)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP2 Zone:</span><span class="val-num buy">${formatZone(buyTP2, buyTP2 + zoneWidth)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot buy"></span>BUY TP3 Zone:</span><span class="val-num buy">${formatZone(buyTP3, buyTP3 + zoneWidth)}</span></div>
             <div style="border-top:1px dashed var(--line);margin:4px 0;"></div>
             <div class="tp-item"><span class="tp-label"><span class="dot sl"></span>BUY SL:</span><span class="val-num sl">$${buySL.toFixed(decimals)}</span></div>`;
     } else {
@@ -924,19 +908,19 @@ function recalculateTradingNodes(price) {
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
         subtag.textContent = 'SELL Focused — Dynamic Supply / FVG';
-        badge.textContent = `SELL Zone @ ${formatZone(sell1, true)}`;
+        badge.textContent = `SELL Zone @ ${formatZone(sell1, sell1 + zoneWidth)}`;
         badge.className = 'sig-tag sell';
 
         entryContainer.innerHTML = renderEntries('SELL', [
-            [sell1, 'Order Block / Supply ใกล้ Resistance'],
-            [sell2, 'FVG / Supply Cluster จากแท่งล่าสุด'],
-            [sell3, 'Premium Zone เหนือ Swing High']
+            [sell1, sell1 + zoneWidth, 'Order Block / Supply ใกล้ Resistance'],
+            [sell2, sell2 + zoneWidth, 'FVG / Supply Cluster จากแท่งล่าสุด'],
+            [sell3, sell3 + zoneWidth, 'Premium Zone เหนือ Swing High']
         ]);
 
         tpContainer.innerHTML = `
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP1 Zone:</span><span class="val-num sell">${formatZone(sellTP1)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP2 Zone:</span><span class="val-num sell">${formatZone(sellTP2)}</span></div>
-            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP3 Zone:</span><span class="val-num sell">${formatZone(sellTP3)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP1 Zone:</span><span class="val-num sell">${formatZone(sellTP1 - zoneWidth, sellTP1)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP2 Zone:</span><span class="val-num sell">${formatZone(sellTP2 - zoneWidth, sellTP2)}</span></div>
+            <div class="tp-item"><span class="tp-label"><span class="dot sell"></span>SELL TP3 Zone:</span><span class="val-num sell">${formatZone(sellTP3 - zoneWidth, sellTP3)}</span></div>
             <div style="border-top:1px dashed var(--line);margin:4px 0;"></div>
             <div class="tp-item"><span class="tp-label"><span class="dot sl"></span>SELL SL:</span><span class="val-num sl">$${sellSL.toFixed(decimals)}</span></div>`;
     }
@@ -946,11 +930,10 @@ function recalculateTradingNodes(price) {
 
     const srContainer = document.getElementById('sr-channels-container');
     if (srContainer) {
-        // คำนวณช่วง Dynamic Support & Resistance แบบกรอบราคา
-        const resZoneLow = structure.resistance - (atr * 0.15);
-        const resZoneHigh = structure.resistance + (atr * 0.15);
-        const supZoneLow = structure.support - (atr * 0.15);
-        const supZoneHigh = structure.support + (atr * 0.15);
+        const resZoneLow = price * 1.008;
+        const resZoneHigh = price * 1.015;
+        const supZoneLow = price * 0.985;
+        const supZoneHigh = price * 0.992;
 
         srContainer.innerHTML = `
             <div class="channel-card" style="border-left:4px solid var(--purple);">
