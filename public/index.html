@@ -20,7 +20,6 @@
             --up: #3fb37f;
             --down: #e2574c;
             --purple: #a855f7;
-            --zone-bg: rgba(201, 162, 39, 0.08);
         }
 
         * { box-sizing: border-box; }
@@ -74,15 +73,21 @@
         .strategy-card-title { font-size: 13.5px; font-weight: 700; color: var(--gold2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
         .sub-tag { font-size: 11px; color: var(--dim); font-weight: 400; }
 
-        /* Price Zone Styling */
-        .zone-container { display: flex; flex-direction: column; gap: 10px; }
-        .zone-box { background: var(--zone-bg); border: 1px solid var(--gold); border-radius: 8px; padding: 10px 14px; }
-        .zone-box.sl-zone { background: rgba(226, 87, 76, 0.08); border-color: var(--down); }
-        .zone-box.tp-zone { background: rgba(63, 179, 127, 0.08); border-color: var(--up); }
+        .zone-list { display: flex; flex-direction: column; gap: 8px; }
+        .zone-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 9px 12px; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid var(--line); }
+        .zone-label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
-        .zone-header { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
-        .zone-range { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 700; }
-        .zone-desc { font-size: 11.5px; color: var(--dim); margin-top: 2px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.buy { background: var(--up); }
+        .dot.sell { background: var(--down); }
+        .dot.sl { background: var(--down); }
+        .dot.tp { background: var(--gold2); }
+
+        .val-num { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; }
+        .val-num.buy { color: var(--up); }
+        .val-num.sell { color: var(--down); }
+        .val-num.sl { color: var(--down); }
+        .val-num.tp { color: var(--gold2); }
 
         .sig-tag { padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase; text-align: center; }
         .sig-tag.buy { background: rgba(63, 179, 127, 0.2); color: var(--up); border: 1px solid var(--up); }
@@ -199,7 +204,7 @@
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
-    <!-- 4. ส่วนคำนวณราคาและสัญญาณ Real-Time เป็น Price Zone -->
+    <!-- 4. ส่วนคำนวณราคาและสัญญาณ Real-Time (แสดงผลเป็น Price Zones) -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -211,7 +216,7 @@
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
                     ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา...</span>
                 </div>
-                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: M15 Structure + Refined Order Block (M1/M5)</div>
+                <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">โหมดการคำนวณ: M15 Structure + Refined Order Block (M1/M5 Extreme Wick Capture)</div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
                 <span class="status-pill" id="active-direction-pill">ANALYZING SMC...</span>
@@ -220,22 +225,22 @@
         </div>
 
         <div class="strategy-split-grid">
-            <!-- ฝั่ง Entry Zone -->
+            <!-- โซนเข้าเทรด Entry Zone 1, 2, 3 -->
             <div class="strategy-card">
                 <div class="strategy-card-title">
-                    📌 โซนเข้าเทรด (Entry Zone)
-                    <span class="sub-tag" id="entry-card-subtag">รอคำนวณโครงสร้าง...</span>
+                    📌 โซนเข้าซื้อขาย (Entry Zone 1 - 3)
+                    <span class="sub-tag" id="entry-card-subtag">ปลายไส้ / Extreme OB</span>
                 </div>
-                <div class="zone-container" id="entry-nodes-container"></div>
+                <div class="zone-list" id="entry-zones-container"></div>
             </div>
 
-            <!-- ฝั่ง TP Zone & SL Zone -->
+            <!-- โซนเป้าหมาย TP Zone และ SL Zone -->
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
-                    🎯 โซนเป้าหมาย (TP Zone) & ตัดขาดทุน (SL Zone)
-                    <span class="sub-tag">M15 R:R Ratio Model</span>
+                    🎯 โซนเป้าหมาย & ตัดขาดทุน (TP Zone 1-3 & SL Zone)
+                    <span class="sub-tag">Liquidity & R:R Model</span>
                 </div>
-                <div class="zone-container" id="tp-nodes-container"></div>
+                <div class="zone-list" id="tp-sl-zones-container"></div>
             </div>
         </div>
     </div>
@@ -327,32 +332,32 @@ const multiTimeframeSRDatabase = {
 
 const forexFactoryPredictions = {
     'OANDA:XAUUSD': [
-        { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'การคาดการณ์ชะลอตัวเล็กน้อย หากตัวเลขจริงต่ำกว่าคาด จะกดดันดอลลาร์ และหนุนทองคำรีบาวด์เข้าหาแนวต้าน VAH' },
-        { event: 'FOMC Member Speeches & Fed Rate Path', forecast: 'Hawkish Hold', prev: '4.25%', impact: 'ถ้อยแถลงเฟดเรื่องตรึงดอกเบี้ยสูงยาวนานสร้างแรงกดดันระยะสั้น แต่แรงซื้อเซฟเฮเว่นยังช่วยพยุงฐานแนวรับสำคัญ' },
-        { event: 'US Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันลดลง สะท้อนแรงเงินเฟ้อภาคพลังงานทรงตัว เป็นปัจจัยหนุนทองคำสลับย่อซื้อ' }
+        { event: 'USD Flash Manufacturing PMI', forecast: '53.6', prev: '53.9', impact: 'ตัวเลขต่ำคาดกดดันดอลลาร์ หนุนทองคำรีบาวด์เข้าโซนแนวต้าน' },
+        { event: 'FOMC Member Speeches & Fed Rate Path', forecast: 'Hawkish Hold', prev: '4.25%', impact: 'ถ้อยแถลงเฟดเรื่องตรึงดอกเบี้ยสร้างแรงกดดันระยะสั้น แต่แรงซื้อเซฟเฮเว่นพยุงฐาน' },
+        { event: 'US Crude Oil Inventories', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันลดลง สะท้อนแรงเงินเฟ้อภาคพลังงาน หนุนทองคำสลับย่อซื้อโซนล่าง' }
     ],
     'BINANCE:BTCUSDT': [
-        { event: 'US Fed Rate Expectations', forecast: 'Cut Odds 65%', prev: '50%', impact: 'หากมีสัญญาณปรับลดดอกเบี้ย จะกระตุ้นแรงซื้อสินทรัพย์เสี่ยง ดัน Bitcoin ทะลุต้าน FVG $77,800' },
-        { event: 'US Macro & Tech Liquidity Index', forecast: 'Expanding', prev: 'Neutral', impact: 'สภาพคล่องสถาบันไหลเข้าสู่ Spot ETF อย่างต่อเนื่อง พยุงราคาไม่ให้หลุดแนวรับหลัก' }
+        { event: 'US Fed Rate Expectations', forecast: 'Cut Odds 65%', prev: '50%', impact: 'สัญญาณลดดอกเบี้ยกระตุ้นแรงซื้อสินทรัพย์เสี่ยง ดัน Bitcoin ทะลุต้าน FVG' },
+        { event: 'US Macro & Tech Liquidity Index', forecast: 'Expanding', prev: 'Neutral', impact: 'สภาพคล่องสถาบันไหลเข้าต่อเนื่อง พยุงราคาไม่ให้หลุดโซนรับหลัก' }
     ],
     'TVC:USOIL': [
-        { event: 'EIA Crude Oil Stocks Change', forecast: '-0.7M', prev: '-0.6M', impact: 'ปริมาณน้ำมันดิบสำรองลดลงสะท้อนอุปสงค์ฟื้นตัว ดันราคาน้ำมันเด้งจากโซน VAL $92.80' },
-        { event: 'Middle-East Supply Risk Assessment', forecast: 'High Alert', prev: 'High', impact: 'ข่าวนอกตารางเรื่องความเสี่ยงด้านช่องทางการขนส่ง ส่งผลให้เกิด Risk Premium ในราคาน้ำมัน' }
+        { event: 'EIA Crude Oil Stocks Change', forecast: '-0.7M', prev: '-0.6M', impact: 'สต็อกน้ำมันดิบสำรองลดลงสะท้อนอุปสงค์ฟื้นตัว ดันราคาน้ำมันเด้งจากโซน VAL' },
+        { event: 'Middle-East Supply Risk Assessment', forecast: 'High Alert', prev: 'High', impact: 'ความเสี่ยงด้านการขนส่งส่งผลให้เกิด Risk Premium ในราคาน้ำมัน' }
     ],
     'OANDA:EURUSD': [
-        { event: 'ECB President Speech & Policy Rate', forecast: 'Neutral-Hawkish', prev: '3.25%', impact: 'หาก ECB ส่งสัญญาณไม่รีบลดดอกเบี้ย จะช่วยพยุง EUR/USD ให้เด้งกลับขึ้นทดสอบแนวต้าน 1.0920' },
-        { event: 'US Dollar Index (DXY) Momentum', forecast: 'Testing 101.00', prev: '100.50', impact: 'ดอลลาร์ที่แข็งค่ากดดันคู่เงิน EUR/USD ให้ปรับตัวย่อลงมาทดสอบโซนแนวรับสำคัญ' }
+        { event: 'ECB President Speech & Policy Rate', forecast: 'Neutral-Hawkish', prev: '3.25%', impact: 'ECB ส่งสัญญาณไม่รีบลดดอกเบี้ย ช่วยพยุง EUR/USD ให้เด้งกลับทดสอบโซนแนวต้าน' },
+        { event: 'US Dollar Index (DXY) Momentum', forecast: 'Testing 101.00', prev: '100.50', impact: 'ดอลลาร์แข็งค่ากดดันคู่เงิน EUR/USD ย่อตัวทดสอบโซนแนวรับสำคัญ' }
     ],
     'NASDAQ:QQQ': [
-        { event: 'US Durable Goods Orders', forecast: '-0.3%', prev: '1.1%', impact: 'ตัวเลขเศรษฐกิจชะลอตัวชั่วคราว ดึงราคาย่อตัวลงมาหากรอบแนวรับสะสมพลังก่อนวิ่งต่อ' },
-        { event: 'Tech Earnings & AI Capital Expenditure', forecast: 'Strong Guidance', prev: 'Positive', impact: 'แรงซื้อกลุ่มหุ้นบิ๊กเทคหนุนดัชนี NASDAQ พยายามปรับตัวขึ้นทดสอบจุดสูงสุดใหม่' }
+        { event: 'US Durable Goods Orders', forecast: '-0.3%', prev: '1.1%', impact: 'ตัวเลขชะลอตัวชั่วคราวดึงราคาย่อตัวลงมาหากรอบโซนรับสะสมพลัง' },
+        { event: 'Tech Earnings & AI Capital Expenditure', forecast: 'Strong Guidance', prev: 'Positive', impact: 'แรงซื้อหุ้นบิ๊กเทคหนุนดัชนี NASDAQ ทดสอบจุดสูงสุดใหม่' }
     ]
 };
 
 const assetNewsData = {
     'OANDA:XAUUSD': {
         title: '📊 วิเคราะห์ข่าวทองคำ (XAU/USD) & ปัจจัยเศรษฐกิจมหภาคประจำวัน',
-        desc: 'ทองคำเคลื่อนไหวในกรอบสะสมกำลัง รับแรงพยุงจากความต้องการสินทรัพย์ปลอดภัย (Safe-Haven Demand) ท่ามกลางสถานการณ์ภูมิรัฐศาสตร์ ขณะที่ตลาดเฝ้าระวังท่าทีของเฟด (Fed Hawkish Stance) และดัชนีดอลลาร์ที่ทรงตัวระดับสูง',
+        desc: 'ทองคำเคลื่อนไหวในกรอบสะสมกำลัง รับแรงพยุงจากความต้องการสินทรัพย์ปลอดภัยท่ามกลางสถานการณ์ภูมิรัฐศาสตร์ ขณะที่ตลาดเฝ้าระวังท่าทีเฟด',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (ทองคำ):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (ทองคำ - XAU/USD)',
         news: [
@@ -361,7 +366,7 @@ const assetNewsData = {
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Gold Holds Firm Despite Stronger US Dollar and Hawkish Fed Rhetoric',
-                reason: 'นักลงทุนยังคงเข้าซื้อทองคำในฐานะ สินทรัพย์ปลอดภัย แม้ว่าดอลลาร์จะแข็งค่าขึ้น แต่แรงเทขายดอลลาร์ตรงแนวต้านเปิดโอกาสให้ราคาทองคำมีแรงรีบาวด์สลับขึ้นมา',
+                reason: 'นักลงทุนเข้าซื้อทองคำในฐานะสินทรัพย์ปลอดภัย ช่วยจำกัดแรงกดดันจากค่าเงินดอลลาร์',
                 url: 'https://www.forexfactory.com/news/1419272-fomc-summary-of-economic-projections',
                 date: 'Forex Factory Market Update'
             },
@@ -370,34 +375,21 @@ const assetNewsData = {
                 sentiment: 'bearish',
                 sentimentText: 'ผลกระทบ: ลบชั่วคราว (Bearish) 🔴',
                 title: 'Gold Price Forecast: XAU/USD Drifts Lower as DXY Gains Traction',
-                reason: 'อัตราผลตอบแทนพันธบัตรรัฐบาลสหรัฐฯ (US Treasury Yields) ที่ทรงตัวสูง กดดันทองคำในฐานะสินทรัพย์ไม่มีดอกเบี้ย ทำให้เกิดการย่อตัวลงทดสอบแนวรับสำคัญก่อนมีแรงซื้อคืน',
+                reason: 'US Treasury Yields ทรงตัวสูงกดดันทองคำ ก่อนเข้าสู่โซนราคาแนวรับสำคัญ',
                 url: 'https://www.fxstreet.com/commodities/gold',
                 date: 'FXStreet Live Coverage'
-            },
-            {
-                source: 'Investing.com / Geopolitics',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Geopolitical Tensions & Central Bank Buying Keep Gold Supported',
-                reason: 'ธนาคารกลางทั่วโลกยังคงเดินหน้าสะสมทองคำเป็นทุนสำรอง พร้อมข่าวนอกตารางเรื่องความขัดแย้งระหว่างประเทศ ช่วยจำกัด Downside Risk ของราคา',
-                url: 'https://www.investing.com/commodities/gold-news',
-                date: 'Investing Global Analysis'
             }
         ],
         sources: [
-            { cat: '1. ข้อมูลราคา Realtime & ปฏิทินข่าวเศรษฐกิจ', items: [
+            { cat: '1. ข้อมูลราคา Realtime & ปฏิทินข่าว', items: [
                 '<b>Forex Factory Calendar:</b> <a href="https://www.forexfactory.com/calendar" target="_blank">Forex Factory Red News Calendar</a>',
                 '<b>Trading Economics:</b> <a href="https://tradingeconomics.com/united-states/indicators" target="_blank">US Macro Economic Indicators</a>'
-            ]},
-            { cat: '2. บทวิเคราะห์เทคนิคัล & สถิติตลาด', items: [
-                '<b>FXStreet Gold Forecast:</b> <a href="https://www.fxstreet.com/commodities/gold" target="_blank">FXStreet XAU/USD Analysis</a>',
-                '<b>Investing Gold News:</b> <a href="https://www.investing.com/commodities/gold-news" target="_blank">Investing Central Bank Holdings</a>'
             ]}
         ]
     },
     'BINANCE:BTCUSDT': {
-        title: '📊 วิเคราะห์ข่าวบิทคอยน์ (BTC/USDT) & สภาพคล่องสินทรัพย์ดิจิทัล',
-        desc: 'Bitcoin แกว่งตัวพยายามสร้างฐานเหนือระดับแนวรับสำคัญ ท่ามกลางกระแสเงินทุนไหลเข้า Spot Bitcoin ETF และการคาดการณ์นโยบายการเงินผ่อนคลายของธนาคารกลางระดับโลก',
+        title: '📊 วิเคราะห์ข่าวบิทคอยน์ (BTC/USDT) & สภาพคล่องดิจิทัล',
+        desc: 'Bitcoin แกว่งตัวสร้างฐานเหนือแนวรับสำคัญ รับกระแสเงินทุนไหลเข้า Spot ETF',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (บิทคอยน์):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (Bitcoin - BTC/USDT)',
         news: [
@@ -406,33 +398,21 @@ const assetNewsData = {
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Institutional Inflows Continue to Propel Spot Bitcoin ETF Volumes',
-                reason: 'สถาบันการเงินยักษ์ใหญ่ยังคงเพิ่มน้ำหนักการลงทุนในกองทุน ETF หนุนอุปสงค์ฝั่งซื้อในตลาด Spot อย่างแข็งแกร่ง',
+                reason: 'สถาบันการเงินเพิ่มน้ำหนักการลงทุนในกองทุน ETF หนุนอุปสงค์ฝั่งซื้อ',
                 url: 'https://siamblockchain.com/',
                 date: 'Crypto News Update'
-            },
-            {
-                source: 'Cointelegraph / Market Analysis',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: 'Bitcoin Technical Breakout Signals End of Consolidation Phase',
-                reason: 'รูปแบบราคาเกิดสัญญาณ Breakout จากกรอบ Descending Triangle บ่งชี้ถึงโอกาสการกลับตัวขึ้นทดสอบแนวต้านถัดไป',
-                url: 'https://cointelegraph.com/category/latest-news',
-                date: 'Cointelegraph Tech Desk'
             }
         ],
         sources: [
-            { cat: '1. ข้อมูลออนเชน & กระแสเงินทุน ETF', items: [
+            { cat: '1. ข้อมูลออนเชน & ETF', items: [
                 '<b>Glassnode Analytics:</b> <a href="https://glassnode.com/" target="_blank">Glassnode On-Chain Intelligence</a>',
                 '<b>Siam Blockchain:</b> <a href="https://siamblockchain.com/" target="_blank">สยามบล็อกเชน ข่าวคริปโตรายวัน</a>'
-            ]},
-            { cat: '2. ข่าวสารสถาบัน & การกำกับดูแล', items: [
-                '<b>Cointelegraph News:</b> <a href="https://cointelegraph.com/" target="_blank">Cointelegraph Crypto Market Flow</a>'
             ]}
         ]
     },
     'TVC:USOIL': {
-        title: '📊 วิเคราะห์ข่าวน้ำมันดิบ WTI & อุปสงค์อุปทานพลังงานโลก',
-        desc: 'ราคาน้ำมันดิบผันผวนตามตัวเลขสต็อกน้ำมันดิบสหรัฐฯ และความเสี่ยงทางด้านการขนส่งพลังงานในตะวันออกกลาง รวมถึงทิศทางการผลิตของกลุ่ม OPEC+',
+        title: '📊 วิเคราะห์ข่าวน้ำมันดิบ WTI & พลังงานโลก',
+        desc: 'ราคาน้ำมันดิบผันผวนตามสต็อกน้ำมันและสถานการณ์ตะวันออกกลาง',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (น้ำมันดิบ WTI):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (US Oil WTI)',
         news: [
@@ -441,30 +421,20 @@ const assetNewsData = {
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Crude Rebounds as US Inventories Draw Down More Than Expected',
-                reason: 'สต็อกน้ำมันดิบสหรัฐฯ ลดลงมากกว่าที่นักวิเคราะห์คาดการณ์ สะท้อนความต้องการใช้พลังงานที่ยังคงแข็งแกร่ง',
+                reason: 'สต็อกน้ำมันดิบสหรัฐฯ ลดลงมากกว่าคาด สะท้อนความต้องการใช้พลังงาน',
                 url: 'https://www.investing.com/commodities/crude-oil-news',
                 date: 'Energy Market Report'
-            },
-            {
-                source: 'Bloomberg Energy Desk',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: 'OPEC+ Considers Adjusting Output Targets Amid Global Demand Shifts',
-                reason: 'ตลาดจับตาดูการประชุม OPEC+ เพื่อประเมินทิศทางกำลังการผลิต ส่งผลให้เกิดการเก็งกำไรในกรอบแนวรับ-แนวต้าน',
-                url: 'https://www.tradingeconomics.com/commodity/crude-oil',
-                date: 'Bloomberg Commodities'
             }
         ],
         sources: [
             { cat: '1. รายงานสต็อกพลังงาน & EIA', items: [
-                '<b>EIA Official Data:</b> <a href="https://www.eia.gov/" target="_blank">US Energy Information Administration</a>',
-                '<b>Investing Oil Desk:</b> <a href="https://www.investing.com/commodities/crude-oil-news" target="_blank">Investing Crude Oil News</a>'
+                '<b>EIA Official Data:</b> <a href="https://www.eia.gov/" target="_blank">US Energy Information Administration</a>'
             ]}
         ]
     },
     'OANDA:EURUSD': {
-        title: '📊 วิเคราะห์ข่าวคู่เงิน EUR/USD & นโยบายการเงิน ECB vs Fed',
-        desc: 'คู่เงิน EUR/USD เคลื่อนไหวตามส่วนต่างอัตราดอกเบี้ยระหว่างธนาคารกลางยุโรป (ECB) และเฟด (Fed) ท่ามกลางการประกาศตัวเลขดัชนีภาคการผลิต PMI ของฝั่งยุโรป',
+        title: '📊 วิเคราะห์ข่าวคู่เงิน EUR/USD & นโยบาย ECB vs Fed',
+        desc: 'คู่เงินเคลื่อนไหวตามส่วนต่างดอกเบี้ยและตัวเลข PMI ยุโรป',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (EUR/USD):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (EUR/USD)',
         news: [
@@ -473,21 +443,20 @@ const assetNewsData = {
                 sentiment: 'neutral',
                 sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
                 title: 'EUR/USD Struggles Near Key Resistance as Fed Expectations Support USD',
-                reason: 'ค่าเงินดอลลาร์ที่ทรงตัวแข็งค่ากดดัน EUR/USD สั้นๆ แต่แนวรับบริเวณ 1.0825 ยังคงทำหน้าที่เป็นฐานที่แข็งแกร่ง',
+                reason: 'ดอลลาร์ทรงตัวแข็งค่ากดดัน EUR/USD สั้นๆ แต่มีแนวรับรองรับ',
                 url: 'https://www.fxstreet.com/forex/currencies/eurusd',
                 date: 'FXStreet Forex Coverage'
             }
         ],
         sources: [
-            { cat: '1. ข่าวธนาคารกลาง & นโยบายการเงิน', items: [
-                '<b>ECB Official Releases:</b> <a href="https://www.ecb.europa.eu/" target="_blank">European Central Bank Statement</a>',
-                '<b>Forex Factory EUR/USD:</b> <a href="https://www.forexfactory.com/" target="_blank">Forex Factory Currencies Analysis</a>'
+            { cat: '1. ข่าวธนาคารกลาง', items: [
+                '<b>ECB Official Releases:</b> <a href="https://www.ecb.europa.eu/" target="_blank">European Central Bank Statement</a>'
             ]}
         ]
     },
     'NASDAQ:QQQ': {
-        title: '📊 วิเคราะห์ข่าวตลาดหุ้นสหรัฐฯ ดัชนี NASDAQ 100 & กลุ่มเทคโนโลยี',
-        desc: 'ดัชนี NASDAQ รับแรงหนุนจากผลประกอบการหุ้นกลุ่ม AI และ Semiconductor ขณะที่ตลาดรับรู้ข่าวด้านอัตราดอกเบี้ยไปมากแล้ว',
+        title: '📊 วิเคราะห์ข่าวตลาดหุ้น NASDAQ 100 & เทคโนโลยี',
+        desc: 'ดัชนีรับแรงหนุนจากกลุ่ม AI และผลประกอบการเทคโนโลยี',
         label: '📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (NASDAQ 100):',
         sourceTitle: '📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (NASDAQ 100 / QQQ)',
         news: [
@@ -496,15 +465,14 @@ const assetNewsData = {
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Nasdaq Rises as Tech Sector Rally Broadens Ahead of Key Data',
-                reason: 'แรงซื้อในหุ้นกลุ่มเทคโนโลยีขนาดใหญ่ช่วยผลักดันดัชนีให้ปรับตัวขึ้นต่อ ท้าทายระดับแนวต้านสำคัญ',
+                reason: 'แรงซื้อในหุ้นกลุ่มเทคโนโลยีขนาดใหญ่ช่วยผลักดันดัชนี',
                 url: 'https://www.marketwatch.com/investing/index/comp',
                 date: 'MarketWatch Tech Summary'
             }
         ],
         sources: [
-            { cat: '1. ข้อมูลดัชนีหุ้น & ผลประกอบการ', items: [
-                '<b>CNBC Markets:</b> <a href="https://www.cnbc.com/nasdaq-composite/" target="_blank">CNBC Tech & NASDAQ Coverage</a>',
-                '<b>MarketWatch:</b> <a href="https://www.marketwatch.com/" target="_blank">MarketWatch Stock Market Live</a>'
+            { cat: '1. ข้อมูลดัชนี & ผลประกอบการ', items: [
+                '<b>CNBC Markets:</b> <a href="https://www.cnbc.com/nasdaq-composite/" target="_blank">CNBC Tech & NASDAQ Coverage</a>'
             ]}
         ]
     }
@@ -638,12 +606,8 @@ function renderAssetNews(symbol) {
     data.sources.forEach(sourceCat => {
         const catBox = document.createElement('div');
         catBox.className = 'source-cat-box';
-        
         let listHTML = '';
-        sourceCat.items.forEach(li => {
-            listHTML += `<li>${li}</li>`;
-        });
-
+        sourceCat.items.forEach(li => { listHTML += `<li>${li}</li>`; });
         catBox.innerHTML = `
             <div class="source-cat-header">${sourceCat.cat}</div>
             <ul class="source-list">${listHTML}</ul>
@@ -786,7 +750,7 @@ function findRefinedOrderBlock(candles, direction) {
                 return {
                     top: Number(cCurr.high),
                     bottom: Number(cCurr.low),
-                    mid: (Number(cCurr.high) + Number(cCurr.low)) / 2
+                    wickLow: Number(cCurr.low) - ((Number(cCurr.high) - Number(cCurr.low)) * 0.3)
                 };
             }
         }
@@ -798,7 +762,7 @@ function findRefinedOrderBlock(candles, direction) {
                 return {
                     top: Number(cCurr.high),
                     bottom: Number(cCurr.low),
-                    mid: (Number(cCurr.high) + Number(cCurr.low)) / 2
+                    wickHigh: Number(cCurr.high) + ((Number(cCurr.high) - Number(cCurr.low)) * 0.3)
                 };
             }
         }
@@ -807,7 +771,7 @@ function findRefinedOrderBlock(candles, direction) {
 }
 
 // -------------------------------------------------------------
-// อัปเดตฟังก์ชันคำนวณ Price Zone (Entry Zone, TP Zone, SL Zone)
+// SMC ALGORITHM CORE: คำนวณเป็น "โซนราคา" (Price Zones)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
@@ -821,6 +785,9 @@ function recalculateSMCTradingEngine(price) {
     const ema50 = m15Closes.length >= 50 ? calculateEMA(m15Closes, 50) : price * 0.998;
     const ema200 = m15Closes.length >= 80 ? calculateEMA(m15Closes, 80) : price * 0.995;
 
+    const swingHighM15 = m15Highs.length ? Math.max(...m15Highs.slice(-20)) : price * 1.01;
+    const swingLowM15 = m15Lows.length ? Math.min(...m15Lows.slice(-20)) : price * 0.99;
+
     let isBullish;
     if (userSignalMode === 'buy') isBullish = true;
     else if (userSignalMode === 'sell') isBullish = false;
@@ -829,151 +796,151 @@ function recalculateSMCTradingEngine(price) {
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
     let ob = findRefinedOrderBlock(barsM5, direction) || findRefinedOrderBlock(barsM1, direction);
 
-    const atrBuffer = price * 0.0015;
-    let entryZoneTop, entryZoneBottom, slZoneTop, slZoneBottom, risk;
+    const atrBuffer = price * 0.0012; 
+    let baseRef = ob ? (isBullish ? ob.bottom : ob.top) : (isBullish ? price * 0.9985 : price * 1.0015);
 
-    if (isBullish) {
-        entryZoneTop = ob ? ob.top : price;
-        entryZoneBottom = ob ? ob.bottom : price - atrBuffer;
-        if (entryZoneTop > price) entryZoneTop = price;
-
-        slZoneBottom = ob ? (ob.bottom - atrBuffer * 0.6) : entryZoneBottom - atrBuffer;
-        slZoneTop = slZoneBottom + (atrBuffer * 0.4);
-        risk = Math.max(entryZoneTop - slZoneBottom, price * 0.001);
-    } else {
-        entryZoneTop = ob ? ob.top : price + atrBuffer;
-        entryZoneBottom = ob ? ob.bottom : price;
-        if (entryZoneBottom < price) entryZoneBottom = price;
-
-        slZoneTop = ob ? (ob.top + atrBuffer * 0.6) : entryZoneTop + atrBuffer;
-        slZoneBottom = slZoneTop - (atrBuffer * 0.4);
-        risk = Math.max(slZoneTop - entryZoneBottom, price * 0.001);
-    }
-
-    // คำนวณ TP Zones เป็นช่วงราคา (Range)
+    // กำหนดโครงสร้างโซนราคา Entry Zone 1, 2, 3 (เน้นดึงปลายไส้และช่วงที่สุดของ OB)
+    let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
     let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
+    let slMin, slMax;
+
     if (isBullish) {
-        const baseTP1 = entryZoneTop + (risk * 1.5);
-        const baseTP2 = entryZoneTop + (risk * 2.5);
-        const baseTP3 = entryZoneTop + (risk * 3.5);
+        // Entry Zones (BUY) - Zone 1 อยู่ที่ปลายไส้ล่างสุด
+        ez1Min = ob ? ob.wickLow : baseRef - (atrBuffer * 0.8);
+        ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.3);
+        ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
+        ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
+        ez3Min = price * 0.9990;
+        ez3Max = price;
 
-        tp1Min = baseTP1 - (risk * 0.1); tp1Max = baseTP1 + (risk * 0.1);
-        tp2Min = baseTP2 - (risk * 0.15); tp2Max = baseTP2 + (risk * 0.15);
-        tp3Min = baseTP3 - (risk * 0.2); tp3Max = baseTP3 + (risk * 0.3);
+        // Stop Loss Zone (SL) - ใต้ปลายไส้ OB
+        slMin = ez1Min - (atrBuffer * 0.6);
+        slMax = ez1Min - (atrBuffer * 0.1);
+
+        const risk = Math.max(price - slMin, price * 0.001);
+
+        // TP Zones (BUY)
+        tp1Min = price + (risk * 1.2); tp1Max = price + (risk * 1.8);
+        tp2Min = price + (risk * 2.2); tp2Max = price + (risk * 3.0);
+        tp3Min = swingHighM15 - (atrBuffer * 0.5); tp3Max = swingHighM15 + (atrBuffer * 0.5);
     } else {
-        const baseTP1 = entryZoneBottom - (risk * 1.5);
-        const baseTP2 = entryZoneBottom - (risk * 2.5);
-        const baseTP3 = entryZoneBottom - (risk * 3.5);
+        // Entry Zones (SELL) - Zone 1 อยู่ที่ปลายไส้บนสุด
+        ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.2);
+        ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.8) : baseRef + (atrBuffer * 0.8);
+        ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
+        ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
+        ez3Min = price;
+        ez3Max = price * 1.0010;
 
-        tp1Min = baseTP1 - (risk * 0.1); tp1Max = baseTP1 + (risk * 0.1);
-        tp2Min = baseTP2 - (risk * 0.15); tp2Max = baseTP2 + (risk * 0.15);
-        tp3Min = baseTP3 - (risk * 0.3); tp3Max = baseTP3 + (risk * 0.2);
+        // Stop Loss Zone (SL) - เหนือปลายไส้ OB
+        slMin = ez1Max + (atrBuffer * 0.1);
+        slMax = ez1Max + (atrBuffer * 0.6);
+
+        const risk = Math.max(slMax - price, price * 0.001);
+
+        // TP Zones (SELL)
+        tp1Min = price - (risk * 1.8); tp1Max = price - (risk * 1.2);
+        tp2Min = price - (risk * 3.0); tp2Max = price - (risk * 2.2);
+        tp3Min = swingLowM15 - (atrBuffer * 0.5); tp3Max = swingLowM15 + (atrBuffer * 0.5);
     }
 
-    const entryContainer = document.getElementById('entry-nodes-container');
-    const tpContainer = document.getElementById('tp-nodes-container');
+    const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
+
+    // Render ไปยัง UI
+    const entryZonesContainer = document.getElementById('entry-zones-container');
+    const tpSlContainer = document.getElementById('tp-sl-zones-container');
     const badge = document.getElementById('sig-badge');
     const pill = document.getElementById('active-direction-pill');
     const subtag = document.getElementById('entry-card-subtag');
-
-    const fmt = (val) => `$${val.toFixed(decimals)}`;
 
     if (isBullish) {
         pill.textContent = 'M15 BULLISH SMC FOCUS 🟢';
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
-        subtag.textContent = 'M5/M1 Refined Bullish Order Block Zone';
-        badge.textContent = `BUY ZONE READY`;
+        subtag.textContent = 'Extreme Wick / M5-M1 OB Zones';
+        badge.textContent = `BUY ZONE ACTIVE`;
         badge.className = 'sig-tag buy';
 
-        entryContainer.innerHTML = `
-            <div class="zone-box">
-                <div class="zone-header">
-                    <span style="color:var(--up);">🟢 Entry Zone (โซนเข้าซื้อสะสม)</span>
-                    <span style="font-size:11px; color:var(--dim);">High Probability POI</span>
-                </div>
-                <div class="zone-range" style="color:var(--up);">${fmt(entryZoneBottom)} – ${fmt(entryZoneTop)}</div>
-                <div class="zone-desc">แนะนำทยอยสะสมออเดอร์ในโซน Order Block / FVG นี้</div>
+        entryZonesContainer.innerHTML = `
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 1 (ปลายไส้ / Extreme OB):</span>
+                <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
-            <div class="zone-box" style="background:rgba(0,0,0,0.15); border-color:var(--line);">
-                <div class="zone-header">
-                    <span style="color:var(--dim);">📍 Deep Discount Zone (โซนสำรอง)</span>
-                </div>
-                <div class="zone-range" style="color:var(--text); font-size:13.5px;">${fmt(entryZoneBottom - risk * 0.4)} – ${fmt(entryZoneBottom)}</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 2 (โซนกลาง OB / Retracement):</span>
+                <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
+            </div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 3 (โซนด่วน / Market Execution):</span>
+                <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
 
-        tpContainer.innerHTML = `
-            <div class="zone-box tp-zone">
-                <div class="zone-header">
-                    <span style="color:var(--up);">🎯 TP Zone 1 (เป้าหมายระยะสั้น 1:1.5 R:R)</span>
-                </div>
-                <div class="zone-range" style="color:var(--up);">${fmt(tp1Min)} – ${fmt(tp1Max)}</div>
+        tpSlContainer.innerHTML = `
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 (เป้าหมายระยะสั้น 1:1.5):</span>
+                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
             </div>
-            <div class="zone-box tp-zone">
-                <div class="zone-header">
-                    <span style="color:var(--up);">🎯 TP Zone 2 (เป้าหมายหลัก 1:2.5 R:R)</span>
-                </div>
-                <div class="zone-range" style="color:var(--up);">${fmt(tp2Min)} – ${fmt(tp2Max)}</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 (เป้าหมายกลาง 1:2.5):</span>
+                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
-            <div class="zone-box sl-zone">
-                <div class="zone-header">
-                    <span style="color:var(--down);">🛑 SL Zone (โซนตัดขาดทุน / ป้องกันความเสี่ยง)</span>
-                </div>
-                <div class="zone-range" style="color:var(--down);">${fmt(slZoneBottom)} – ${fmt(slZoneTop)}</div>
-                <div class="zone-desc">ระดับหลุดโครงสร้าง Order Block สำคัญ</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (เป้าหมายหลัก Liquidity Sweep):</span>
+                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
+            </div>
+            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
+            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
+                <span class="zone-label"><span class="dot sl"></span>SL Zone (โซนตัดขาดทุนใต้ OB):</span>
+                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
     } else {
         pill.textContent = 'M15 BEARISH SMC FOCUS 🔴';
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
-        subtag.textContent = 'M5/M1 Refined Bearish Order Block Zone';
-        badge.textContent = `SELL ZONE READY`;
+        subtag.textContent = 'Extreme Wick / M5-M1 OB Zones';
+        badge.textContent = `SELL ZONE ACTIVE`;
         badge.className = 'sig-tag sell';
 
-        entryContainer.innerHTML = `
-            <div class="zone-box" style="background:rgba(226,87,76,0.06); border-color:var(--down);">
-                <div class="zone-header">
-                    <span style="color:var(--down);">🔴 Entry Zone (โซนรอขาย / Short Zone)</span>
-                    <span style="font-size:11px; color:var(--dim);">Premium POI</span>
-                </div>
-                <div class="zone-range" style="color:var(--down);">${fmt(entryZoneBottom)} – ${fmt(entryZoneTop)}</div>
-                <div class="zone-desc">รอราคารีบาวด์ทดสอบโซน OB/FVG เพื่อเปิดสถานะขาย</div>
+        entryZonesContainer.innerHTML = `
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 1 (ปลายไส้บนสุด / Extreme OB):</span>
+                <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
-            <div class="zone-box" style="background:rgba(0,0,0,0.15); border-color:var(--line);">
-                <div class="zone-header">
-                    <span style="color:var(--dim);">📍 Extreme Premium Zone (โซนสำรอง)</span>
-                </div>
-                <div class="zone-range" style="color:var(--text); font-size:13.5px;">${fmt(entryZoneTop)} – ${fmt(entryZoneTop + risk * 0.4)}</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 2 (โซนกลาง Premium OB):</span>
+                <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
+            </div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 3 (โซนด่วน / Market Execution):</span>
+                <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
 
-        tpContainer.innerHTML = `
-            <div class="zone-box tp-zone" style="border-color:var(--down); background:rgba(226,87,76,0.05);">
-                <div class="zone-header">
-                    <span style="color:var(--down);">🎯 TP Zone 1 (เป้าหมายระยะสั้น 1:1.5 R:R)</span>
-                </div>
-                <div class="zone-range" style="color:var(--down);">${fmt(tp1Min)} – ${fmt(tp1Max)}</div>
+        tpSlContainer.innerHTML = `
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 (เป้าหมายระยะสั้น 1:1.5):</span>
+                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
             </div>
-            <div class="zone-box tp-zone" style="border-color:var(--down); background:rgba(226,87,76,0.05);">
-                <div class="zone-header">
-                    <span style="color:var(--down);">🎯 TP Zone 2 (เป้าหมายหลัก 1:2.5 R:R)</span>
-                </div>
-                <div class="zone-range" style="color:var(--down);">${fmt(tp2Min)} – ${fmt(tp2Max)}</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 (เป้าหมายกลาง 1:2.5):</span>
+                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
-            <div class="zone-box sl-zone">
-                <div class="zone-header">
-                    <span style="color:var(--down);">🛑 SL Zone (โซนตัดขาดทุน / ป้องกันความเสี่ยง)</span>
-                </div>
-                <div class="zone-range" style="color:var(--down);">${fmt(slZoneBottom)} – ${fmt(slZoneTop)}</div>
-                <div class="zone-desc">ระดับยืนเหนือโครงสร้าง Order Block ขาลง</div>
+            <div class="zone-item">
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (เป้าหมายหลัก Liquidity Sweep):</span>
+                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
+            </div>
+            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
+            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
+                <span class="zone-label"><span class="dot sl"></span>SL Zone (โซนตัดขาดทุนเหนือ OB):</span>
+                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: M15 EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | Price Zone Model (Entry / TP / SL Ranges)`;
+        `โหมดคำนวณ: M15 EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | M1/M5 Extreme Wick Order Block Zones | Target R:R Model`;
 }
 
 function setSignalMode(mode) {
