@@ -181,8 +181,8 @@
                 <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Execution)</button>
                 <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Refinement)</button>
                 <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Core Structure)</button>
-                <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1 (Swing)</button>
-                <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4 (Trend)</button>
+                <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1 (Swing Analysis)</button>
+                <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4 (Macro Structure)</button>
             </div>
         </div>
 
@@ -196,7 +196,7 @@
         </div>
     </div>
 
-    <!-- 3. การคาดการณ์ข่าวเศรษฐกิจสำคัญ (Forex Factory News Convergence) -->
+    <!-- 3. การคาดการณ์ข่าวเศรษฐกิจสำคัญ -->
     <div class="news-prediction-card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-size:15px; font-weight:700; color:var(--gold2);" id="news-pred-header-title">
@@ -207,7 +207,7 @@
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
-    <!-- 4. ส่วนคำนวณราคาจุดเข้า, TP, SL (กรอบสีขาว - คำนวณซิงค์ตรงกับกราฟ) -->
+    <!-- 4. ส่วนคำนวณราคาจุดเข้า, TP, SL -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -230,7 +230,6 @@
         </div>
 
         <div class="strategy-split-grid">
-            <!-- โซนเข้าเทรด Entry Zone 1, 2, 3 -->
             <div class="strategy-card">
                 <div class="strategy-card-title">
                     📌 โซนเข้าซื้อขาย (Entry Zone 1 - 3)
@@ -239,7 +238,6 @@
                 <div class="zone-list" id="entry-zones-container"></div>
             </div>
 
-            <!-- โซนเป้าหมาย TP Zone และ SL Zone -->
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
                     🎯 โซนเป้าหมาย & ตัดขาดทุน (TP Zone 1-3 & SL Zone)
@@ -264,7 +262,7 @@
         </div>
     </section>
 
-    <!-- 7. ส่วนข่าวเจาะจงรายสินทรัพย์ (Entity Asset & Economic News) -->
+    <!-- 7. ส่วนข่าวเจาะจงรายสินทรัพย์ -->
     <section>
         <h2>วิเคราะห์ข่าวเจาะจงรายสินทรัพย์และปัจจัยเศรษฐกิจ (Entity Asset & Economic News)</h2>
         <div class="card">
@@ -286,7 +284,7 @@
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
         <div class="sources-grid" id="sources-grid-container"></div>
         <div class="source-note">
-            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสถาบันการเงินและสำนักข่าวชั้นนำทั้งในและต่างประเทศ (เช่น Forex Factory, FXStreet, Siam Blockchain, Investing.com, EIA, CNBC, SET) โดยมีการปรับเปลี่ยนให้สัมพันธ์กับสินทรัพย์ที่เลือกโดยอัตโนมัติ
+            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสถาบันการเงินและสำนักข่าวชั้นนำทั้งในและต่างประเทศ โดยมีการปรับเปลี่ยนให้สัมพันธ์กับสินทรัพย์ที่เลือกโดยอัตโนมัติ
         </div>
     </div>
 </div>
@@ -303,11 +301,20 @@ let userSignalMode = 'auto';
 let barsM15 = [];
 let barsM5 = [];
 let barsM1 = [];
+let barsH1 = [];
+let barsH4 = [];
+
 let calculationTimer = null;
 let countdownTimer = null;
-let secondsToNextSync = 300;
 
-// ฐานข้อมูลข่าวเฉพาะเจาะจงสำหรับสินทรัพย์หลัก
+// ==========================================
+// ⚙️ ตั้งค่ารอบการวิเคราะห์ (SYNC INTERVAL CONFIG)
+// 60 = 1 นาที / 180 = 3 นาที
+// ==========================================
+const SYNC_INTERVAL_SECONDS = 60;
+let secondsToNextSync = SYNC_INTERVAL_SECONDS;
+
+// ฐานข้อมูลข่าว
 const assetNewsDatabase = {
     'OANDA:XAUUSD': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวทองคำ (Gold / XAUUSD)',
@@ -439,7 +446,6 @@ function renderLivePrice(price) {
     if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
 }
 
-// Render แนวรับแนวต้านแบบ Dynamic
 function renderAutoSRChannels(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('sr-channels-container');
@@ -473,7 +479,6 @@ function renderAutoSRChannels(symbol) {
     `;
 }
 
-// Render การคาดการณ์ข่าวแบบเจาะจง
 function renderNewsPredictions(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('news-pred-container');
@@ -502,7 +507,6 @@ function renderNewsPredictions(symbol) {
     });
 }
 
-// Render ข่าวและบทวิเคราะห์รายสินทรัพย์
 function renderAssetNews(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const assetData = assetNewsDatabase[symbol];
@@ -587,7 +591,7 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// DYNAMIC FETCH & REALTIME SYNC (คำนวณราคาสัมพันธ์กับกราฟ 100%)
+// DYNAMIC FETCH & REALTIME SYNC Engine
 // -------------------------------------------------------------
 async function fetchCandleData(tf, limit = 60) {
     const symbol = biquoteSymbol(currentSymbol);
@@ -606,26 +610,30 @@ async function fetchCandleData(tf, limit = 60) {
 
 async function loadAllTimeframesData() {
     setApiStatus('Syncing SMC Data... 🟡', 'warn');
-    const [m15, m5, m1] = await Promise.all([
+    const [m15, m5, m1, h1, h4] = await Promise.all([
         fetchCandleData('15m', 80),
         fetchCandleData('5m', 60),
-        fetchCandleData('1m', 60)
+        fetchCandleData('1m', 60),
+        fetchCandleData('1h', 80),
+        fetchCandleData('4h', 80)
     ]);
 
     barsM15 = m15;
     barsM5 = m5;
     barsM1 = m1;
+    barsH1 = h1;
+    barsH4 = h4;
 
     if (barsM1.length > 0 && barsM1[barsM1.length - 1].close) {
         renderLivePrice(Number(barsM1[barsM1.length - 1].close));
     }
 
     if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
-    setApiStatus('SMC Engine Multi-TF Live 🟢', 'up');
-    secondsToNextSync = 300;
+    setApiStatus('SMC Engine Live 🟢', 'up');
+    secondsToNextSync = SYNC_INTERVAL_SECONDS;
 }
 
-function startFiveMinuteEngineLoop() {
+function startEngineLoop() {
     if (calculationTimer) clearInterval(calculationTimer);
     if (countdownTimer) clearInterval(countdownTimer);
 
@@ -633,11 +641,11 @@ function startFiveMinuteEngineLoop() {
 
     calculationTimer = setInterval(() => {
         loadAllTimeframesData();
-    }, 300000);
+    }, SYNC_INTERVAL_SECONDS * 1000);
 
     countdownTimer = setInterval(() => {
         secondsToNextSync--;
-        if (secondsToNextSync < 0) secondsToNextSync = 300;
+        if (secondsToNextSync < 0) secondsToNextSync = SYNC_INTERVAL_SECONDS;
         const mins = Math.floor(secondsToNextSync / 60);
         const secs = secondsToNextSync % 60;
         const timerEl = document.getElementById('timer-display');
@@ -750,22 +758,37 @@ function findRefinedOrderBlock(candles, direction) {
 }
 
 // -------------------------------------------------------------
-// SMC ALGORITHM CORE: คำนวณจุดเข้า/TP/SL (ปรับแก้ส่วนแสดงผลตัดข้อความในวงเล็บออก)
+// 🧠 RECALCULATE SMC ENGINE (ปรับให้รองรับ H1 และ H4 โดยเฉพาะ)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
     const decimals = (biquoteSymbol(currentSymbol) === 'EURUSD' || currentSymbol.includes('EURUSD')) ? 5 : 2;
 
-    const m15Closes = barsM15.map(b => Number(b.close)).filter(Number.isFinite);
-    const m15Highs = barsM15.map(b => Number(b.high)).filter(Number.isFinite);
-    const m15Lows = barsM15.map(b => Number(b.low)).filter(Number.isFinite);
+    // เลือกใช้ Data ของ Timeframe ตามที่เลือก (H1/H4 จะใช้กราฟตัวเองเป็นหลัก ส่วน M1,M5,M15 ใช้ M15 เป็นหลัก)
+    let activeBars = barsM15;
+    let tfTitleLabel = "M15 Focus";
+    let atrMultiplier = 0.0012; // ระยะบัฟเฟอร์มาตรฐานสำหรับ M15
 
-    const ema50 = m15Closes.length >= 50 ? calculateEMA(m15Closes, 50) : price * 0.998;
-    const ema200 = m15Closes.length >= 80 ? calculateEMA(m15Closes, 80) : price * 0.995;
+    if (currentTimeframe === '1h') {
+        activeBars = barsH1.length > 0 ? barsH1 : barsM15;
+        tfTitleLabel = "H1 Swing Structural Focus";
+        atrMultiplier = 0.0035; // ขยายกรอบบัฟเฟอร์สำหรับ Swing Trade H1
+    } else if (currentTimeframe === '4h') {
+        activeBars = barsH4.length > 0 ? barsH4 : barsM15;
+        tfTitleLabel = "H4 Macro Structural Focus";
+        atrMultiplier = 0.0070; // ขยายกรอบบัฟเฟอร์สำหรับ Macro Trade H4
+    }
 
-    const swingHighM15 = m15Highs.length ? Math.max(...m15Highs.slice(-20)) : price * 1.01;
-    const swingLowM15 = m15Lows.length ? Math.min(...m15Lows.slice(-20)) : price * 0.99;
+    const mainCloses = activeBars.map(b => Number(b.close)).filter(Number.isFinite);
+    const mainHighs = activeBars.map(b => Number(b.high)).filter(Number.isFinite);
+    const mainLows = activeBars.map(b => Number(b.low)).filter(Number.isFinite);
+
+    const ema50 = mainCloses.length >= 50 ? calculateEMA(mainCloses, 50) : price * 0.998;
+    const ema200 = mainCloses.length >= 80 ? calculateEMA(mainCloses, 80) : price * 0.995;
+
+    const swingHigh = mainHighs.length ? Math.max(...mainHighs.slice(-20)) : price * (1 + atrMultiplier * 5);
+    const swingLow = mainLows.length ? Math.min(...mainLows.slice(-20)) : price * (1 - atrMultiplier * 5);
 
     let isBullish;
     if (userSignalMode === 'buy') isBullish = true;
@@ -773,10 +796,14 @@ function recalculateSMCTradingEngine(price) {
     else isBullish = price >= ema50 || ema50 >= ema200;
 
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
-    let ob = findRefinedOrderBlock(barsM5, direction) || findRefinedOrderBlock(barsM1, direction);
+    
+    // ค้นหา Order Block จาก Timeframe ที่เลือกก่อน หากไม่มีให้ย่อยดู M15/M5
+    let ob = findRefinedOrderBlock(activeBars, direction) || 
+             findRefinedOrderBlock(barsM15, direction) || 
+             findRefinedOrderBlock(barsM5, direction);
 
-    const atrBuffer = price * 0.0012; 
-    let baseRef = ob ? (isBullish ? ob.bottom : ob.top) : (isBullish ? price * 0.9985 : price * 1.0015);
+    const atrBuffer = price * atrMultiplier; 
+    let baseRef = ob ? (isBullish ? ob.bottom : ob.top) : (isBullish ? price * (1 - atrMultiplier) : price * (1 + atrMultiplier));
 
     let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
     let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
@@ -787,35 +814,35 @@ function recalculateSMCTradingEngine(price) {
         ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.3);
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
-        ez3Min = price * 0.9990;
+        ez3Min = price * (1 - atrMultiplier * 0.5);
         ez3Max = price;
 
         slMin = ez1Min - (atrBuffer * 0.6);
         slMax = ez1Min - (atrBuffer * 0.1);
 
-        const risk = Math.max(price - slMin, price * 0.001);
+        const risk = Math.max(price - slMin, price * atrMultiplier);
 
         tp1Min = price + (risk * 1.2); tp1Max = price + (risk * 1.8);
         tp2Min = price + (risk * 2.2); tp2Max = price + (risk * 3.0);
-        tp3Min = Math.max(price + (risk * 3.5), swingHighM15 - (atrBuffer * 0.5)); 
-        tp3Max = Math.max(price + (risk * 4.0), swingHighM15 + (atrBuffer * 0.5));
+        tp3Min = Math.max(price + (risk * 3.5), swingHigh - (atrBuffer * 0.5)); 
+        tp3Max = Math.max(price + (risk * 4.0), swingHigh + (atrBuffer * 0.5));
     } else {
         ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.2);
         ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.8) : baseRef + (atrBuffer * 0.8);
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
         ez3Min = price;
-        ez3Max = price * 1.0010;
+        ez3Max = price * (1 + atrMultiplier * 0.5);
 
         slMin = ez1Max + (atrBuffer * 0.1);
         slMax = ez1Max + (atrBuffer * 0.6);
 
-        const risk = Math.max(slMax - price, price * 0.001);
+        const risk = Math.max(slMax - price, price * atrMultiplier);
 
         tp1Min = price - (risk * 1.8); tp1Max = price - (risk * 1.2);
         tp2Min = price - (risk * 3.0); tp2Max = price - (risk * 2.2);
-        tp3Min = Math.min(price - (risk * 4.0), swingLowM15 - (atrBuffer * 0.5)); 
-        tp3Max = Math.min(price - (risk * 3.5), swingLowM15 + (atrBuffer * 0.5));
+        tp3Min = Math.min(price - (risk * 4.0), swingLow - (atrBuffer * 0.5)); 
+        tp3Max = Math.min(price - (risk * 3.5), swingLow + (atrBuffer * 0.5));
     }
 
     const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
@@ -827,10 +854,10 @@ function recalculateSMCTradingEngine(price) {
     const subtag = document.getElementById('entry-card-subtag');
 
     if (isBullish) {
-        pill.textContent = 'M15 BULLISH SMC FOCUS 🟢';
+        pill.textContent = `${currentTimeframe.toUpperCase()} BULLISH SMC FOCUS 🟢`;
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
-        subtag.textContent = 'Extreme Wick / Order Block Zones';
+        subtag.textContent = `${tfTitleLabel} Order Block`;
         badge.textContent = `BUY ZONE ACTIVE`;
         badge.className = 'sig-tag buy';
 
@@ -869,10 +896,10 @@ function recalculateSMCTradingEngine(price) {
             </div>
         `;
     } else {
-        pill.textContent = 'M15 BEARISH SMC FOCUS 🔴';
+        pill.textContent = `${currentTimeframe.toUpperCase()} BEARISH SMC FOCUS 🔴`;
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
-        subtag.textContent = 'Extreme Wick / Order Block Zones';
+        subtag.textContent = `${tfTitleLabel} Order Block`;
         badge.textContent = `SELL ZONE ACTIVE`;
         badge.className = 'sig-tag sell';
 
@@ -913,7 +940,7 @@ function recalculateSMCTradingEngine(price) {
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: M15 EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | Refined Extreme Order Block Zones | Realtime Sync`;
+        `โหมดคำนวณ: ${tfTitleLabel} EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | Structural Order Block | Realtime Sync`;
 }
 
 function setSignalMode(mode) {
@@ -970,7 +997,7 @@ function refreshWidget(symbol, tvInterval = '1'){
     renderAutoSRChannels(symbol);
     renderNewsPredictions(symbol);
     renderAssetNews(symbol);
-    startFiveMinuteEngineLoop();
+    startEngineLoop();
     connectRealtimePriceAPI(symbol);
 }
 
@@ -1001,7 +1028,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นโหลดหน้าเว็บด้วย XAU/USD
+// เริ่มต้นโหลดด้วย XAU/USD
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
