@@ -234,7 +234,7 @@
             <div class="strategy-card">
                 <div class="strategy-card-title">
                     📌 โซนเข้าซื้อขาย (Entry Zone 1 - 3)
-                    <span class="sub-tag" id="entry-card-subtag">ปลายไส้ / Extreme OB</span>
+                    <span class="sub-tag" id="entry-card-subtag">Extreme Wick / Order Block Zones</span>
                 </div>
                 <div class="zone-list" id="entry-zones-container"></div>
             </div>
@@ -750,7 +750,7 @@ function findRefinedOrderBlock(candles, direction) {
 }
 
 // -------------------------------------------------------------
-// SMC ALGORITHM CORE: คำนวณจุดเข้า/TP/SL ซิงค์ตรงกับราคาจริง
+// SMC ALGORITHM CORE: คำนวณจุดเข้า/TP/SL (ปรับแก้ส่วนแสดงผลตัดข้อความในวงเล็บออก)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
@@ -836,35 +836,35 @@ function recalculateSMCTradingEngine(price) {
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 1 (ปลายไส้ / Extreme OB):</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 1 :</span>
                 <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 2 (โซนกลาง OB / Retracement):</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 2 :</span>
                 <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 3 (โซนด่วน / Market Execution):</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry Zone 3 :</span>
                 <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
 
         tpSlContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 (เป้าหมายระยะสั้น 1:1.5):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 :</span>
                 <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 (เป้าหมายกลาง 1:2.5):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 :</span>
                 <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (เป้าหมายหลัก Liquidity Sweep):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
                 <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (โซนตัดขาดทุนใต้ OB):</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
                 <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
@@ -878,35 +878,35 @@ function recalculateSMCTradingEngine(price) {
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 1 (ปลายไส้บนสุด / Extreme OB):</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 1 :</span>
                 <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 2 (โซนกลาง Premium OB):</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 2 :</span>
                 <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 3 (โซนด่วน / Market Execution):</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry Zone 3 :</span>
                 <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
 
         tpSlContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 (เป้าหมายระยะสั้น 1:1.5):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 :</span>
                 <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 (เป้าหมายกลาง 1:2.5):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 :</span>
                 <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (เป้าหมายหลัก Liquidity Sweep):</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
                 <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (โซนตัดขาดทุนเหนือ OB):</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
                 <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
