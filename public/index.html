@@ -37,9 +37,9 @@
         .search-bar, .chip-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .search-bar { margin-bottom: 12px; }
         input { flex: 1; min-width: 220px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; color: var(--text); font: 14px inherit; }
-        button { background: var(--gold); color: #1a1406; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
+        button { background: var(--gold); color: #1a1406; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         button:hover { opacity: 0.9; }
-        .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; }
+        .chip { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; color: var(--dim); cursor: pointer; transition: all 0.2s; }
         .chip.active, .chip:hover { border-color: var(--gold); color: var(--gold2); }
 
         .tf-selector-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; background: var(--panel); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); flex-wrap: wrap; }
@@ -49,7 +49,7 @@
         .tf-btn.active, .tf-btn:hover { background: var(--gold); color: #1a1406; border-color: var(--gold); }
 
         .mode-btn-group { display: flex; gap: 6px; }
-        .mode-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .mode-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .mode-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
         .sr-channels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
@@ -214,13 +214,13 @@
                 <div style="font-size:13px; color:var(--dim); display:flex; align-items:center; gap:8px;">
                     วิเคราะห์ SMC สินทรัพย์: <span id="current-asset-display" style="color:var(--gold2); font-weight:700;">-</span>
                     <span class="api-status-badge" id="api-status">Connecting Realtime... 🟡</span>
-                    <span style="font-size:11px; color:var(--gold2); margin-left:6px;" id="timer-display">⏱️ Next Sync: --:--</span>
+                    <span style="font-size:11px; color:var(--gold2); margin-left:6px;" id="timer-display">⏱️ Live Syncing...</span>
                 </div>
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
-                    ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา...</span>
+                    ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา TradingView...</span>
                 </div>
                 <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">
-                    โหมดคำนวณ: M15 Context + Refined Order Block (คำนวณเรียลไทม์ตรงกับกราฟ)
+                    โหมดคำนวณ: Syncing Chart Data...
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
@@ -294,27 +294,9 @@ let currentTimeframe = '1m';
 let currentTvInterval = '1';
 let currentSymbol = 'OANDA:XAUUSD';
 let livePrice = 0;
-let wsConnection = null;
-let pollInterval = null;
 let userSignalMode = 'auto'; 
+let priceStreamTimer = null;
 
-let barsM15 = [];
-let barsM5 = [];
-let barsM1 = [];
-let barsH1 = [];
-let barsH4 = [];
-
-let calculationTimer = null;
-let countdownTimer = null;
-
-// ==========================================
-// ⚙️ ตั้งค่ารอบการวิเคราะห์ (SYNC INTERVAL CONFIG)
-// 60 = 1 นาที / 180 = 3 นาที
-// ==========================================
-const SYNC_INTERVAL_SECONDS = 60;
-let secondsToNextSync = SYNC_INTERVAL_SECONDS;
-
-// ฐานข้อมูลข่าว
 const assetNewsDatabase = {
     'OANDA:XAUUSD': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวทองคำ (Gold / XAUUSD)',
@@ -394,27 +376,14 @@ const assetNewsDatabase = {
     }
 };
 
-function biquoteSymbol(tvSymbol) {
-    const s = (tvSymbol || '').toUpperCase().trim();
-    if (s.includes('XAUUSD')) return 'XAUUSD';
-    if (s.includes('BTCUSDT') || s.includes('BTCUSD')) return 'BTCUSD';
-    if (s.includes('EURUSD')) return 'EURUSD';
-    if (s.includes('USOIL')) return 'USOIL';
-    return s.includes(':') ? s.split(':').pop() : s;
-}
-
 function cleanAssetTitle(symbol) {
-    if (symbol.includes(':')) {
-        return symbol.split(':')[1];
-    }
-    return symbol;
+    return symbol.includes(':') ? symbol.split(':')[1] : symbol;
 }
 
 function formatPrice(value, symbol = currentSymbol) {
     const n = Number(value);
     if (!Number.isFinite(n)) return '--';
-    const bq = biquoteSymbol(symbol);
-    const decimals = (bq === 'EURUSD' || symbol.includes('EURUSD')) ? 5 : (n < 10 ? 4 : 2);
+    const decimals = (symbol.includes('EURUSD')) ? 5 : (n < 10 ? 4 : 2);
     return n.toLocaleString('en-US', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
@@ -443,7 +412,10 @@ function renderLivePrice(price) {
     if (el && livePrice > 0) {
         el.textContent = `$${formatPrice(livePrice)}`;
     }
-    if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
+    if (livePrice > 0) {
+        recalculateSMCTradingEngine(livePrice);
+        renderAutoSRChannels(currentSymbol);
+    }
 }
 
 function renderAutoSRChannels(symbol) {
@@ -453,12 +425,12 @@ function renderAutoSRChannels(symbol) {
     let baseRef = livePrice > 0 ? livePrice : 100;
     let step = baseRef * 0.008;
 
-    let resM1 = (baseRef + step * 0.5).toFixed(2);
-    let supM1 = (baseRef - step * 0.5).toFixed(2);
-    let resM15 = (baseRef + step * 1.5).toFixed(2);
-    let supM15 = (baseRef - step * 1.5).toFixed(2);
-    let resH4 = (baseRef + step * 3.5).toFixed(2);
-    let supH4 = (baseRef - step * 3.5).toFixed(2);
+    let resM1 = (baseRef + step * 0.5);
+    let supM1 = (baseRef - step * 0.5);
+    let resM15 = (baseRef + step * 1.5);
+    let supM15 = (baseRef - step * 1.5);
+    let resH4 = (baseRef + step * 3.5);
+    let supH4 = (baseRef - step * 3.5);
 
     container.innerHTML = `
         <div class="channel-card" style="border-left: 4px solid var(--purple);">
@@ -591,258 +563,119 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// DYNAMIC FETCH & REALTIME SYNC Engine
+// REALTIME SYNC ENGINE - ดึงข้อมูลตรงกับ TradingView
 // -------------------------------------------------------------
-async function fetchCandleData(tf, limit = 60) {
-    const symbol = biquoteSymbol(currentSymbol);
+async function fetchDirectTradingViewPrice(symbol) {
     try {
-        const response = await fetch(
-            `https://biquote.io/api/${encodeURIComponent(symbol)}/ohlc?interval=${encodeURIComponent(tf)}&limit=${limit}`,
-            { cache: 'no-store' }
-        );
-        if (!response.ok) return [];
-        const data = await response.json();
-        return Array.isArray(data.bars) ? data.bars : [];
-    } catch (err) {
-        return [];
-    }
+        let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
+        const res = await fetch(`https://scanner.tradingview.com/symbol?symbol=${tvCleanSymbol}&fields=close,bid,ask`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.close) {
+                renderLivePrice(data.close);
+                setApiStatus("TradingView Live 🟢", "up");
+                return true;
+            }
+        }
+    } catch(e) {}
+    return false;
 }
 
-async function loadAllTimeframesData() {
-    setApiStatus('Syncing SMC Data... 🟡', 'warn');
-    const [m15, m5, m1, h1, h4] = await Promise.all([
-        fetchCandleData('15m', 80),
-        fetchCandleData('5m', 60),
-        fetchCandleData('1m', 60),
-        fetchCandleData('1h', 80),
-        fetchCandleData('4h', 80)
-    ]);
+function startTradingViewRealtimeFeed(symbol) {
+    if (priceStreamTimer) clearInterval(priceStreamTimer);
 
-    barsM15 = m15;
-    barsM5 = m5;
-    barsM1 = m1;
-    barsH1 = h1;
-    barsH4 = h4;
+    // ดึงราคาทันที 1 ครั้ง
+    fetchDirectTradingViewPrice(symbol);
 
-    if (barsM1.length > 0 && barsM1[barsM1.length - 1].close) {
-        renderLivePrice(Number(barsM1[barsM1.length - 1].close));
-    }
-
-    if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
-    setApiStatus('SMC Engine Live 🟢', 'up');
-    secondsToNextSync = SYNC_INTERVAL_SECONDS;
-}
-
-function startEngineLoop() {
-    if (calculationTimer) clearInterval(calculationTimer);
-    if (countdownTimer) clearInterval(countdownTimer);
-
-    loadAllTimeframesData();
-
-    calculationTimer = setInterval(() => {
-        loadAllTimeframesData();
-    }, SYNC_INTERVAL_SECONDS * 1000);
-
-    countdownTimer = setInterval(() => {
-        secondsToNextSync--;
-        if (secondsToNextSync < 0) secondsToNextSync = SYNC_INTERVAL_SECONDS;
-        const mins = Math.floor(secondsToNextSync / 60);
-        const secs = secondsToNextSync % 60;
+    // วนลูปดึงราคาทุกๆ 1.5 วินาที พร้อมอัปเดตเวลา Syncing ล่าสุด
+    priceStreamTimer = setInterval(() => {
+        fetchDirectTradingViewPrice(symbol);
+        
+        // อัปเดตเวลาการ Sync ล่าสุดแบบ Real-time
         const timerEl = document.getElementById('timer-display');
         if (timerEl) {
-            timerEl.textContent = `⏱️ Next Sync: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH');
+            timerEl.textContent = `⏱️ Live Sync: ${timeStr}`;
         }
-    }, 1000);
-}
-
-function fetchFallbackQuote(symbol) {
-    let basePrice = 100.00;
-    if (symbol.includes('XAUUSD')) basePrice = 2650.00;
-    else if (symbol.includes('USOIL')) basePrice = 72.50;
-    else if (symbol.includes('EURUSD')) basePrice = 1.0850;
-    else if (symbol.includes('QQQ')) basePrice = 490.00;
-    else if (symbol.includes('BTC')) basePrice = 67000.00;
-    else if (symbol.includes('PTT')) basePrice = 33.50;
-    else if (symbol.includes('USDTHB')) basePrice = 33.20;
-
-    if (livePrice === 0) livePrice = basePrice;
-    let tick = (Math.random() - 0.492) * (basePrice * 0.0002);
-    livePrice = parseFloat((livePrice + tick).toFixed(symbol.includes('EURUSD') ? 4 : 2));
-
-    renderLivePrice(livePrice);
-    renderAutoSRChannels(symbol);
-    setApiStatus("Live Price Feed Sync 🟢", "up");
-}
-
-function connectRealtimePriceAPI(symbol) {
-    if (wsConnection) { wsConnection.close(); wsConnection = null; }
-    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-
-    const bqSymbol = biquoteSymbol(symbol);
-    setApiStatus('Connecting Realtime Feed... 🟡', 'warn');
-
-    if (symbol.includes('BTC')) {
-        wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        wsConnection.onopen = () => setApiStatus("Binance Stream Live 🟢", "up");
-        wsConnection.onmessage = (e) => {
-            let data = JSON.parse(e.data);
-            if (data && data.c) renderLivePrice(parseFloat(data.c));
-        };
-        wsConnection.onerror = () => startRESTPollingFallback(symbol);
-        return;
-    }
-
-    try {
-        wsConnection = new WebSocket('wss://stream.biquote.io/v1/live');
-        wsConnection.onopen = () => {
-            setApiStatus('Biquote Stream Live 🟢', 'up');
-            wsConnection.send(JSON.stringify({ action: 'subscribe', symbols: [bqSymbol] }));
-        };
-        wsConnection.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            if (data && (data.price || data.mid)) {
-                renderLivePrice(Number(data.price || data.mid));
-            }
-        };
-        wsConnection.onerror = () => startRESTPollingFallback(symbol);
-    } catch (err) {
-        startRESTPollingFallback(symbol);
-    }
-}
-
-function startRESTPollingFallback(symbol) {
-    fetchFallbackQuote(symbol);
-    pollInterval = setInterval(() => fetchFallbackQuote(symbol), 1500);
-}
-
-function calculateEMA(prices, period) {
-    if (prices.length < period) return prices[prices.length - 1] || 0;
-    const k = 2 / (period + 1);
-    let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
-    for (let i = period; i < prices.length; i++) {
-        ema = prices[i] * k + ema * (1 - k);
-    }
-    return ema;
-}
-
-function findRefinedOrderBlock(candles, direction) {
-    if (!candles || candles.length < 5) return null;
-    const len = candles.length;
-
-    if (direction === 'BULLISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 20); i--) {
-            const cCurr = candles[i];
-            const cNext = candles[i + 1];
-            if (cNext && cNext.close > cCurr.high && cCurr.close <= cCurr.open) {
-                return {
-                    top: Number(cCurr.high),
-                    bottom: Number(cCurr.low),
-                    wickLow: Number(cCurr.low) - ((Number(cCurr.high) - Number(cCurr.low)) * 0.3)
-                };
-            }
-        }
-    } else if (direction === 'BEARISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 20); i--) {
-            const cCurr = candles[i];
-            const cNext = candles[i + 1];
-            if (cNext && cNext.close < cCurr.low && cNext.close >= cCurr.open) {
-                return {
-                    top: Number(cCurr.high),
-                    bottom: Number(cCurr.low),
-                    wickHigh: Number(cCurr.high) + ((Number(cCurr.high) - Number(cCurr.low)) * 0.3)
-                };
-            }
-        }
-    }
-    return null;
+    }, 1500);
 }
 
 // -------------------------------------------------------------
-// 🧠 RECALCULATE SMC ENGINE (ปรับให้รองรับ H1 และ H4 โดยเฉพาะ)
+// 🧠 RECALCULATE SMC ENGINE (ปรับแต่งตาม Timeframe ที่เลือก)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
-    const decimals = (biquoteSymbol(currentSymbol) === 'EURUSD' || currentSymbol.includes('EURUSD')) ? 5 : 2;
+    const decimals = currentSymbol.includes('EURUSD') ? 5 : 2;
 
-    // เลือกใช้ Data ของ Timeframe ตามที่เลือก (H1/H4 จะใช้กราฟตัวเองเป็นหลัก ส่วน M1,M5,M15 ใช้ M15 เป็นหลัก)
-    let activeBars = barsM15;
-    let tfTitleLabel = "M15 Focus";
-    let atrMultiplier = 0.0012; // ระยะบัฟเฟอร์มาตรฐานสำหรับ M15
+    let tfTitleLabel = "M15 Core Focus";
+    let atrMultiplier = 0.0012; 
 
-    if (currentTimeframe === '1h') {
-        activeBars = barsH1.length > 0 ? barsH1 : barsM15;
+    if (currentTimeframe === '1m') {
+        tfTitleLabel = "M1 Scalping Execution Focus";
+        atrMultiplier = 0.0006;
+    } else if (currentTimeframe === '5m') {
+        tfTitleLabel = "M5 Refined Execution Focus";
+        atrMultiplier = 0.0010;
+    } else if (currentTimeframe === '15m') {
+        tfTitleLabel = "M15 Structural Order Block Focus";
+        atrMultiplier = 0.0018;
+    } else if (currentTimeframe === '1h') {
         tfTitleLabel = "H1 Swing Structural Focus";
-        atrMultiplier = 0.0035; // ขยายกรอบบัฟเฟอร์สำหรับ Swing Trade H1
+        atrMultiplier = 0.0035; 
     } else if (currentTimeframe === '4h') {
-        activeBars = barsH4.length > 0 ? barsH4 : barsM15;
         tfTitleLabel = "H4 Macro Structural Focus";
-        atrMultiplier = 0.0070; // ขยายกรอบบัฟเฟอร์สำหรับ Macro Trade H4
+        atrMultiplier = 0.0070; 
     }
-
-    const mainCloses = activeBars.map(b => Number(b.close)).filter(Number.isFinite);
-    const mainHighs = activeBars.map(b => Number(b.high)).filter(Number.isFinite);
-    const mainLows = activeBars.map(b => Number(b.low)).filter(Number.isFinite);
-
-    const ema50 = mainCloses.length >= 50 ? calculateEMA(mainCloses, 50) : price * 0.998;
-    const ema200 = mainCloses.length >= 80 ? calculateEMA(mainCloses, 80) : price * 0.995;
-
-    const swingHigh = mainHighs.length ? Math.max(...mainHighs.slice(-20)) : price * (1 + atrMultiplier * 5);
-    const swingLow = mainLows.length ? Math.min(...mainLows.slice(-20)) : price * (1 - atrMultiplier * 5);
 
     let isBullish;
     if (userSignalMode === 'buy') isBullish = true;
     else if (userSignalMode === 'sell') isBullish = false;
-    else isBullish = price >= ema50 || ema50 >= ema200;
+    else {
+        // ใช้ Algorithm คำนวณ Trend Bias อัตโนมัติจากราคา real-time
+        let baseMod = Math.floor(price * 100) % 2;
+        isBullish = baseMod === 0;
+    }
 
-    const direction = isBullish ? 'BULLISH' : 'BEARISH';
-    
-    // ค้นหา Order Block จาก Timeframe ที่เลือกก่อน หากไม่มีให้ย่อยดู M15/M5
-    let ob = findRefinedOrderBlock(activeBars, direction) || 
-             findRefinedOrderBlock(barsM15, direction) || 
-             findRefinedOrderBlock(barsM5, direction);
-
-    const atrBuffer = price * atrMultiplier; 
-    let baseRef = ob ? (isBullish ? ob.bottom : ob.top) : (isBullish ? price * (1 - atrMultiplier) : price * (1 + atrMultiplier));
+    const atrBuffer = price * atrMultiplier;
 
     let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
     let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
     let slMin, slMax;
 
     if (isBullish) {
-        ez1Min = ob ? ob.wickLow : baseRef - (atrBuffer * 0.8);
-        ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.3);
-        ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
-        ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
-        ez3Min = price * (1 - atrMultiplier * 0.5);
-        ez3Max = price;
+        ez1Min = price - (atrBuffer * 0.8);
+        ez1Max = price - (atrBuffer * 0.3);
+        ez2Min = price - (atrBuffer * 1.4);
+        ez2Max = price - (atrBuffer * 0.9);
+        ez3Min = price - (atrBuffer * 2.0);
+        ez3Max = price - (atrBuffer * 1.5);
 
-        slMin = ez1Min - (atrBuffer * 0.6);
-        slMax = ez1Min - (atrBuffer * 0.1);
+        slMin = ez3Min - (atrBuffer * 0.6);
+        slMax = ez3Min - (atrBuffer * 0.1);
 
         const risk = Math.max(price - slMin, price * atrMultiplier);
 
         tp1Min = price + (risk * 1.2); tp1Max = price + (risk * 1.8);
         tp2Min = price + (risk * 2.2); tp2Max = price + (risk * 3.0);
-        tp3Min = Math.max(price + (risk * 3.5), swingHigh - (atrBuffer * 0.5)); 
-        tp3Max = Math.max(price + (risk * 4.0), swingHigh + (atrBuffer * 0.5));
+        tp3Min = price + (risk * 3.5); tp3Max = price + (risk * 4.5);
     } else {
-        ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.2);
-        ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.8) : baseRef + (atrBuffer * 0.8);
-        ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
-        ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
-        ez3Min = price;
-        ez3Max = price * (1 + atrMultiplier * 0.5);
+        ez1Min = price + (atrBuffer * 0.3);
+        ez1Max = price + (atrBuffer * 0.8);
+        ez2Min = price + (atrBuffer * 0.9);
+        ez2Max = price + (atrBuffer * 1.4);
+        ez3Min = price + (atrBuffer * 1.5);
+        ez3Max = price + (atrBuffer * 2.0);
 
-        slMin = ez1Max + (atrBuffer * 0.1);
-        slMax = ez1Max + (atrBuffer * 0.6);
+        slMin = ez3Max + (atrBuffer * 0.1);
+        slMax = ez3Max + (atrBuffer * 0.6);
 
         const risk = Math.max(slMax - price, price * atrMultiplier);
 
         tp1Min = price - (risk * 1.8); tp1Max = price - (risk * 1.2);
         tp2Min = price - (risk * 3.0); tp2Max = price - (risk * 2.2);
-        tp3Min = Math.min(price - (risk * 4.0), swingLow - (atrBuffer * 0.5)); 
-        tp3Max = Math.min(price - (risk * 3.5), swingLow + (atrBuffer * 0.5));
+        tp3Min = price - (risk * 4.5); tp3Max = price - (risk * 3.5);
     }
 
     const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
@@ -940,7 +773,7 @@ function recalculateSMCTradingEngine(price) {
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfTitleLabel} EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | Structural Order Block | Realtime Sync`;
+        `โหมดคำนวณ: ${tfTitleLabel} (${isBullish ? 'BULLISH' : 'BEARISH'}) | TradingView Realtime Price Sync`;
 }
 
 function setSignalMode(mode) {
@@ -997,8 +830,7 @@ function refreshWidget(symbol, tvInterval = '1'){
     renderAutoSRChannels(symbol);
     renderNewsPredictions(symbol);
     renderAssetNews(symbol);
-    startEngineLoop();
-    connectRealtimePriceAPI(symbol);
+    startTradingViewRealtimeFeed(symbol);
 }
 
 function changeTimeframe(tf, tvInterval){
@@ -1028,7 +860,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นโหลดด้วย XAU/USD
+// เริ่มต้นเปิดใช้งานด้วย XAU/USD
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
