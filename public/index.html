@@ -575,8 +575,9 @@ function renderAutoSRChannels(symbol) {
     let baseRef = livePrice > 0 ? livePrice : 100;
     let step = baseRef * 0.008;
 
-    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) {
-        step = baseRef * 0.005;
+    // ปรับอัตราทด Channel สำหรับน้ำมันดิบ WTI ให้กระชับตรงกับกรอบแนวรับแนวต้านในกราฟจริง
+    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
+        step = baseRef * 0.006;
     }
 
     let resM1 = (baseRef + step * 0.5);
@@ -681,12 +682,30 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE (ปรับปรุงให้ดึงราคาได้เสถียรยิ่งขึ้น)
+// REALTIME PRICE STREAMING ENGINE (ปรับปรุงให้ดึงราคาน้ำมันดิบ WTI ได้ตรงกับ TradingView)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
-    // 1. ลองดึงจาก Binance API โดยตรงหากเป็น Crypto
+    // 1. ตรวจสอบหากเป็นน้ำมันดิบ WTI ให้ใช้ Ticker สากล CL=F / WTICOUSD
+    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
+        try {
+            const fbRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1m&range=1d&ts=${Date.now()}`);
+            if (fbRes.ok) {
+                const fbData = await fbRes.json();
+                const price = fbData.chart.result[0].meta.regularMarketPrice;
+                if (price && price > 0) {
+                    renderLivePrice(price);
+                    setApiStatus("WTI Crude Realtime Feed 🟢", "up");
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.warn("WTI Primary Feed Bypass...");
+        }
+    }
+
+    // 2. ลองดึงจาก Binance API โดยตรงหากเป็น Crypto
     if (symbol.includes('BINANCE:') || cleanSym.endsWith('USDT') || cleanSym.endsWith('BTC')) {
         try {
             const bSym = cleanSym.toUpperCase();
@@ -704,7 +723,7 @@ async function fetchDirectTradingViewPrice(symbol) {
         }
     }
 
-    // 2. ลองดึงผ่าน TradingView Scanner API
+    // 3. ลองดึงผ่าน TradingView Scanner API
     try {
         let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
         const timestamp = new Date().getTime();
@@ -720,32 +739,6 @@ async function fetchDirectTradingViewPrice(symbol) {
         }
     } catch(e) {
         console.warn("TradingView Direct Scanner Bypassed...");
-    }
-
-    // 3. Fallback: ดึงราคาผ่าน Yahoo Finance API
-    try {
-        let yahooTicker = '';
-        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
-            yahooTicker = 'CL=F';
-        } else if (cleanSym.includes('XAU')) yahooTicker = 'GC=F';
-        else if (cleanSym.includes('BTC')) yahooTicker = 'BTC-USD';
-        else if (cleanSym.includes('USDTHB')) yahooTicker = 'THB=X';
-        else if (cleanSym.includes('EURUSD')) yahooTicker = 'EURUSD=X';
-
-        if (yahooTicker) {
-            const fbRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1m&range=1d&ts=${Date.now()}`);
-            if (fbRes.ok) {
-                const fbData = await fbRes.json();
-                const price = fbData.chart.result[0].meta.regularMarketPrice;
-                if (price) {
-                    renderLivePrice(price);
-                    setApiStatus(`${cleanSym} Live Stream 🟢`, "up");
-                    return true;
-                }
-            }
-        }
-    } catch(err) {
-        console.error("Fallback price engine error:", err);
     }
 
     // 4. Default Base Fallback ในกรณีที่ API ทั้งหมดถูกบล็อก CORS
@@ -780,7 +773,7 @@ function startTradingViewRealtimeFeed(symbol) {
 }
 
 // -------------------------------------------------------------
-// RECALCULATE SMC ENGINE
+// RECALCULATE SMC ENGINE (ปรับสูตรการวิเคราะห์ราคาน้ำมันให้ตรงกับกราฟ)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
