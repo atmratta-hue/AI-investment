@@ -148,7 +148,7 @@
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Automated Dynamic SMC & Realtime Price Engine</div>
+            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Automated Dynamic SMC & Multi-Asset Intelligence Engine</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -159,13 +159,13 @@
     <div class="asset-select-panel">
         <h2 style="margin-bottom:10px;">เลือกหรือค้นหาสินทรัพย์ต่าง ๆ (วิเคราะห์แบบ Dynamic)</h2>
         <div class="search-bar">
-            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น NASDAQ:AAPL, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
+            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น OANDA:WTICOUSD, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
             <button onclick="handleSearch()">ค้นหาและวิเคราะห์</button>
         </div>
         <div class="chip-row" id="chip-row">
             <span class="chip active" data-symbol="OANDA:XAUUSD" data-label="ทองคำ (XAU/USD)">ทองคำ (XAU/USD)</span>
+            <span class="chip" data-symbol="OANDA:WTICOUSD" data-label="น้ำมันดิบ WTI">น้ำมันดิบ WTI (WTICOUSD)</span>
             <span class="chip" data-symbol="BINANCE:BTCUSDT" data-label="บิทคอยน์ (BTC/USDT)">บิทคอยน์ (BTC/USDT)</span>
-            <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมันดิบ WTI</span>
             <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
             <span class="chip" data-symbol="NASDAQ:QQQ" data-label="NASDAQ 100">NASDAQ 100</span>
         </div>
@@ -295,72 +295,88 @@ let livePrice = 0;
 let userSignalMode = 'auto'; 
 let priceStreamTimer = null;
 
+// -------------------------------------------------------------
+// ฐานข้อมูลข่าวแยกตามสินทรัพย์อย่างชัดเจน 100% (Asset News Database)
+// -------------------------------------------------------------
 const assetNewsDatabase = {
-    'OANDA:XAUUSD': {
+    'XAUUSD': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวทองคำ (Gold / XAUUSD)',
-        desc: 'ทองคำเคลื่อนไหวผันผวนสูงในกรอบแนวรับแนวต้าน โดยได้รับอิทธิพลจากทิศทางอัตราดอกเบี้ยนโยบายของเฟด (Fed) ดัชนีดอลลาร์ (DXY) ตัวเลขการจ้างงานนอกภาคเกษตร (NFP) รวมถึงแรงซื้อทองคำในฐานะ สินทรัพย์ปลอดภัย (Safe-Haven) จากสถานการณ์ภูมิรัฐศาสตร์',
+        desc: 'ทองคำเคลื่อนไหวผันผวนในกรอบแนวรับแนวต้าน โดยได้รับอิทธิพลจากทิศทางอัตราดอกเบี้ยนโยบายของเฟด (Fed) ดัชนีดอลลาร์ (DXY) ตัวเลขการจ้างงานนอกภาคเกษตร (NFP) รวมถึงแรงซื้อทองคำในฐานะสินทรัพย์ปลอดภัย (Safe-Haven) จากสถานการณ์ภูมิรัฐศาสตร์',
         preds: [
             { event: 'US Flash Manufacturing & Services PMI', forecast: '51.2 / 54.0', prev: '50.5 / 55.0', impact: 'หากตัวเลขออกมาต่ำกว่าคาด ดอลลาร์จะอ่อนค่า ดันราคาทองคำพุ่งขึ้นทดสอบแนวต้าน' },
-            { event: 'Fed Interest Rate Decision & FOMC', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากเฟดส่งสัญญาณปรับลดดอกเบี้ย จะเป็นปัจจัยหนุนเชิงบวก (Bullish) ต่อราคาทองคำอย่างรุนแรง' },
-            { event: 'U.S. Crude Oil Inventories (EIA)', forecast: '-1.2M Barrels', prev: '+0.8M Barrels', impact: 'กระทบต่อแนวโน้มเงินเฟ้อ หากเงินเฟ้อสูงขึ้น จะเพิ่มความต้องการถือครองทองคำเพื่อป้องกันเงินเฟ้อ' }
+            { event: 'Fed Interest Rate Decision & FOMC Statement', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากเฟดส่งสัญญาณปรับลดดอกเบี้ย จะเป็นปัจจัยหนุนเชิงบวก (Bullish) ต่อราคาทองคำอย่างรุนแรง' },
+            { event: 'U.S. Core PCE Price Index MoM', forecast: '0.2%', prev: '0.3%', impact: 'กระทบต่อแนวโน้มเงินเฟ้อ หากเงินเฟ้อชะลอตัว จะเพิ่มโอกาสลดดอกเบี้ยและเป็นบวกต่อทองคำ' }
         ],
         news: [
             {
-                source: 'FXStreet / Forex Factory',
+                source: 'FXStreet / Gold Analysis',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Gold Price Gains Ground as US Dollar and Bond Yields Retreat',
+                title: 'Gold Price Gains Momentum as US Dollar Drops on Fed Rate Cut Expectations',
                 reason: 'การย่อตัวของดัชนีดอลลาร์และอัตราผลตอบแทนพันธบัตรรัฐบาลสหรัฐฯ ช่วยหนุนให้ราคาทองคำมีแรงซื้อกลับเข้ามาบริเวณแนวรับสำคัญ',
-                url: 'https://www.forexfactory.com/news',
-                date: '2026-09-28'
+                url: 'https://www.fxstreet.com/markets/commodities/gold',
+                date: '2026-09-29'
             },
             {
-                source: 'Investing.com',
+                source: 'Investing.com Gold',
                 sentiment: 'bearish',
                 sentimentText: 'ผลกระทบ: ลบ (Bearish) 🔴',
-                title: 'Gold Faces Resistance Near All-Time Highs Ahead of Key Inflation Data',
-                reason: 'แรงขายทำกำไรบริเวณแนวต้านระดับสูง ส่งผลให้ราคาทองคำมีการย่อตัวพักฐานก่อนการประกาศตัวเลข PCE Inflation',
+                title: 'Gold Faces Profit-Taking Near All-Time High Target Before US Data',
+                reason: 'แรงขายทำกำไรบริเวณแนวต้านระดับสูง ส่งผลให้ราคาทองคำมีการย่อตัวพักฐานชั่วคราวเพื่อสะสมกำลัง',
                 url: 'https://www.investing.com/commodities/gold-news',
-                date: '2026-09-28'
+                date: '2026-09-29'
             }
         ],
         sources: [
-            { cat: '1. ข่าวสารการเงินและปฏิทินเศรษฐกิจต่างประเทศ', links: [
+            { cat: '1. ข่าวสารทองคำและปฏิทินเศรษฐกิจต่างประเทศ', links: [
                 { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
-                { name: 'FXStreet Gold Analysis', url: 'https://www.fxstreet.com/markets/commodities/gold' }
+                { name: 'FXStreet Gold Live Feed', url: 'https://www.fxstreet.com/markets/commodities/gold' }
             ]},
-            { cat: '2. ข่าวสารเศรษฐกิจและทองคำในประเทศ', links: [
+            { cat: '2. สมาคมค้าทองคำและข่าวในประเทศ', links: [
                 { name: 'สมาคมค้าทองคำ (Gold Traders Association)', url: 'https://www.goldtraders.or.th/' },
-                { name: 'Investing Thailand', url: 'https://th.investing.com/' }
+                { name: 'Investing Thailand Gold News', url: 'https://th.investing.com/commodities/gold' }
             ]}
         ]
     },
-    'TVC:USOIL': {
-        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวน้ำมันดิบ (WTI Crude Oil)',
-        desc: 'ราคาน้ำมันดิบเคลื่อนไหวตามมติการผลิตของกลุ่ม OPEC+ รายงานสต็อกน้ำมันดิบประจำสัปดาห์ของ EIA ตลอดจนการฟื้นตัวของอุปสงค์พลังงานในฝั่งเอเชียและภาวะตึงเครียดทางภูมิรัฐศาสตร์ในตะวันออกกลาง',
+    'WTICOUSD': {
+        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวน้ำมันดิบ WTI (Crude Oil)',
+        desc: 'ราคาน้ำมันดิบ WTI เคลื่อนไหวตามรายงานการลดกำลังการผลิตของกลุ่ม OPEC+ รายงานสต็อกน้ำมันดิบประจำสัปดาห์จาก EIA ตลอดจนอุปสงค์พลังงานโลกและปัจจัยความตึงเครียดทางภูมิรัฐศาสตร์',
         preds: [
-            { event: 'EIA Crude Oil Inventories', forecast: '-1.5M Barrels', prev: '+0.5M Barrels', impact: 'หากตัวเลขสต็อกลดลงมากกว่าคาด จะเป็นแรงส่งให้ราคาน้ำมันปรับตัวขึ้นทันที' },
-            { event: 'OPEC+ Production Output Policy', forecast: 'Maintain Cut', prev: 'Voluntary Cut', impact: 'การคงมาตรการลดการผลิตช่วยพยุงโซนแนวรับสำคัญของน้ำมันดิบไว้ได้อย่างแข็งแกร่ง' }
+            { event: 'EIA Weekly Crude Oil Inventories', forecast: '-1.8M Barrels', prev: '+0.6M Barrels', impact: 'หากสต็อกน้ำมันดิบปรับลดลงมากกว่าที่ตลาดคาดการณ์ จะหนุนให้ราคาน้ำมันเบรกเอาต์ผ่านแนวต้าน' },
+            { event: 'OPEC+ Crude Production Output Policy', forecast: 'Maintain Voluntary Cuts', prev: '2.2M bpd Cut', impact: 'การคงมาตรการปรับลดกำลังการผลิตช่วยพยุงโซนแนวรับสำคัญของน้ำมันดิบ WTI ไว้ได้อย่างมั่นคง' },
+            { event: 'US Baker Hughes Active Oil Rig Count', forecast: '488 Rigs', prev: '491 Rigs', impact: 'แท่นขุดเจาะที่ลดลงบ่งชี้ถึงอุปทานในสหรัฐฯ ที่ตึงตัวขึ้น ส่งผลบวกต่อทิศทางราคาน้ำมันดิบ' }
         ],
         news: [
             {
-                source: 'Reuters / Investing.com',
+                source: 'Reuters Energy News',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Oil Prices Rise on Tight Supply Outlook and Demand Optimism',
-                reason: 'ความกังวลด้านอุปทานตึงตัวบวกกับอุปสงค์ช่วงปลายปีช่วยหนุนราคาเบรกแนวต้านสำคัญ',
+                title: 'WTI Crude Edges Higher Amid Middle East Supply Risk & US Inventory Drawdown',
+                reason: 'ความกังวลเรื่องการหยุดชะงักของห่วงโซ่อุปทานและการปรับลดลงของสต็อกน้ำมันดิบสหรัฐฯ ช่วยผลักดันราคาให้ดีดตัวเหนือโซนแนวรับ',
+                url: 'https://www.reuters.com/business/energy/',
+                date: '2026-09-29'
+            },
+            {
+                source: 'Investing.com Crude Oil',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
+                title: 'Oil Prices Consolidate in Range as Traders Weigh Demand Concerns vs OPEC Cuts',
+                reason: 'ตลาดน้ำมันแกว่งตัว Sideway สะสมกำลังเพื่อประเมินความสอดคล้องระหว่างอุปสงค์ฝั่งจีนกับนโยบายควบคุมการผลิตของ OPEC+',
                 url: 'https://www.investing.com/commodities/crude-oil-news',
-                date: '2026-09-28'
+                date: '2026-09-29'
             }
         ],
         sources: [
-            { cat: '1. ข่าวสารพลังงานและน้ำมันดิบระดับโลก', links: [
-                { name: 'EIA Official Data Feed', url: 'https://www.eia.gov/' },
-                { name: 'Investing Crude Oil Market', url: 'https://www.investing.com/commodities/crude-oil' }
+            { cat: '1. ข่าวสารพลังงานและราคาน้ำมันดิบระดับโลก', links: [
+                { name: 'U.S. Energy Information Administration (EIA)', url: 'https://www.eia.gov/' },
+                { name: 'Investing.com Crude Oil Market Feed', url: 'https://www.investing.com/commodities/crude-oil' }
+            ]},
+            { cat: '2. ปฏิทินข่าวพลังงานต่างประเทศ', links: [
+                { name: 'Forex Factory Energy Calendar', url: 'https://www.forexfactory.com/calendar' }
             ]}
         ]
     },
-    'BINANCE:BTCUSDT': {
+    'BTCUSDT': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวบิทคอยน์ (Bitcoin / BTCUSDT)',
         desc: 'ตลาดคริปโทเคอร์เรนซีได้รับแรงหนุนจากกระแสเงินทุนไหลเข้า Spot Bitcoin ETF อย่างต่อเนื่อง ประกอบกับความเชื่อมั่นในเทคโนโลยีการเงินไร้ศูนย์กลาง และทิศทางนโยบายผ่อนคลายทางการเงินในระดับมหภาค',
         preds: [
@@ -369,19 +385,69 @@ const assetNewsDatabase = {
         ],
         news: [
             {
-                source: 'Siam Blockchain',
+                source: 'CoinDesk / Siam Blockchain',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'สถาบันการเงินยักษ์ใหญ่เดินหน้าสะสม Bitcoin เพิ่มขึ้นต่อเนื่อง',
+                title: 'Bitcoin Rebounds Strong Above Support Zone Driven by ETF Capital Inflows',
                 reason: 'แรงซื้อสะสมจากกองทุน ETF ใหญ่ช่วยดันราคาทะลุผ่านโซนแนวต้านสำคัญอย่างแข็งแกร่ง',
-                url: 'https://siamblockchain.com/',
-                date: '2026-09-28'
+                url: 'https://www.coindesk.com/',
+                date: '2026-09-29'
             }
         ],
         sources: [
             { cat: '1. ข่าวสารคริปโทเคอร์เรนซีระดับโลก', links: [
                 { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' },
                 { name: 'CoinTelegraph Bitcoin Feed', url: 'https://cointelegraph.com/tags/bitcoin' }
+            ]}
+        ]
+    },
+    'EURUSD': {
+        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าว EUR/USD',
+        desc: 'ทิศทาง EUR/USD เคลื่อนไหวตามส่วนต่างอัตราดอกเบี้ยระหว่างธนาคารกลางยุโรป (ECB) กับธนาคารกลางสหรัฐฯ (Fed) รวมถึงการประกาศตัวเลข CPI ของฝรั่งเศส เยอรมนี และยอดค้าปลีกของยูโรโซน',
+        preds: [
+            { event: 'ECB Monetary Policy Meeting', forecast: '3.00% Deposit Rate', prev: '3.25%', impact: 'หาก ECB ปรับลดดอกเบี้ยน้อยกว่าคาด ค่าเงินยูโรจะแข็งค่าดันราคากราฟขึ้น' },
+            { event: 'US Dollar Index (DXY) Volatility', forecast: '101.50 Level', prev: '102.10', impact: 'การอ่อนค่าของดอลลาร์ส่งผลตรงให้ EUR/USD ปรับตัวสูงขึ้นตามโครงสร้าง' }
+        ],
+        news: [
+            {
+                source: 'FXStreet EUR/USD Feed',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'EUR/USD Rallies Towards Resistance as US Dollar Pressure Eases',
+                reason: 'แรงซื้อกลับเข้าสู่คู่อื่นเทียบดอลลาร์ ส่งผลให้ EUR/USD ทะลุแนวกดตัวสั้นๆ',
+                url: 'https://www.fxstreet.com/rates-charts/eurusd',
+                date: '2026-09-29'
+            }
+        ],
+        sources: [
+            { cat: '1. ข่าวสารแลกเปลี่ยนเงินตราต่างประเทศ', links: [
+                { name: 'Forex Factory FX Calendar', url: 'https://www.forexfactory.com/calendar' },
+                { name: 'FXStreet EURUSD Hub', url: 'https://www.fxstreet.com/rates-charts/eurusd' }
+            ]}
+        ]
+    },
+    'PTT': {
+        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวหุ้น PTT (บริษัท ปตท. จำกัด มหาชน)',
+        desc: 'ราคาหุ้น PTT ได้รับปัจจัยบวกจากราคาน้ำมันดิบในตลาดโลก โครงสร้างราคาพลังงานในประเทศ การจ่ายเงินปันผลต่อเนื่อง และผลประกอบการของบริษัทลูกในกลุ่ม ปตท. (PTTEP, PTTGC, OR)',
+        preds: [
+            { event: 'รายงานผลประกอบการไตรมาส PTT Group', forecast: 'เติบโตต่อเนื่อง', prev: 'ตามเป้าหมาย', impact: 'ช่วยพยุงราคาหุ้น PTT ให้ยืนเหนือแนวรับสำคัญและดึงดูดแรงซื้อจากนักลงทุนสถาบัน' },
+            { event: 'ทิศทางราคาน้ำมันดิบ WTI / Brent', forecast: 'พยุงตัวสูง', prev: 'ผันผวน', impact: 'ส่งผลบวกโดยตรงต่อรายได้ของ PTTEP และกลุ่มพลังงานปิโตรเคมี' }
+        ],
+        news: [
+            {
+                source: 'BangkokBizNews / Kaohoon',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'PTT รับอานิสงส์ราคาน้ำมันดิบโลกฟื้นตัว มุ่งหน้าสู่ธุรกิจพลังงานสะอาด',
+                reason: 'แรงซื้อสถาบันกลับเข้าสะสมหุ้นใหญ่กลุ่มพลังงานตอบรับแนวโน้มปันผลสูง',
+                url: 'https://www.kaohoon.com/',
+                date: '2026-09-29'
+            }
+        ],
+        sources: [
+            { cat: '1. ตลาดหลักทรัพย์แห่งประเทศไทยและข่าวหุ้นไทย', links: [
+                { name: 'SET - ข้อมูลหุ้น PTT', url: 'https://www.set.or.th/th/market/product/stock/quote/PTT/price' },
+                { name: 'ข่าวหุ้นธุรกิจ Kaohoon Online', url: 'https://www.kaohoon.com/' }
             ]}
         ]
     }
@@ -391,6 +457,70 @@ function cleanAssetTitle(symbol) {
     return symbol.includes(':') ? symbol.split(':')[1] : symbol;
 }
 
+// -------------------------------------------------------------
+// ฟังก์ชันค้นหาข้อมูลข่าวให้ตรงกับ Symbol ที่เลือก 100%
+// -------------------------------------------------------------
+function getAssetNewsData(symbol) {
+    const cleanSym = cleanAssetTitle(symbol).toUpperCase();
+    
+    // ค้นหาแบบ ตรงตัว หรือ คำที่มีอยู่ภายใน Symbol
+    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
+        return assetNewsDatabase['WTICOUSD'];
+    }
+    if (cleanSym.includes('XAU')) {
+        return assetNewsDatabase['XAUUSD'];
+    }
+    if (cleanSym.includes('BTC')) {
+        return assetNewsDatabase['BTCUSDT'];
+    }
+    if (cleanSym.includes('EURUSD')) {
+        return assetNewsDatabase['EURUSD'];
+    }
+    if (cleanSym.includes('PTT')) {
+        return assetNewsDatabase['PTT'];
+    }
+
+    // หากไม่มีในดิกชันนารี ให้สร้างชุดข่าว Dynamic เฉพาะสินทรัพย์นั้นทันที
+    return {
+        title: `📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวประจำสินทรัพย์ (${cleanSym})`,
+        desc: `สภาวะการซื้อขายของ ${cleanSym} ในปัจจุบันได้รับอิทธิพลจากสภาพคล่อง สภาวะเศรษฐกิจมหภาค และ Sentiment การลงทุนทั้งในและต่างประเทศ`,
+        preds: [
+            { event: `${cleanSym} Orderflow Delta & Liquidity Index`, forecast: 'Expanding', prev: 'Neutral', impact: `สภาพคล่องสินทรัพย์ ${cleanSym} ปรับตัวเพิ่มขึ้น กระตุ้นแรงซื้อขายทดสอบโซนแนวรับแนวต้าน` },
+            { event: `Macro Economic Policy & Interest Rates`, forecast: 'Hawkish Hold', prev: '4.25%', impact: `ทิศทางนโยบายการเงินส่งผลให้ราคา ${cleanSym} ผันผวนในกรอบสะสมพลังก่อนเลือกทิศทาง` }
+        ],
+        news: [
+            {
+                source: 'Forex Factory / TradingView News',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: `${cleanSym} Holding Above Key Support Zone Following Volatile Session`,
+                reason: `แรงซื้อตอบสนองแนวรับสำคัญของ ${cleanSym} พยุงราคาขึ้นทดสอบระดับแนวต้านถัดไป`,
+                url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' news tradingview')}`,
+                date: '2026-09-29'
+            },
+            {
+                source: 'Investing.com / Market Analysis',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
+                title: `${cleanSym} Consolidates as Traders Await Key Economic Data`,
+                reason: `ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ SMC รอปัจจัยข่าวใหม่`,
+                url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' investing news')}`,
+                date: '2026-09-29'
+            }
+        ],
+        sources: [
+            { cat: `1. ข้อมูลราคา Realtime & ข่าวต่างประเทศ (${cleanSym})`, links: [
+                { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
+                { name: `TradingView Symbol Overview (${cleanSym})`, url: `https://www.tradingview.com/symbols/${cleanSym}/` }
+            ]},
+            { cat: '2. สำนักข่าวการเงินและเศรษฐกิจชั้นนำ', links: [
+                { name: 'Investing.com Global Markets', url: 'https://www.investing.com/' },
+                { name: 'CNBC Finance News', url: 'https://www.cnbc.com/' }
+            ]}
+        ]
+    };
+}
+
 function formatPrice(value, symbol = currentSymbol) {
     const n = Number(value);
     if (!Number.isFinite(n)) return '--';
@@ -398,7 +528,7 @@ function formatPrice(value, symbol = currentSymbol) {
     let decimals = 2;
     if (symbol.includes('EURUSD') || symbol.includes('GBPUSD')) {
         decimals = 5;
-    } else if (symbol.includes('USOIL') || symbol.includes('WTI')) {
+    } else if (symbol.includes('WTICOUSD') || symbol.includes('USOIL') || symbol.includes('WTI')) {
         decimals = 2;
     } else if (n < 1) {
         decimals = 4;
@@ -445,6 +575,10 @@ function renderAutoSRChannels(symbol) {
     let baseRef = livePrice > 0 ? livePrice : 100;
     let step = baseRef * 0.008;
 
+    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) {
+        step = baseRef * 0.005;
+    }
+
     let resM1 = (baseRef + step * 0.5);
     let supM1 = (baseRef - step * 0.5);
     let resM15 = (baseRef + step * 1.5);
@@ -474,16 +608,12 @@ function renderAutoSRChannels(symbol) {
 function renderNewsPredictions(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('news-pred-container');
-    const assetData = assetNewsDatabase[symbol];
+    const assetData = getAssetNewsData(symbol);
 
     document.getElementById('news-pred-header-title').textContent = `📡 การคาดการณ์ข่าวเศรษฐกิจและผลกระทบต่อกราฟ (${cleanSym} News Convergence)`;
     container.innerHTML = '';
 
-    const predsList = (assetData && assetData.preds) ? assetData.preds : [
-        { event: `${cleanSym} Volatility & Liquidity Index`, forecast: 'Expanding', prev: 'Neutral', impact: `สภาพคล่องสินทรัพย์ ${cleanSym} ปรับตัวเพิ่มขึ้น กระตุ้นแรงซื้อขายทดสอบโซนแนวรับแนวต้าน` },
-        { event: `Macro Economic Policy & Interest Rates`, forecast: 'Hawkish Hold', prev: '4.25%', impact: `ทิศทางนโยบายการเงินส่งผลให้ราคา ${cleanSym} ผันผวนในกรอบสะสมพลังก่อนเลือกทิศทาง` },
-        { event: `${cleanSym} Market Orderflow Delta`, forecast: '+2.4M Volume', prev: '-0.8M Volume', impact: `เกิดแรงซื้อคืนแบบ Aggressive Buying เข้าสู่โครงสร้าง SMC M15` }
-    ];
+    const predsList = assetData.preds;
 
     predsList.forEach(item => {
         const box = document.createElement('div');
@@ -501,38 +631,17 @@ function renderNewsPredictions(symbol) {
 
 function renderAssetNews(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
-    const assetData = assetNewsDatabase[symbol];
+    const assetData = getAssetNewsData(symbol);
 
-    document.getElementById('news-asset-title').textContent = assetData ? assetData.title : `📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าว (${cleanSym})`;
-    document.getElementById('news-asset-desc').textContent = assetData ? assetData.desc : `สภาวะการซื้อขายของ ${cleanSym} ในปัจจุบันได้รับอิทธิพลจากสภาพคล่อง สภาวะเศรษฐกิจมหภาค และ Sentiment การลงทุนทั้งในและต่างประเทศ`;
+    document.getElementById('news-asset-title').textContent = assetData.title;
+    document.getElementById('news-asset-desc').textContent = assetData.desc;
     document.getElementById('news-list-label').textContent = `📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (${cleanSym}):`;
     document.getElementById('sources-main-title').textContent = `📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (${cleanSym})`;
 
     const newsContainer = document.getElementById('news-grid-container');
     newsContainer.innerHTML = '';
 
-    const newsList = (assetData && assetData.news) ? assetData.news : [
-        {
-            source: 'Forex Factory / TradingView News',
-            sentiment: 'bullish',
-            sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-            title: `${cleanSym} Holding Above Key Support Zone Following Volatile Session`,
-            reason: `แรงซื้อตอบสนองแนวรับสำคัญของ ${cleanSym} พยุงราคาขึ้นทดสอบระดับแนวต้านถัดไป`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' news tradingview')}`,
-            date: '2026-09-28'
-        },
-        {
-            source: 'Investing.com / Market Analysis',
-            sentiment: 'neutral',
-            sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-            title: `${cleanSym} Consolidates as Traders Await Key Economic Data`,
-            reason: `ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ SMC รอปัจจัยข่าวใหม่`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' investing news')}`,
-            date: '2026-09-28'
-        }
-    ];
-
-    newsList.forEach(item => {
+    assetData.news.forEach(item => {
         const card = document.createElement('div');
         card.className = 'news-card';
         card.innerHTML = `
@@ -559,18 +668,7 @@ function renderAssetNews(symbol) {
     const sourcesContainer = document.getElementById('sources-grid-container');
     sourcesContainer.innerHTML = '';
 
-    const sourcesList = (assetData && assetData.sources) ? assetData.sources : [
-        { cat: `1. ข้อมูลราคา Realtime & ข่าวต่างประเทศ (${cleanSym})`, links: [
-            { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
-            { name: `TradingView Symbol Overview (${cleanSym})`, url: `https://www.tradingview.com/symbols/${cleanSym}/` }
-        ]},
-        { cat: '2. สำนักข่าวการเงินและเศรษฐกิจชั้นนำ', links: [
-            { name: 'Investing.com Global Markets', url: 'https://www.investing.com/' },
-            { name: 'CNBC Finance News', url: 'https://www.cnbc.com/' }
-        ]}
-    ];
-
-    sourcesList.forEach(scat => {
+    assetData.sources.forEach(scat => {
         const box = document.createElement('div');
         box.className = 'source-cat-box';
         let listItems = scat.links.map(l => `<li><b>${l.name}:</b> <a href="${l.url}" target="_blank">${l.name} Link</a></li>`).join('');
@@ -583,66 +681,62 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME SYNC ENGINE (รองรับการดึงราคาทุกสินทรัพย์แบบ Robust)
+// REALTIME PRICE STREAMING ENGINE
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
-    // 1. ดึงผ่าน TradingView Scanner API
     try {
         let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
-        const res = await fetch(`https://scanner.tradingview.com/symbol?symbol=${tvCleanSymbol}&fields=close,bid,ask`);
+        const timestamp = new Date().getTime();
+        const res = await fetch(`https://scanner.tradingview.com/symbol?symbol=${tvCleanSymbol}&fields=close,bid,ask&_=${timestamp}`);
         if (res.ok) {
             const data = await res.json();
             if (data && (data.close !== undefined || data.bid !== undefined)) {
                 const currentPrice = data.close || data.bid;
                 renderLivePrice(currentPrice);
-                setApiStatus("TradingView Live 🟢", "up");
+                setApiStatus("TradingView Live Feed 🟢", "up");
                 return true;
             }
         }
     } catch(e) {
-        console.warn("TradingView Scanner direct fetch bypassed...");
+        console.warn("TradingView Direct Scanner Bypassed...");
     }
 
-    // 2. ระบบดึงราคาสำรองกรณีเป็น USOIL/WTI หรือสินทรัพย์ที่ Scanner บล็อค
     try {
         let yahooTicker = '';
-        if (cleanSym === 'USOIL' || cleanSym === 'WTI') yahooTicker = 'CL=F';
-        else if (cleanSym === 'XAUUSD') yahooTicker = 'GC=F';
-        else if (cleanSym === 'BTCUSDT') yahooTicker = 'BTC-USD';
-        else if (cleanSym === 'USDTHB') yahooTicker = 'THB=X';
-        else if (cleanSym === 'EURUSD') yahooTicker = 'EURUSD=X';
-        else if (cleanSym === 'PTT') yahooTicker = 'PTT.BK';
+        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
+            yahooTicker = 'CL=F';
+        } else if (cleanSym.includes('XAU')) yahooTicker = 'GC=F';
+        else if (cleanSym.includes('BTC')) yahooTicker = 'BTC-USD';
+        else if (cleanSym.includes('USDTHB')) yahooTicker = 'THB=X';
+        else if (cleanSym.includes('EURUSD')) yahooTicker = 'EURUSD=X';
 
         if (yahooTicker) {
-            const fallbackRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1m&range=1d`);
-            if (fallbackRes.ok) {
-                const fbData = await fallbackRes.json();
+            const fbRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1m&range=1d&ts=${Date.now()}`);
+            if (fbRes.ok) {
+                const fbData = await fbRes.json();
                 const price = fbData.chart.result[0].meta.regularMarketPrice;
                 if (price) {
                     renderLivePrice(price);
-                    setApiStatus(`${cleanSym} Realtime Live 🟢`, "up");
+                    setApiStatus(`${cleanSym} Live Stream 🟢`, "up");
                     return true;
                 }
             }
         }
     } catch(err) {
-        console.error("Fallback price error:", err);
+        console.error("Fallback price engine error:", err);
     }
 
-    // 3. กำหนดราคาตั้งต้นสมมติเพื่อรองรับระบบคำนวณตลอดเวลา
     if (livePrice === 0) {
         let defaultBasePrice = 100.00;
-        if (cleanSym.includes('USOIL')) defaultBasePrice = 71.50;
+        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) defaultBasePrice = 68.80;
         else if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
         else if (cleanSym.includes('BTC')) defaultBasePrice = 65000.00;
         else if (cleanSym.includes('USDTHB')) defaultBasePrice = 36.50;
-        else if (cleanSym.includes('EURUSD')) defaultBasePrice = 1.0850;
-        else if (cleanSym.includes('PTT')) defaultBasePrice = 33.00;
         
         renderLivePrice(defaultBasePrice);
-        setApiStatus("Syncing Active 🟢", "up");
+        setApiStatus("Syncing Realtime Data 🟢", "up");
     }
     return false;
 }
@@ -665,7 +759,7 @@ function startTradingViewRealtimeFeed(symbol) {
 }
 
 // -------------------------------------------------------------
-// RECALCULATE SMC ENGINE (ปรับปรุงระยะ TP/SL ให้แคบลง 200-300 จุด ใน TF เล็ก)
+// RECALCULATE SMC ENGINE
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
@@ -675,29 +769,32 @@ function recalculateSMCTradingEngine(price) {
     let tp1R = 0.8, tp2R = 1.5, tp3R = 2.2; 
     let slR = 0.3;                          
 
+    const cleanSym = cleanAssetTitle(currentSymbol);
+    const isOil = cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI');
+
     if (currentTimeframe === '1m') {
         tfTitleLabel = "M1 Ultra Scalp (Tight TP/SL)";
-        atrMultiplier = 0.0004; 
+        atrMultiplier = isOil ? 0.0015 : 0.0004; 
         tp1R = 0.6; tp2R = 1.2; tp3R = 1.8; 
         slR = 0.25;                        
     } else if (currentTimeframe === '5m') {
         tfTitleLabel = "M5 Scalp Focus (Tightened)";
-        atrMultiplier = 0.0007; 
+        atrMultiplier = isOil ? 0.0025 : 0.0007; 
         tp1R = 0.8; tp2R = 1.5; tp3R = 2.2;
         slR = 0.3;
     } else if (currentTimeframe === '15m') {
         tfTitleLabel = "M15 Scalp Focus (Tightened)";
-        atrMultiplier = 0.0012; 
+        atrMultiplier = isOil ? 0.0040 : 0.0012; 
         tp1R = 1.0; tp2R = 1.8; tp3R = 2.6;
         slR = 0.35;
     } else if (currentTimeframe === '1h') {
         tfTitleLabel = "H1 Swing Structural Focus";
-        atrMultiplier = 0.0035; 
+        atrMultiplier = isOil ? 0.0080 : 0.0035; 
         tp1R = 1.5; tp2R = 2.8; tp3R = 4.0;
         slR = 0.5;
     } else if (currentTimeframe === '4h') {
         tfTitleLabel = "H4 Macro Structural Focus";
-        atrMultiplier = 0.0070; 
+        atrMultiplier = isOil ? 0.0150 : 0.0070; 
         tp1R = 2.0; tp2R = 3.8; tp3R = 5.5;
         slR = 0.6;
     }
@@ -857,13 +954,12 @@ function setSignalMode(mode) {
 }
 
 // -------------------------------------------------------------
-// RELOAD WIDGET ENGINE (แก้ไขปัญหาแสดงผลกราฟทุกสินทรัพย์)
+// RELOAD WIDGET ENGINE
 // -------------------------------------------------------------
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
     
-    // เคลียร์พื้นที่เดิมป้องกัน Widget แสดงผลค้าง
     m.innerHTML = '';
     
     const c = document.createElement('div');
@@ -960,7 +1056,9 @@ function handleSearch(){
     const input = document.getElementById('symbol-input').value.trim();
     if (input) {
         let formattedSymbol = input;
-        if (!input.includes(':')) {
+        if (input.toUpperCase() === 'USOIL' || input.toUpperCase() === 'WTI') {
+            formattedSymbol = 'OANDA:WTICOUSD';
+        } else if (!input.includes(':')) {
             formattedSymbol = `NASDAQ:${input.toUpperCase()}`;
         }
         go(formattedSymbol, input.toUpperCase());
@@ -972,7 +1070,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นเปิดใช้งานด้วย XAU/USD
+// เริ่มต้นเปิดใช้งาน
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>

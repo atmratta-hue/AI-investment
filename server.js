@@ -14,6 +14,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const BIQUOTE_BASE_URL = 'https://biquote.io';
 
+// =====================================================
+// 1. STRICT ASSET KEYWORD MAPPING RULES (ป้องกัน News Mismatch)
+// =====================================================
+const ASSET_NEWS_RULES = {
+  'XAUUSD': {
+    primary: ['gold', 'xau', 'bullion', 'ทองคำ', 'precious metal'],
+    macro: ['fed', 'cpi', 'nfp', 'inflation', 'interest rate', 'dxy', 'us dollar'],
+    exclude: ['crude oil', 'brent', 'opec', 'bitcoin', 'crypto']
+  },
+  'USOIL': {
+    primary: ['crude oil', 'oil', 'wti', 'brent', 'opec', 'eia', 'น้ำมันดิบ'],
+    macro: ['energy', 'middle east', 'inventory', 'geopolitics'],
+    exclude: ['gold', 'xau', 'bitcoin', 'crypto', 'forex']
+  },
+  'BTCUSD': {
+    primary: ['bitcoin', 'btc', 'crypto', 'sec', 'etf', 'on-chain', 'คริปโท'],
+    macro: ['fed', 'liquidity', 'nasdaq'],
+    exclude: ['crude oil', 'opec', 'eia', 'gold bullion']
+  },
+  'EURUSD': {
+    primary: ['eur', 'eurusd', 'ecb', 'eurozone', 'euro'],
+    macro: ['fed', 'cpi', 'nfp', 'interest rate'],
+    exclude: ['crypto', 'bitcoin', 'crude oil', 'opec']
+  }
+};
+
 app.get('/', (req, res) => {
   const publicIndexPath = path.join(__dirname, 'public', 'index.html');
   const rootIndexPath = path.join(__dirname, 'index.html');
@@ -38,6 +64,7 @@ function normalizeBiQuoteSymbol(symbol) {
     'BINANCE:BTCUSDT': 'BTCUSD',
     'BTCUSDT': 'BTCUSD',
     'BTCUSD': 'BTCUSD',
+    'OANDA:WTICOUSD': 'USOIL',
     'TVC:USOIL': 'USOIL',
     'USOIL': 'USOIL',
     'NASDAQ:QQQ': 'QQQ',
@@ -81,97 +108,103 @@ async function fetchBiQuoteTick(symbol) {
       mid: mid,
       spread: Number(tick.spread) || 0,
       direction: tick.direction || 'FLAT',
-      dayDiffPercent: Number(tick.dayDiffPercent) || 0,
       timestamp: tick.timestamp || null,
-      source: tick.source || 'BiQuote',
-      marketState: tick.marketState || 'unknown',
-      stale: Boolean(tick.stale),
-      quoteAgeSeconds: Number(tick.quoteAgeSeconds) || 0,
-      lastQuoteAt: tick.lastQuoteAt || null
+      source: tick.source || 'BiQuote'
     };
   } finally {
     clearTimeout(timeout);
   }
 }
 
-async function fetchBiQuoteOHLC(symbol, interval) {
-  const bqSymbol = normalizeBiQuoteSymbol(symbol);
-  const allowedIntervals = new Set(['1m', '5m', '15m', '30m', '1h', '4h', '1d']);
-  const safeInterval = allowedIntervals.has(interval) ? interval : '1m';
-
-  const url = `${BIQUOTE_BASE_URL}/api/${encodeURIComponent(bqSymbol)}/ohlc?interval=${safeInterval}&limit=120`;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 7000);
-
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
-      signal: controller.signal
-    });
-
-    if (!response.ok) throw new Error(`BiQuote OHLC ${response.status}`);
-    const data = await response.json();
-    return Array.isArray(data.bars) ? data.bars : [];
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
+// =====================================================
+// 2. DYNAMIC & STRICT NEWS FILTERING ENGINE
+// =====================================================
 async function fetchDailyNewsAnalysis(symbol) {
+  const bqSymbol = normalizeBiQuoteSymbol(symbol);
+  const rules = ASSET_NEWS_RULES[bqSymbol] || ASSET_NEWS_RULES['XAUUSD'];
+
   const rssFeeds = [
-    { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories' },
-    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news' }
+    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news' },
+    { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories' }
   ];
 
-  let newsItems = [];
+  let filteredNews = [];
   let hasHighImpactNews = false;
 
   for (const feedConfig of rssFeeds) {
     try {
       const feed = await parser.parseURL(feedConfig.url);
-      const processed = feed.items.slice(0, 3).map(item => {
-        const text = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
-        if (text.includes('fed') || text.includes('cpi') || text.includes('nfp') || text.includes('fomc') || text.includes('rate')) {
-          hasHighImpactNews = true;
+      for (const item of feed.items) {
+        const fullText = (item.title + ' ' + (item.contentSnippet || '')).toLowerCase();
+
+        // Layer 1: Check Exclusion List (ตัดข่าวที่ไม่เกี่ยวข้องออกทันที)
+        const isExcluded = rules.exclude.some(ex => fullText.includes(ex));
+        if (isExcluded) continue;
+
+        // Layer 2: Primary or Macro Match
+        const isPrimaryMatch = rules.primary.some(p => fullText.includes(p));
+        const isMacroMatch = rules.macro.some(m => fullText.includes(m));
+
+        if (isPrimaryMatch || isMacroMatch) {
+          if (fullText.includes('cpi') || fullText.includes('nfp') || fullText.includes('fed rate') || fullText.includes('fomc')) {
+            hasHighImpactNews = true;
+          }
+
+          let sentiment = 'neutral';
+          let sentimentText = 'ผลกระทบ: ปานกลาง (Neutral) 🟡';
+          if (fullText.includes('surge') || fullText.includes('jump') || fullText.includes('high') || fullText.includes('bull')) {
+            sentiment = 'bullish';
+            sentimentText = 'ผลกระทบ: บวก (Bullish) 🟢';
+          } else if (fullText.includes('drop') || fullText.includes('fall') || fullText.includes('plunge') || fullText.includes('bear')) {
+            sentiment = 'bearish';
+            sentimentText = 'ผลกระทบ: ลบ (Bearish) 🔴';
+          }
+
+          filteredNews.push({
+            source: feedConfig.name,
+            sentiment: sentiment,
+            sentimentText: sentimentText,
+            title: item.title,
+            reason: item.contentSnippet ? item.contentSnippet.substring(0, 140) + '...' : 'ติดตามอ่านรายละเอียดจากบทความฉบับเต็ม',
+            url: item.link || '#',
+            date: item.pubDate ? new Date(item.pubDate).toISOString().split('T')[0] : 'ล่าสุด'
+          });
         }
-        return {
-          source: feedConfig.name,
-          title: item.title,
-          reason: item.contentSnippet ? item.contentSnippet.substring(0, 150) + '...' : 'อ่านต่อจากแหล่งข่าวต้นทาง',
-          link: item.link || '#'
-        };
-      });
-      newsItems = newsItems.concat(processed);
+
+        if (filteredNews.length >= 6) break; // จำกัดข่าวสอดคล้องไม่เกิน 6 ข่าว
+      }
     } catch (err) {
       console.log(`Feed fetch error: ${feedConfig.name}`);
     }
   }
 
-  return { hasHighImpactNews, newsList: newsItems };
+  return { hasHighImpactNews, newsList: filteredNews };
 }
 
 // =====================================================
-// RECALCULATE REALISTIC BUY / SELL TRADING SETUP
+// 3. RECALCULATE REALISTIC BUY / SELL TRADING SETUP
 // =====================================================
 function calculatePunportSetup(symbol, tf, realPrice, hasNews) {
   const currentPrice = Number.isFinite(Number(realPrice)) && Number(realPrice) > 0 ? Number(realPrice) : 0;
   if (!currentPrice) throw new Error('Invalid market price');
 
-  // คำนวณช่วงการผันผวน (Volatility Ratio) อิงตามสัญลักษณ์
-  const isForex = symbol.includes('EUR') || symbol.includes('USD') && !symbol.includes('XAU') && !symbol.includes('BTC');
-  const baseRange = currentPrice * (isForex ? 0.0015 : 0.0035);
+  const bqSymbol = normalizeBiQuoteSymbol(symbol);
+  const isForex = bqSymbol === 'EURUSD';
+  const isOil = bqSymbol === 'USOIL';
 
-  // แนวรับ-แนวต้านที่สอดคล้องกับโครงสร้างราคาจริง
+  let volatilityRatio = 0.0035;
+  if (isForex) volatilityRatio = 0.0015;
+  if (isOil) volatilityRatio = 0.0050;
+
+  const baseRange = currentPrice * volatilityRatio;
+
   const res1 = (currentPrice + baseRange * 0.6).toFixed(isForex ? 5 : 2);
   const res2 = (currentPrice + baseRange * 1.2).toFixed(isForex ? 5 : 2);
   const sup1 = (currentPrice - baseRange * 0.6).toFixed(isForex ? 5 : 2);
   const sup2 = (currentPrice - baseRange * 1.2).toFixed(isForex ? 5 : 2);
 
-  // แก้ไขจุดเข้าซื้อ (Buy Zone): ไม่ให้ต่ำเกินไป แต่อยู่ในโซน Demand ที่เข้าเทรดได้จริง
   const buyPoint1 = (currentPrice - baseRange * 0.15).toFixed(isForex ? 5 : 2);
   const buyPoint2 = (currentPrice - baseRange * 0.40).toFixed(isForex ? 5 : 2);
-
   const sellPoint1 = (currentPrice + baseRange * 0.15).toFixed(isForex ? 5 : 2);
   const sellPoint2 = (currentPrice + baseRange * 0.40).toFixed(isForex ? 5 : 2);
 
@@ -192,7 +225,6 @@ function calculatePunportSetup(symbol, tf, realPrice, hasNews) {
     recommendation: isBuy
       ? `รอจังหวะ Re-test โซน Demand / Order Block (${buyPoint1} - ${buyPoint2})`
       : `รอราคาขึ้นทดสอบแนว Resistance / Supply Zone (${sellPoint1} - ${sellPoint2})`,
-    macd: 'Bear Focus',
     tradeZone: isBuy ? 'BUY ZONE (Discount)' : 'SELL ZONE (Premium)',
     bslSsl: `BSL $${res2} / SSL $${sup2}`,
     highImpactNews: Boolean(hasNews),
@@ -238,45 +270,6 @@ app.get('/api/dashboard-data', async (req, res) => {
       symbol: symbol,
       biquoteSymbol: bqSymbol,
       error: 'ไม่สามารถดึงราคา Real-Time จาก BiQuote ได้',
-      detail: err.message
-    });
-  }
-});
-
-app.get('/api/biquote/latest', async (req, res) => {
-  const symbol = String(req.query.symbol || 'OANDA:XAUUSD');
-  try {
-    const tick = await fetchBiQuoteTick(symbol);
-    res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, ...tick });
-  } catch (err) {
-    res.status(502).json({
-      ok: false,
-      symbol: normalizeBiQuoteSymbol(symbol),
-      error: 'BiQuote price unavailable',
-      detail: err.message
-    });
-  }
-});
-
-app.get('/api/biquote/ohlc', async (req, res) => {
-  const symbol = String(req.query.symbol || 'OANDA:XAUUSD');
-  const interval = String(req.query.interval || '1m').toLowerCase();
-  try {
-    const bars = await fetchBiQuoteOHLC(symbol, interval);
-    res.set('Cache-Control', 'no-store');
-    res.json({
-      ok: true,
-      symbol: normalizeBiQuoteSymbol(symbol),
-      interval: interval,
-      bars: bars
-    });
-  } catch (err) {
-    res.status(502).json({
-      ok: false,
-      symbol: normalizeBiQuoteSymbol(symbol),
-      interval: interval,
-      error: 'BiQuote OHLC unavailable',
       detail: err.message
     });
   }
