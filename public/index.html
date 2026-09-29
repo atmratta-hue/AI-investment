@@ -744,7 +744,7 @@ async function fetchDirectTradingViewPrice(symbol) {
     // 4. Default Base Fallback ในกรณีที่ API ทั้งหมดถูกบล็อก CORS
     if (livePrice === 0) {
         let defaultBasePrice = 100.00;
-        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) defaultBasePrice = 68.80;
+        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) defaultBasePrice = 93.27;
         else if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
         else if (cleanSym.includes('BTC')) defaultBasePrice = 65000.00;
         else if (cleanSym.includes('USDTHB')) defaultBasePrice = 36.50;
