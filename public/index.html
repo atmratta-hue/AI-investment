@@ -681,11 +681,30 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE
+// REALTIME PRICE STREAMING ENGINE (ปรับปรุงให้ดึงราคาได้เสถียรยิ่งขึ้น)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
+    // 1. ลองดึงจาก Binance API โดยตรงหากเป็น Crypto
+    if (symbol.includes('BINANCE:') || cleanSym.endsWith('USDT') || cleanSym.endsWith('BTC')) {
+        try {
+            const bSym = cleanSym.toUpperCase();
+            const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${bSym}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.price) {
+                    renderLivePrice(parseFloat(data.price));
+                    setApiStatus("Binance Realtime Feed 🟢", "up");
+                    return true;
+                }
+            }
+        } catch(e) {
+            console.warn("Binance API Bypass...");
+        }
+    }
+
+    // 2. ลองดึงผ่าน TradingView Scanner API
     try {
         let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
         const timestamp = new Date().getTime();
@@ -703,6 +722,7 @@ async function fetchDirectTradingViewPrice(symbol) {
         console.warn("TradingView Direct Scanner Bypassed...");
     }
 
+    // 3. Fallback: ดึงราคาผ่าน Yahoo Finance API
     try {
         let yahooTicker = '';
         if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
@@ -728,6 +748,7 @@ async function fetchDirectTradingViewPrice(symbol) {
         console.error("Fallback price engine error:", err);
     }
 
+    // 4. Default Base Fallback ในกรณีที่ API ทั้งหมดถูกบล็อก CORS
     if (livePrice === 0) {
         let defaultBasePrice = 100.00;
         if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) defaultBasePrice = 68.80;
