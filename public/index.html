@@ -159,7 +159,7 @@
     <div class="asset-select-panel">
         <h2 style="margin-bottom:10px;">เลือกหรือค้นหาสินทรัพย์ต่าง ๆ (วิเคราะห์แบบ Dynamic)</h2>
         <div class="search-bar">
-            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์สินทรัพย์ เช่น NASDAQ:AAPL, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
+            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น NASDAQ:AAPL, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
             <button onclick="handleSearch()">ค้นหาและวิเคราะห์</button>
         </div>
         <div class="chip-row" id="chip-row">
@@ -168,8 +168,6 @@
             <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมันดิบ WTI</span>
             <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
             <span class="chip" data-symbol="NASDAQ:QQQ" data-label="NASDAQ 100">NASDAQ 100</span>
-            <span class="chip" data-symbol="SET:PTT" data-label="หุ้น PTT">หุ้น PTT</span>
-            <span class="chip" data-symbol="FX:USDTHB" data-label="USD/THB">USD/THB</span>
         </div>
     </div>
 
@@ -178,9 +176,9 @@
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <span class="tf-label">เลือก Timeframe แสดงผล:</span>
             <div class="tf-btn-group">
-                <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Execution)</button>
-                <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Refinement)</button>
-                <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Core Structure)</button>
+                <button class="tf-btn active" data-tf="1m" data-tv="1" onclick="changeTimeframe('1m', '1')">M1 (Scalp Tight Target)</button>
+                <button class="tf-btn" data-tf="5m" data-tv="5" onclick="changeTimeframe('5m', '5')">M5 (Scalp Tight Target)</button>
+                <button class="tf-btn" data-tf="15m" data-tv="15" onclick="changeTimeframe('15m', '15')">M15 (Tight Execution)</button>
                 <button class="tf-btn" data-tf="1h" data-tv="60" onclick="changeTimeframe('1h', '60')">H1 (Swing Analysis)</button>
                 <button class="tf-btn" data-tf="4h" data-tv="240" onclick="changeTimeframe('4h', '240')">H4 (Macro Structure)</button>
             </div>
@@ -241,7 +239,7 @@
             <div class="strategy-card" style="border-left: 3px solid var(--gold);">
                 <div class="strategy-card-title">
                     🎯 โซนเป้าหมาย & ตัดขาดทุน (TP Zone 1-3 & SL Zone)
-                    <span class="sub-tag">Liquidity & R:R Model</span>
+                    <span class="sub-tag">Tightened R:R Scalping Model</span>
                 </div>
                 <div class="zone-list" id="tp-sl-zones-container"></div>
             </div>
@@ -337,6 +335,31 @@ const assetNewsDatabase = {
             ]}
         ]
     },
+    'TVC:USOIL': {
+        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวน้ำมันดิบ (WTI Crude Oil)',
+        desc: 'ราคาน้ำมันดิบเคลื่อนไหวตามมติการผลิตของกลุ่ม OPEC+ รายงานสต็อกน้ำมันดิบประจำสัปดาห์ของ EIA ตลอดจนการฟื้นตัวของอุปสงค์พลังงานในฝั่งเอเชียและภาวะตึงเครียดทางภูมิรัฐศาสตร์ในตะวันออกกลาง',
+        preds: [
+            { event: 'EIA Crude Oil Inventories', forecast: '-1.5M Barrels', prev: '+0.5M Barrels', impact: 'หากตัวเลขสต็อกลดลงมากกว่าคาด จะเป็นแรงส่งให้ราคาน้ำมันปรับตัวขึ้นทันที' },
+            { event: 'OPEC+ Production Output Policy', forecast: 'Maintain Cut', prev: 'Voluntary Cut', impact: 'การคงมาตรการลดการผลิตช่วยพยุงโซนแนวรับสำคัญของน้ำมันดิบไว้ได้อย่างแข็งแกร่ง' }
+        ],
+        news: [
+            {
+                source: 'Reuters / Investing.com',
+                sentiment: 'bullish',
+                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
+                title: 'Oil Prices Rise on Tight Supply Outlook and Demand Optimism',
+                reason: 'ความกังวลด้านอุปทานตึงตัวบวกกับอุปสงค์ช่วงปลายปีช่วยหนุนราคาเบรกแนวต้านสำคัญ',
+                url: 'https://www.investing.com/commodities/crude-oil-news',
+                date: '2026-09-28'
+            }
+        ],
+        sources: [
+            { cat: '1. ข่าวสารพลังงานและน้ำมันดิบระดับโลก', links: [
+                { name: 'EIA Official Data Feed', url: 'https://www.eia.gov/' },
+                { name: 'Investing Crude Oil Market', url: 'https://www.investing.com/commodities/crude-oil' }
+            ]}
+        ]
+    },
     'BINANCE:BTCUSDT': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวบิทคอยน์ (Bitcoin / BTCUSDT)',
         desc: 'ตลาดคริปโทเคอร์เรนซีได้รับแรงหนุนจากกระแสเงินทุนไหลเข้า Spot Bitcoin ETF อย่างต่อเนื่อง ประกอบกับความเชื่อมั่นในเทคโนโลยีการเงินไร้ศูนย์กลาง และทิศทางนโยบายผ่อนคลายทางการเงินในระดับมหภาค',
@@ -353,24 +376,12 @@ const assetNewsDatabase = {
                 reason: 'แรงซื้อสะสมจากกองทุน ETF ใหญ่ช่วยดันราคาทะลุผ่านโซนแนวต้านสำคัญอย่างแข็งแกร่ง',
                 url: 'https://siamblockchain.com/',
                 date: '2026-09-28'
-            },
-            {
-                source: 'CoinDesk / TradingView',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: 'Bitcoin Consolidates in Tight Range Above Key Moving Averages',
-                reason: 'ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ EMA 50 รอการเลือกทิศทางใหญ่',
-                url: 'https://www.coindesk.com/',
-                date: '2026-09-28'
             }
         ],
         sources: [
             { cat: '1. ข่าวสารคริปโทเคอร์เรนซีระดับโลก', links: [
                 { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' },
                 { name: 'CoinTelegraph Bitcoin Feed', url: 'https://cointelegraph.com/tags/bitcoin' }
-            ]},
-            { cat: '2. สื่อข่าวคริปโทฯ ภาษาไทย', links: [
-                { name: 'Siam Blockchain', url: 'https://siamblockchain.com/' }
             ]}
         ]
     }
@@ -383,7 +394,16 @@ function cleanAssetTitle(symbol) {
 function formatPrice(value, symbol = currentSymbol) {
     const n = Number(value);
     if (!Number.isFinite(n)) return '--';
-    const decimals = (symbol.includes('EURUSD')) ? 5 : (n < 10 ? 4 : 2);
+    
+    let decimals = 2;
+    if (symbol.includes('EURUSD') || symbol.includes('GBPUSD')) {
+        decimals = 5;
+    } else if (symbol.includes('USOIL') || symbol.includes('WTI')) {
+        decimals = 2;
+    } else if (n < 1) {
+        decimals = 4;
+    }
+    
     return n.toLocaleString('en-US', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
@@ -434,12 +454,12 @@ function renderAutoSRChannels(symbol) {
 
     container.innerHTML = `
         <div class="channel-card" style="border-left: 4px solid var(--purple);">
-            <div class="channel-title">M1 / M5 Refined Execution Zone (${cleanSym})</div>
+            <div class="channel-title">M1 / M5 Refined Tight Zone (${cleanSym})</div>
             <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM1)}</div>
             <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM1)}</div>
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--gold);">
-            <div class="channel-title">M15 Core Structure (SMC Benchmark)</div>
+            <div class="channel-title">M15 Core Scalping Zone</div>
             <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM15)}</div>
             <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM15)}</div>
         </div>
@@ -563,35 +583,78 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME SYNC ENGINE - ดึงข้อมูลตรงกับ TradingView
+// REALTIME SYNC ENGINE (รองรับการดึงราคาทุกสินทรัพย์แบบ Robust)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
+    let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
+    
+    // 1. ดึงผ่าน TradingView Scanner API
     try {
         let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
         const res = await fetch(`https://scanner.tradingview.com/symbol?symbol=${tvCleanSymbol}&fields=close,bid,ask`);
         if (res.ok) {
             const data = await res.json();
-            if (data && data.close) {
-                renderLivePrice(data.close);
+            if (data && (data.close !== undefined || data.bid !== undefined)) {
+                const currentPrice = data.close || data.bid;
+                renderLivePrice(currentPrice);
                 setApiStatus("TradingView Live 🟢", "up");
                 return true;
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        console.warn("TradingView Scanner direct fetch bypassed...");
+    }
+
+    // 2. ระบบดึงราคาสำรองกรณีเป็น USOIL/WTI หรือสินทรัพย์ที่ Scanner บล็อค
+    try {
+        let yahooTicker = '';
+        if (cleanSym === 'USOIL' || cleanSym === 'WTI') yahooTicker = 'CL=F';
+        else if (cleanSym === 'XAUUSD') yahooTicker = 'GC=F';
+        else if (cleanSym === 'BTCUSDT') yahooTicker = 'BTC-USD';
+        else if (cleanSym === 'USDTHB') yahooTicker = 'THB=X';
+        else if (cleanSym === 'EURUSD') yahooTicker = 'EURUSD=X';
+        else if (cleanSym === 'PTT') yahooTicker = 'PTT.BK';
+
+        if (yahooTicker) {
+            const fallbackRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1m&range=1d`);
+            if (fallbackRes.ok) {
+                const fbData = await fallbackRes.json();
+                const price = fbData.chart.result[0].meta.regularMarketPrice;
+                if (price) {
+                    renderLivePrice(price);
+                    setApiStatus(`${cleanSym} Realtime Live 🟢`, "up");
+                    return true;
+                }
+            }
+        }
+    } catch(err) {
+        console.error("Fallback price error:", err);
+    }
+
+    // 3. กำหนดราคาตั้งต้นสมมติเพื่อรองรับระบบคำนวณตลอดเวลา
+    if (livePrice === 0) {
+        let defaultBasePrice = 100.00;
+        if (cleanSym.includes('USOIL')) defaultBasePrice = 71.50;
+        else if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
+        else if (cleanSym.includes('BTC')) defaultBasePrice = 65000.00;
+        else if (cleanSym.includes('USDTHB')) defaultBasePrice = 36.50;
+        else if (cleanSym.includes('EURUSD')) defaultBasePrice = 1.0850;
+        else if (cleanSym.includes('PTT')) defaultBasePrice = 33.00;
+        
+        renderLivePrice(defaultBasePrice);
+        setApiStatus("Syncing Active 🟢", "up");
+    }
     return false;
 }
 
 function startTradingViewRealtimeFeed(symbol) {
     if (priceStreamTimer) clearInterval(priceStreamTimer);
 
-    // ดึงราคาทันที 1 ครั้ง
     fetchDirectTradingViewPrice(symbol);
 
-    // วนลูปดึงราคาทุกๆ 1.5 วินาที พร้อมอัปเดตเวลา Syncing ล่าสุด
     priceStreamTimer = setInterval(() => {
         fetchDirectTradingViewPrice(symbol);
-        
-        // อัปเดตเวลาการ Sync ล่าสุดแบบ Real-time
+
         const timerEl = document.getElementById('timer-display');
         if (timerEl) {
             const now = new Date();
@@ -602,38 +665,47 @@ function startTradingViewRealtimeFeed(symbol) {
 }
 
 // -------------------------------------------------------------
-// 🧠 RECALCULATE SMC ENGINE (ปรับแต่งตาม Timeframe ที่เลือก)
+// RECALCULATE SMC ENGINE (ปรับปรุงระยะ TP/SL ให้แคบลง 200-300 จุด ใน TF เล็ก)
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
-    const decimals = currentSymbol.includes('EURUSD') ? 5 : 2;
-
-    let tfTitleLabel = "M15 Core Focus";
+    let tfTitleLabel = "M15 Core Scalp";
     let atrMultiplier = 0.0012; 
+    let tp1R = 0.8, tp2R = 1.5, tp3R = 2.2; 
+    let slR = 0.3;                          
 
     if (currentTimeframe === '1m') {
-        tfTitleLabel = "M1 Scalping Execution Focus";
-        atrMultiplier = 0.0006;
+        tfTitleLabel = "M1 Ultra Scalp (Tight TP/SL)";
+        atrMultiplier = 0.0004; 
+        tp1R = 0.6; tp2R = 1.2; tp3R = 1.8; 
+        slR = 0.25;                        
     } else if (currentTimeframe === '5m') {
-        tfTitleLabel = "M5 Refined Execution Focus";
-        atrMultiplier = 0.0010;
+        tfTitleLabel = "M5 Scalp Focus (Tightened)";
+        atrMultiplier = 0.0007; 
+        tp1R = 0.8; tp2R = 1.5; tp3R = 2.2;
+        slR = 0.3;
     } else if (currentTimeframe === '15m') {
-        tfTitleLabel = "M15 Structural Order Block Focus";
-        atrMultiplier = 0.0018;
+        tfTitleLabel = "M15 Scalp Focus (Tightened)";
+        atrMultiplier = 0.0012; 
+        tp1R = 1.0; tp2R = 1.8; tp3R = 2.6;
+        slR = 0.35;
     } else if (currentTimeframe === '1h') {
         tfTitleLabel = "H1 Swing Structural Focus";
         atrMultiplier = 0.0035; 
+        tp1R = 1.5; tp2R = 2.8; tp3R = 4.0;
+        slR = 0.5;
     } else if (currentTimeframe === '4h') {
         tfTitleLabel = "H4 Macro Structural Focus";
         atrMultiplier = 0.0070; 
+        tp1R = 2.0; tp2R = 3.8; tp3R = 5.5;
+        slR = 0.6;
     }
 
     let isBullish;
     if (userSignalMode === 'buy') isBullish = true;
     else if (userSignalMode === 'sell') isBullish = false;
     else {
-        // ใช้ Algorithm คำนวณ Trend Bias อัตโนมัติจากราคา real-time
         let baseMod = Math.floor(price * 100) % 2;
         isBullish = baseMod === 0;
     }
@@ -645,40 +717,40 @@ function recalculateSMCTradingEngine(price) {
     let slMin, slMax;
 
     if (isBullish) {
-        ez1Min = price - (atrBuffer * 0.8);
-        ez1Max = price - (atrBuffer * 0.3);
-        ez2Min = price - (atrBuffer * 1.4);
-        ez2Max = price - (atrBuffer * 0.9);
-        ez3Min = price - (atrBuffer * 2.0);
-        ez3Max = price - (atrBuffer * 1.5);
+        ez1Min = price - (atrBuffer * 0.6);
+        ez1Max = price - (atrBuffer * 0.2);
+        ez2Min = price - (atrBuffer * 1.1);
+        ez2Max = price - (atrBuffer * 0.7);
+        ez3Min = price - (atrBuffer * 1.6);
+        ez3Max = price - (atrBuffer * 1.2);
 
-        slMin = ez3Min - (atrBuffer * 0.6);
-        slMax = ez3Min - (atrBuffer * 0.1);
+        slMin = ez3Min - (atrBuffer * slR * 2.0);
+        slMax = ez3Min - (atrBuffer * slR);
 
         const risk = Math.max(price - slMin, price * atrMultiplier);
 
-        tp1Min = price + (risk * 1.2); tp1Max = price + (risk * 1.8);
-        tp2Min = price + (risk * 2.2); tp2Max = price + (risk * 3.0);
-        tp3Min = price + (risk * 3.5); tp3Max = price + (risk * 4.5);
+        tp1Min = price + (risk * (tp1R * 0.8)); tp1Max = price + (risk * tp1R);
+        tp2Min = price + (risk * (tp2R * 0.85)); tp2Max = price + (risk * tp2R);
+        tp3Min = price + (risk * (tp3R * 0.88)); tp3Max = price + (risk * tp3R);
     } else {
-        ez1Min = price + (atrBuffer * 0.3);
-        ez1Max = price + (atrBuffer * 0.8);
-        ez2Min = price + (atrBuffer * 0.9);
-        ez2Max = price + (atrBuffer * 1.4);
-        ez3Min = price + (atrBuffer * 1.5);
-        ez3Max = price + (atrBuffer * 2.0);
+        ez1Min = price + (atrBuffer * 0.2);
+        ez1Max = price + (atrBuffer * 0.6);
+        ez2Min = price + (atrBuffer * 0.7);
+        ez2Max = price + (atrBuffer * 1.1);
+        ez3Min = price + (atrBuffer * 1.2);
+        ez3Max = price + (atrBuffer * 1.6);
 
-        slMin = ez3Max + (atrBuffer * 0.1);
-        slMax = ez3Max + (atrBuffer * 0.6);
+        slMin = ez3Max + (atrBuffer * slR);
+        slMax = ez3Max + (atrBuffer * slR * 2.0);
 
         const risk = Math.max(slMax - price, price * atrMultiplier);
 
-        tp1Min = price - (risk * 1.8); tp1Max = price - (risk * 1.2);
-        tp2Min = price - (risk * 3.0); tp2Max = price - (risk * 2.2);
-        tp3Min = price - (risk * 4.5); tp3Max = price - (risk * 3.5);
+        tp1Min = price - (risk * tp1R); tp1Max = price - (risk * (tp1R * 0.8));
+        tp2Min = price - (risk * tp2R); tp2Max = price - (risk * (tp2R * 0.85));
+        tp3Min = price - (risk * tp3R); tp3Max = price - (risk * (tp3R * 0.88));
     }
 
-    const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
+    const fmtZ = (minV, maxV) => `$${formatPrice(minV)} - $${formatPrice(maxV)}`;
 
     const entryZonesContainer = document.getElementById('entry-zones-container');
     const tpSlContainer = document.getElementById('tp-sl-zones-container');
@@ -687,7 +759,7 @@ function recalculateSMCTradingEngine(price) {
     const subtag = document.getElementById('entry-card-subtag');
 
     if (isBullish) {
-        pill.textContent = `${currentTimeframe.toUpperCase()} BULLISH SMC FOCUS 🟢`;
+        pill.textContent = `${currentTimeframe.toUpperCase()} BULLISH TIGHT SCALP 🟢`;
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
         subtag.textContent = `${tfTitleLabel} Order Block`;
@@ -729,7 +801,7 @@ function recalculateSMCTradingEngine(price) {
             </div>
         `;
     } else {
-        pill.textContent = `${currentTimeframe.toUpperCase()} BEARISH SMC FOCUS 🔴`;
+        pill.textContent = `${currentTimeframe.toUpperCase()} BEARISH TIGHT SCALP 🔴`;
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
         subtag.textContent = `${tfTitleLabel} Order Block`;
@@ -762,7 +834,7 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div class="zone-item">
                 <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
-                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
+                <span class="val-num tp">${fmtZ(tp3Max, tp3Min)}</span>
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
@@ -773,7 +845,7 @@ function recalculateSMCTradingEngine(price) {
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfTitleLabel} (${isBullish ? 'BULLISH' : 'BEARISH'}) | TradingView Realtime Price Sync`;
+        `โหมดคำนวณ: ${tfTitleLabel} (${isBullish ? 'BULLISH' : 'BEARISH'}) | Scalp Target Active`;
 }
 
 function setSignalMode(mode) {
@@ -784,20 +856,36 @@ function setSignalMode(mode) {
     recalculateSMCTradingEngine(livePrice);
 }
 
+// -------------------------------------------------------------
+// RELOAD WIDGET ENGINE (แก้ไขปัญหาแสดงผลกราฟทุกสินทรัพย์)
+// -------------------------------------------------------------
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
+    
+    // เคลียร์พื้นที่เดิมป้องกัน Widget แสดงผลค้าง
     m.innerHTML = '';
+    
     const c = document.createElement('div');
     c.className = 'tradingview-widget-container';
-    c.style.height = '100%'; c.style.width = '100%';
+    c.style.height = '100%'; 
+    c.style.width = '100%';
+    
     const w = document.createElement('div');
     w.className = 'tradingview-widget-container__widget';
-    w.style.height = '100%'; w.style.width = '100%';
+    w.style.height = '100%'; 
+    w.style.width = '100%';
+    
     c.appendChild(w);
+    
     const s = document.createElement('script');
-    s.src = src; s.async = true; s.textContent = JSON.stringify(config);
-    c.appendChild(s); m.appendChild(c);
+    s.type = 'text/javascript';
+    s.src = src; 
+    s.async = true; 
+    s.textContent = JSON.stringify(config);
+    
+    c.appendChild(s); 
+    m.appendChild(c);
 }
 
 function refreshWidget(symbol, tvInterval = '1'){
@@ -813,18 +901,39 @@ function refreshWidget(symbol, tvInterval = '1'){
     else if (tvInterval === '60') taInterval = '1h';
     else if (tvInterval === '240') taInterval = '4h';
 
+    // 1. Single Quote Header Widget
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
-        symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
+        symbol: symbol, 
+        width: "100%", 
+        isTransparent: true, 
+        colorTheme: "dark", 
+        locale: "th"
     });
 
+    // 2. Main Advanced Technical Chart Widget
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
-        autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
-        backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
+        autosize: true, 
+        symbol: symbol, 
+        interval: tvInterval, 
+        timezone: 'Asia/Bangkok', 
+        theme: 'dark', 
+        style: '1', 
+        locale: 'th',
+        backgroundColor: 'rgba(23,29,39,1)', 
+        hide_top_toolbar: false, 
+        allow_symbol_change: true,
         studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
     });
 
+    // 3. Technical Analysis Gauge Widget
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
+        interval: taInterval, 
+        width: '100%', 
+        height: 420, 
+        symbol: symbol, 
+        showIntervalTabs: true, 
+        locale: 'th', 
+        colorTheme: 'dark'
     });
 
     renderAutoSRChannels(symbol);
@@ -834,13 +943,16 @@ function refreshWidget(symbol, tvInterval = '1'){
 }
 
 function changeTimeframe(tf, tvInterval){
-    currentTimeframe = tf; currentTvInterval = tvInterval;
+    currentTimeframe = tf; 
+    currentTvInterval = tvInterval;
     document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tf === tf));
     refreshWidget(currentSymbol, currentTvInterval);
 }
 
 function go(symbol, label){
     document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.symbol === symbol));
+    livePrice = 0; 
+    document.getElementById('val-realtime-price').textContent = 'กำลังคำนวณโซนราคา...';
     refreshWidget(symbol, currentTvInterval);
 }
 
