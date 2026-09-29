@@ -159,12 +159,12 @@
     <div class="asset-select-panel">
         <h2 style="margin-bottom:10px;">เลือกหรือค้นหาสินทรัพย์ต่าง ๆ (วิเคราะห์แบบ Dynamic)</h2>
         <div class="search-bar">
-            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น OANDA:WTICOUSD, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
+            <input id="symbol-input" placeholder="พิมพ์สัญลักษณ์ เช่น TVC:USOIL, SET:PTT, BINANCE:BTCUSDT, FX:USDJPY">
             <button onclick="handleSearch()">ค้นหาและวิเคราะห์</button>
         </div>
         <div class="chip-row" id="chip-row">
             <span class="chip active" data-symbol="OANDA:XAUUSD" data-label="ทองคำ (XAU/USD)">ทองคำ (XAU/USD)</span>
-            <span class="chip" data-symbol="OANDA:WTICOUSD" data-label="น้ำมันดิบ WTI">น้ำมันดิบ WTI (WTICOUSD)</span>
+            <span class="chip" data-symbol="TVC:USOIL" data-label="น้ำมันดิบ WTI">น้ำมันดิบ WTI (USOIL)</span>
             <span class="chip" data-symbol="BINANCE:BTCUSDT" data-label="บิทคอยน์ (BTC/USDT)">บิทคอยน์ (BTC/USDT)</span>
             <span class="chip" data-symbol="OANDA:EURUSD" data-label="EUR/USD">EUR/USD</span>
             <span class="chip" data-symbol="NASDAQ:QQQ" data-label="NASDAQ 100">NASDAQ 100</span>
@@ -338,7 +338,7 @@ const assetNewsDatabase = {
             ]}
         ]
     },
-    'WTICOUSD': {
+    'USOIL': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวน้ำมันดิบ WTI (Crude Oil)',
         desc: 'ราคาน้ำมันดิบ WTI เคลื่อนไหวตามรายงานการลดกำลังการผลิตของกลุ่ม OPEC+ รายงานสต็อกน้ำมันดิบประจำสัปดาห์จาก EIA ตลอดจนอุปสงค์พลังงานโลกและปัจจัยความตึงเครียดทางภูมิรัฐศาสตร์',
         preds: [
@@ -463,9 +463,8 @@ function cleanAssetTitle(symbol) {
 function getAssetNewsData(symbol) {
     const cleanSym = cleanAssetTitle(symbol).toUpperCase();
     
-    // ค้นหาแบบ ตรงตัว หรือ คำที่มีอยู่ภายใน Symbol
-    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
-        return assetNewsDatabase['WTICOUSD'];
+    if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('WTICOUSD')) {
+        return assetNewsDatabase['USOIL'];
     }
     if (cleanSym.includes('XAU')) {
         return assetNewsDatabase['XAUUSD'];
@@ -480,7 +479,6 @@ function getAssetNewsData(symbol) {
         return assetNewsDatabase['PTT'];
     }
 
-    // หากไม่มีในดิกชันนารี ให้สร้างชุดข่าว Dynamic เฉพาะสินทรัพย์นั้นทันที
     return {
         title: `📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวประจำสินทรัพย์ (${cleanSym})`,
         desc: `สภาวะการซื้อขายของ ${cleanSym} ในปัจจุบันได้รับอิทธิพลจากสภาพคล่อง สภาวะเศรษฐกิจมหภาค และ Sentiment การลงทุนทั้งในและต่างประเทศ`,
@@ -497,25 +495,12 @@ function getAssetNewsData(symbol) {
                 reason: `แรงซื้อตอบสนองแนวรับสำคัญของ ${cleanSym} พยุงราคาขึ้นทดสอบระดับแนวต้านถัดไป`,
                 url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' news tradingview')}`,
                 date: '2026-09-29'
-            },
-            {
-                source: 'Investing.com / Market Analysis',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: `${cleanSym} Consolidates as Traders Await Key Economic Data`,
-                reason: `ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ SMC รอปัจจัยข่าวใหม่`,
-                url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' investing news')}`,
-                date: '2026-09-29'
             }
         ],
         sources: [
             { cat: `1. ข้อมูลราคา Realtime & ข่าวต่างประเทศ (${cleanSym})`, links: [
                 { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
                 { name: `TradingView Symbol Overview (${cleanSym})`, url: `https://www.tradingview.com/symbols/${cleanSym}/` }
-            ]},
-            { cat: '2. สำนักข่าวการเงินและเศรษฐกิจชั้นนำ', links: [
-                { name: 'Investing.com Global Markets', url: 'https://www.investing.com/' },
-                { name: 'CNBC Finance News', url: 'https://www.cnbc.com/' }
             ]}
         ]
     };
@@ -528,7 +513,7 @@ function formatPrice(value, symbol = currentSymbol) {
     let decimals = 2;
     if (symbol.includes('EURUSD') || symbol.includes('GBPUSD')) {
         decimals = 5;
-    } else if (symbol.includes('WTICOUSD') || symbol.includes('USOIL') || symbol.includes('WTI')) {
+    } else if (symbol.includes('USOIL') || symbol.includes('WTI')) {
         decimals = 2;
     } else if (n < 1) {
         decimals = 4;
@@ -575,8 +560,7 @@ function renderAutoSRChannels(symbol) {
     let baseRef = livePrice > 0 ? livePrice : 100;
     let step = baseRef * 0.008;
 
-    // ปรับอัตราทด Channel สำหรับน้ำมันดิบ WTI ให้กระชับตรงกับกรอบแนวรับแนวต้านในกราฟจริง
-    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
+    if (cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
         step = baseRef * 0.006;
     }
 
@@ -614,9 +598,7 @@ function renderNewsPredictions(symbol) {
     document.getElementById('news-pred-header-title').textContent = `📡 การคาดการณ์ข่าวเศรษฐกิจและผลกระทบต่อกราฟ (${cleanSym} News Convergence)`;
     container.innerHTML = '';
 
-    const predsList = assetData.preds;
-
-    predsList.forEach(item => {
+    assetData.preds.forEach(item => {
         const box = document.createElement('div');
         box.className = 'pred-box';
         box.innerHTML = `
@@ -682,30 +664,11 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE (ปรับปรุงให้ดึงราคาน้ำมันดิบ WTI ได้ตรงกับ TradingView)
+// REALTIME PRICE STREAMING ENGINE
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
-    // 1. ตรวจสอบหากเป็นน้ำมันดิบ WTI ให้ใช้ Ticker สากล CL=F / WTICOUSD
-    if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI')) {
-        try {
-            const fbRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1m&range=1d&ts=${Date.now()}`);
-            if (fbRes.ok) {
-                const fbData = await fbRes.json();
-                const price = fbData.chart.result[0].meta.regularMarketPrice;
-                if (price && price > 0) {
-                    renderLivePrice(price);
-                    setApiStatus("WTI Crude Realtime Feed 🟢", "up");
-                    return true;
-                }
-            }
-        } catch (e) {
-            console.warn("WTI Primary Feed Bypass...");
-        }
-    }
-
-    // 2. ลองดึงจาก Binance API โดยตรงหากเป็น Crypto
     if (symbol.includes('BINANCE:') || cleanSym.endsWith('USDT') || cleanSym.endsWith('BTC')) {
         try {
             const bSym = cleanSym.toUpperCase();
@@ -723,7 +686,6 @@ async function fetchDirectTradingViewPrice(symbol) {
         }
     }
 
-    // 3. ลองดึงผ่าน TradingView Scanner API
     try {
         let tvCleanSymbol = symbol.includes(':') ? symbol.replace(':', '%3A') : symbol;
         const timestamp = new Date().getTime();
@@ -741,13 +703,12 @@ async function fetchDirectTradingViewPrice(symbol) {
         console.warn("TradingView Direct Scanner Bypassed...");
     }
 
-    // 4. Default Base Fallback ในกรณีที่ API ทั้งหมดถูกบล็อก CORS
     if (livePrice === 0) {
         let defaultBasePrice = 100.00;
-        if (cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL')) defaultBasePrice = 93.27;
+        if (cleanSym.includes('USOIL') || cleanSym.includes('WTI')) defaultBasePrice = 71.50;
         else if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
         else if (cleanSym.includes('BTC')) defaultBasePrice = 65000.00;
-        else if (cleanSym.includes('USDTHB')) defaultBasePrice = 36.50;
+        else if (cleanSym.includes('EURUSD')) defaultBasePrice = 1.0850;
         
         renderLivePrice(defaultBasePrice);
         setApiStatus("Syncing Realtime Data 🟢", "up");
@@ -773,7 +734,7 @@ function startTradingViewRealtimeFeed(symbol) {
 }
 
 // -------------------------------------------------------------
-// RECALCULATE SMC ENGINE (ปรับสูตรการวิเคราะห์ราคาน้ำมันให้ตรงกับกราฟ)
+// RECALCULATE SMC ENGINE
 // -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
@@ -784,7 +745,7 @@ function recalculateSMCTradingEngine(price) {
     let slR = 0.3;                          
 
     const cleanSym = cleanAssetTitle(currentSymbol);
-    const isOil = cleanSym.includes('WTICOUSD') || cleanSym.includes('USOIL') || cleanSym.includes('WTI');
+    const isOil = cleanSym.includes('USOIL') || cleanSym.includes('WTI');
 
     if (currentTimeframe === '1m') {
         tfTitleLabel = "M1 Ultra Scalp (Tight TP/SL)";
@@ -968,7 +929,7 @@ function setSignalMode(mode) {
 }
 
 // -------------------------------------------------------------
-// RELOAD WIDGET ENGINE
+// RELOAD WIDGET ENGINE (แก้ไข Technical Analysis ให้อ่านตาม Symbol ปัจจุบันทันที)
 // -------------------------------------------------------------
 function loadTV(id, src, config){
     const m = document.getElementById(id);
@@ -1035,7 +996,7 @@ function refreshWidget(symbol, tvInterval = '1'){
         studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
     });
 
-    // 3. Technical Analysis Gauge Widget
+    // 3. Technical Analysis Gauge Widget (แก้ไขให้ดึงตัวแปร symbol ตามสินทรัพย์ที่เลือกโดยตรง ป้องกันขัดข้อง No data)
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: taInterval, 
         width: '100%', 
@@ -1070,8 +1031,8 @@ function handleSearch(){
     const input = document.getElementById('symbol-input').value.trim();
     if (input) {
         let formattedSymbol = input;
-        if (input.toUpperCase() === 'USOIL' || input.toUpperCase() === 'WTI') {
-            formattedSymbol = 'OANDA:WTICOUSD';
+        if (input.toUpperCase() === 'WTI' || input.toUpperCase() === 'USOIL') {
+            formattedSymbol = 'TVC:USOIL';
         } else if (!input.includes(':')) {
             formattedSymbol = `NASDAQ:${input.toUpperCase()}`;
         }
