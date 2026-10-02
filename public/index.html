@@ -664,7 +664,7 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE
+// REALTIME PRICE STREAMING ENGINE (เชื่อมต่อ TVC:USOIL โดยตรง)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
@@ -929,7 +929,7 @@ function setSignalMode(mode) {
 }
 
 // -------------------------------------------------------------
-// RELOAD WIDGET ENGINE (แก้ไข Technical Analysis ให้อ่านตาม Symbol ปัจจุบันทันที)
+// RELOAD WIDGET ENGINE
 // -------------------------------------------------------------
 function loadTV(id, src, config){
     const m = document.getElementById(id);
@@ -981,7 +981,7 @@ function refreshWidget(symbol, tvInterval = '1'){
         locale: "th"
     });
 
-    // 2. Main Advanced Technical Chart Widget
+    // 2. Main Advanced Technical Chart Widget (เชื่อมต่อ TVC:USOIL ตรงกัน)
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true, 
         symbol: symbol, 
@@ -996,7 +996,7 @@ function refreshWidget(symbol, tvInterval = '1'){
         studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
     });
 
-    // 3. Technical Analysis Gauge Widget (แก้ไขให้ดึงตัวแปร symbol ตามสินทรัพย์ที่เลือกโดยตรง ป้องกันขัดข้อง No data)
+    // 3. Technical Analysis Gauge Widget
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
         interval: taInterval, 
         width: '100%', 
@@ -1045,7 +1045,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นเปิดใช้งาน
+// เริ่มต้นเปิดใช้งานด้วยค่าเริ่มต้น (หรือกดเลือกน้ำมันดิบ WTI ได้ทันที)
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
