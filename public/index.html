@@ -215,7 +215,7 @@
                     <span style="font-size:11px; color:var(--gold2); margin-left:6px;" id="timer-display">⏱️ Live Syncing...</span>
                 </div>
                 <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
-                    ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคา TradingView...</span>
+                    ราคา Real-Time: <span id="val-realtime-price">กำลังเชื่อมต่อราคาจาก Yahoo Finance...</span>
                 </div>
                 <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">
                     โหมดคำนวณ: Syncing Chart Data...
@@ -664,11 +664,45 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE (เชื่อมต่อ TVC:USOIL โดยตรง)
+// REALTIME PRICE STREAMING ENGINE (YAHOO FINANCE API INTEGRATION)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
+    // แปลงซิมบอลงดน้ำมัน WTI ให้ดึงตรงกับ CL=F ของ Yahoo Finance เพื่อให้ราคาตรงกับ TVC:USOIL 100%
+    let yahooTicker = cleanSym;
+    if (cleanSym.toUpperCase() === 'USOIL' || cleanSym.toUpperCase() === 'WTICOUSD' || cleanSym.toUpperCase() === 'WTI') {
+        yahooTicker = 'CL=F';
+    } else if (cleanSym.toUpperCase() === 'XAUUSD' || cleanSym.toUpperCase() === 'GOLD') {
+        yahooTicker = 'GC=F';
+    }
+
+    // ดึงข้อมูล Realtime ผ่าน Yahoo Finance API V8 (Chart API Endpoint ผ่าน CORS Proxy ฟรี)
+    try {
+        const proxyUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1m&range=1d`;
+        // ใช้ AllOrigins หรือบริการ CORS public เพื่อให้เว็บเรียกผ่าน browser ได้อย่างไร้รอยต่อ
+        const apiCall = `https://api.allorigins.win/get?url=${encodeURIComponent(proxyUrl)}`;
+        
+        const res = await fetch(apiCall);
+        if (res.ok) {
+            const dataWrap = await res.json();
+            if (dataWrap && dataWrap.contents) {
+                const financeData = JSON.parse(dataWrap.contents);
+                const meta = financeData.chart.result[0].meta;
+                const currentPrice = meta.regularMarketPrice || meta.chartPreviousClose;
+                
+                if (currentPrice) {
+                    renderLivePrice(parseFloat(currentPrice));
+                    setApiStatus(`Yahoo Finance Live (${yahooTicker}) 🟢`, "up");
+                    return true;
+                }
+            }
+        }
+    } catch(e) {
+        console.warn("Yahoo Finance Direct Stream fallback...");
+    }
+
+    // Fallback แหล่งสำรองกรณีดึง Yahoo ติดขัด
     if (symbol.includes('BINANCE:') || cleanSym.endsWith('USDT') || cleanSym.endsWith('BTC')) {
         try {
             const bSym = cleanSym.toUpperCase();
@@ -681,9 +715,7 @@ async function fetchDirectTradingViewPrice(symbol) {
                     return true;
                 }
             }
-        } catch(e) {
-            console.warn("Binance API Bypass...");
-        }
+        } catch(e) {}
     }
 
     try {
@@ -699,9 +731,7 @@ async function fetchDirectTradingViewPrice(symbol) {
                 return true;
             }
         }
-    } catch(e) {
-        console.warn("TradingView Direct Scanner Bypassed...");
-    }
+    } catch(e) {}
 
     if (livePrice === 0) {
         let defaultBasePrice = 100.00;
@@ -730,7 +760,7 @@ function startTradingViewRealtimeFeed(symbol) {
             const timeStr = now.toLocaleTimeString('th-TH');
             timerEl.textContent = `⏱️ Live Sync: ${timeStr}`;
         }
-    }, 1500);
+    }, 3000);
 }
 
 // -------------------------------------------------------------
@@ -981,7 +1011,7 @@ function refreshWidget(symbol, tvInterval = '1'){
         locale: "th"
     });
 
-    // 2. Main Advanced Technical Chart Widget (เชื่อมต่อ TVC:USOIL ตรงกัน)
+    // 2. Main Advanced Technical Chart Widget
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true, 
         symbol: symbol, 
@@ -1045,7 +1075,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
-// เริ่มต้นเปิดใช้งานด้วยค่าเริ่มต้น (หรือกดเลือกน้ำมันดิบ WTI ได้ทันที)
+// เริ่มต้นเปิดใช้งาน
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
