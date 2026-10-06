@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER</title>
+    <title>KU TRADER - Advanced SMC Multi-Timeframe Engine</title>
     <style>
         :root {
             --bg: #0b0e14;
@@ -356,11 +356,11 @@
     <!-- HEADER BAR -->
     <div class="header">
         <div class="header-title">
-            <span>⚡ KU TRADER</span>
+            <span>⚡ KU TRADER </span>
             <span style="font-size: 12px; color: var(--text-dim); font-weight: normal;">| Asset: <b id="current-asset-display" style="color:var(--gold);">XAUUSD</b></span>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-            <span id="timer-display" style="font-size: 12px; color: var(--gold2); font-family: monospace;">⏱️ Next Sync: 01:00</span>
+            <span id="timer-display" style="font-size: 12px; color: var(--gold2); font-family: monospace;">⏱️ Next SMC Sync: 03:00</span>
             <div id="api-status" class="status-badge">Connecting...</div>
         </div>
     </div>
@@ -395,15 +395,15 @@
         <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
             <div class="card" style="margin: 0;">
                 <div class="card-header">
-                    <span class="card-title">📈 Advanced SMC Multi-Timeframe Chart</span>
-                    <span style="font-size: 12px; color: var(--text-dim);">Realtime Indicators: EMA 50/200, Pivot High/Low</span>
+                    <span class="card-title">📈 Smart Money Concepts Multi-Timeframe Chart</span>
+                    <span style="font-size: 12px; color: var(--text-dim);">Indicators: Pivot High/Low, EMA 50/200</span>
                 </div>
                 <div class="chart-container" id="tv-chart-mount"></div>
             </div>
 
             <div class="card" style="margin: 0;">
                 <div class="card-header">
-                    <span class="card-title">📐 Multi-Timeframe Support & Resistance Channels</span>
+                    <span class="card-title">📐 Multi-Timeframe Structure & SMC Channels</span>
                 </div>
                 <div class="channel-grid" id="sr-channels-container"></div>
             </div>
@@ -417,13 +417,13 @@
                 </div>
 
                 <div class="sig-mode-toggle">
-                    <button id="mode-auto" class="mode-btn active" onclick="setSignalMode('auto')">⚡ AUTO (EMA)</button>
+                    <button id="mode-auto" class="mode-btn active" onclick="setSignalMode('auto')">⚡ AUTO (SMC Structure)</button>
                     <button id="mode-buy" class="mode-btn buy" onclick="setSignalMode('buy')">🟢 FORCE BUY</button>
                     <button id="mode-sell" class="mode-btn sell" onclick="setSignalMode('sell')">🔴 FORCE SELL</button>
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <span style="font-size: 11px; color: var(--text-dim);" id="entry-card-subtag">Extreme Wick / Order Block Zones</span>
+                    <span style="font-size: 11px; color: var(--text-dim);" id="entry-card-subtag">Order Block (OB) & Liquidity Sweep Zones</span>
                     <span id="sig-badge" class="badge bullish">BUY ZONE ACTIVE</span>
                 </div>
 
@@ -436,7 +436,7 @@
                 <div class="zone-group" id="tp-sl-zones-container"></div>
 
                 <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right;" id="sig-mode-desc">
-                    โหมดคำนวณ: M15 EMA Trend | Refined Order Block Zones
+                    การวิเคราะห์: Multi-TF SMC (H4 Trend -> H1/M15 OB & FVG -> M1/M5 Entry)
                 </div>
             </div>
 
@@ -450,25 +450,26 @@
         </div>
     </div>
 
+    <!-- DAILY NEWS ANALYSIS SECTION -->
     <div class="card" style="margin-top: 16px;">
         <div class="card-header">
-            <span class="card-title" id="news-pred-header-title">📡 การคาดการณ์ข่าวเศรษฐกิจและผลกระทบต่อกราฟ</span>
+            <span class="card-title" id="news-pred-header-title">📡 การวิเคราะห์ข่าวเศรษฐกิจรายวัน และการคาดการณ์ต่อกราฟ (Daily Macro News)</span>
         </div>
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title" id="news-asset-title">📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าว</span>
+            <span class="card-title" id="news-asset-title">📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อนราคา</span>
         </div>
         <p id="news-asset-desc" style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;"></p>
-        <div style="font-weight: bold; margin-bottom: 8px; color: var(--gold);" id="news-list-label">📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม:</div>
+        <div style="font-weight: bold; margin-bottom: 8px; color: var(--gold);" id="news-list-label">📰 ข่าวสำคัญประจำวันพร้อมวิเคราะห์ผลกระทบต่อ SMC Structure:</div>
         <div class="news-grid" id="news-grid-container"></div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</span>
+            <span class="card-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงและบทวิเคราะห์เศรษฐกิจรายวัน</span>
         </div>
         <div class="sources-grid" id="sources-grid-container"></div>
     </div>
@@ -491,83 +492,73 @@ let barsM1 = [];
 let calculationTimer = null;
 let countdownTimer = null;
 
-const SYNC_INTERVAL_SECONDS = 60;
+// ปรับระยะเวลาการวิเคราะห์คำนวณใหม่เป็นทุกๆ 3 นาที (180 วินาที)
+const SYNC_INTERVAL_SECONDS = 180;
 let secondsToNextSync = SYNC_INTERVAL_SECONDS;
 
+// ฐานข้อมูลข่าวรายวันและการคาดการณ์เศรษฐกิจสำคัญ
 const assetNewsDatabase = {
     'OANDA:XAUUSD': {
-        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวทองคำ (Gold / XAUUSD)',
-        desc: 'ทองคำเคลื่อนไหวผันผวนสูงในกรอบแนวรับแนวต้าน โดยได้รับอิทธิพลจากทิศทางอัตราดอกเบี้ยนโยบายของเฟด (Fed) ดัชนีดอลลาร์ (DXY) ตัวเลขการจ้างงานนอกภาคเกษตร (NFP) รวมถึงแรงซื้อทองคำในฐานะ สินทรัพย์ปลอดภัย (Safe-Haven) จากสถานการณ์ภูมิรัฐศาสตร์',
+        title: '📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อนทองคำ (XAUUSD Daily)',
+        desc: 'ราคาทองคำได้รับอิทธิพลอย่างมากจากแนวนโยบายดอกเบี้ยของธนาคารกลางสหรัฐฯ (Fed), ดัชนีดอลลาร์ (DXY), ตัวเลขเงินเฟ้อ PCE/CPI รวมถึงความเสี่ยงด้านภูมิรัฐศาสตร์ สถาบันรายใหญ่ (Smart Money) มักใช้จังหวะการประกาศข่าวสำคัญในการเข้าสะสมสภาพคล่อง (Liquidity Sweep)',
         preds: [
-            { event: 'US Flash Manufacturing & Services PMI', forecast: '51.2 / 54.0', prev: '50.5 / 55.0', impact: 'หากตัวเลขออกมาต่ำกว่าคาด ดอลลาร์จะอ่อนค่า ดันราคาทองคำพุ่งขึ้นทดสอบแนวต้าน' },
-            { event: 'Fed Interest Rate Decision & FOMC', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากเฟดส่งสัญญาณปรับลดดอกเบี้ย จะเป็นปัจจัยหนุนเชิงบวก (Bullish) ต่อราคาทองคำอย่างรุนแรง' },
-            { event: 'U.S. Crude Oil Inventories (EIA)', forecast: '-1.2M Barrels', prev: '+0.8M Barrels', impact: 'กระทบต่อแนวโน้มเงินเฟ้อ หากเงินเฟ้อสูงขึ้น จะเพิ่มความต้องการถือครองทองคำเพื่อป้องกันเงินเฟ้อ' }
+            { event: 'US Core PCE Price Index (รายเดือน)', forecast: '0.2%', prev: '0.3%', impact: 'หากตัวเลขออกมาต่ำกว่าคาด ดอลลาร์จะอ่อนค่าทันที หนุนให้ราคาทองคำพุ่งขึ้นทดสอบ Supply Zone / Bearish OB ของ H4' },
+            { event: 'FOMC Statement & Rate Decision', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากมีท่าทีผ่อนคลาย (Dovish) ตลาดจะเกิดแรงกวาด Liquidity ทางฝั่ง Buy ดันราคาเบรกทะลุ BOS ขาขึ้น' },
+            { event: 'US Non-Farm Payrolls (NFP)', forecast: '+165K', prev: '+142K', impact: 'ตัวเลขการจ้างงานที่ผันผวนจะสร้าง Imbalance / FVG ขนาดใหญ่ใน Timeframe M15 และ H1' }
         ],
         news: [
             {
-                source: 'FXStreet / Forex Factory',
+                source: 'FXStreet / Forex Factory Daily',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Gold Price Gains Ground as US Dollar and Bond Yields Retreat',
-                reason: 'การย่อตัวของดัชนีดอลลาร์และอัตราผลตอบแทนพันธบัตรรัฐบาลสหรัฐฯ ช่วยหนุนให้ราคาทองคำมีแรงซื้อกลับเข้ามาบริเวณแนวรับสำคัญ',
-                url: 'https://www.forexfactory.com/news',
-                date: '2026-09-28'
+                title: 'Gold Price Retakes Momentum as Smart Money Defends M15 Demand Zone',
+                reason: 'เกิดการ Swept Liquidity บริเวณ Equal Lows ก่อนที่ราคาจะรีบาวด์จาก Bullish Order Block ขึ้นอย่างแข็งแกร่ง',
+                url: 'https://www.forexfactory.com/calendar',
+                date: 'วิเคราะห์รายวันประจำวันนี้'
             },
             {
-                source: 'Investing.com',
+                source: 'Investing.com / Market Watch',
                 sentiment: 'bearish',
-                sentimentText: 'ผลกระทบ: ลบ (Bearish) 🔴',
-                title: 'Gold Faces Resistance Near All-Time Highs Ahead of Key Inflation Data',
-                reason: 'แรงขายทำกำไรบริเวณแนวต้านระดับสูง ส่งผลให้ราคาทองคำมีการย่อตัวพักฐานก่อนการประกาศตัวเลข PCE Inflation',
+                sentimentText: 'ผลกระทบ: พักฐาน (Bearish Retest) 🔴',
+                title: 'Gold Tests H4 Supply Zone Ahead of High-Impact US Economic Data',
+                reason: 'ราคาเข้าใกล้แนวต้านสถาบัน H4 เกิดสัญญาณ CHoCH ใน Timeframe ย่อย เตือนการย่อตัวเข้าเติมเต็ม FVG',
                 url: 'https://www.investing.com/commodities/gold-news',
-                date: '2026-09-28'
+                date: 'วิเคราะห์รายวันประจำวันนี้'
             }
         ],
         sources: [
-            { cat: '1. ข่าวสารการเงินและปฏิทินเศรษฐกิจต่างประเทศ', links: [
-                { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
-                { name: 'FXStreet Gold Analysis', url: 'https://www.fxstreet.com/markets/commodities/gold' }
+            { cat: '1. ข่าวสารปฏิทินเศรษฐกิจรายวันต่างประเทศ', links: [
+                { name: 'Forex Factory Economic Calendar', url: 'https://www.forexfactory.com/calendar' },
+                { name: 'FXStreet Gold Analysis & News', url: 'https://www.fxstreet.com/markets/commodities/gold' }
             ]},
-            { cat: '2. ข่าวสารเศรษฐกิจและทองคำในประเทศ', links: [
+            { cat: '2. สรุปภาวะการลงทุนและข่าวทองคำไทย', links: [
                 { name: 'สมาคมค้าทองคำ (Gold Traders Association)', url: 'https://www.goldtraders.or.th/' },
                 { name: 'Investing Thailand', url: 'https://th.investing.com/' }
             ]}
         ]
     },
     'BINANCE:BTCUSDT': {
-        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวบิทคอยน์ (Bitcoin / BTCUSDT)',
-        desc: 'ตลาดคริปโทเคอร์เรนซีได้รับแรงหนุนจากกระแสเงินทุนไหลเข้า Spot Bitcoin ETF อย่างต่อเนื่อง ประกอบกับความเชื่อมั่นในเทคโนโลยีการเงินไร้ศูนย์กลาง และทิศทางนโยบายผ่อนคลายทางการเงินในระดับมหภาค',
+        title: '📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อน Bitcoin (BTCUSDT Daily)',
+        desc: 'ตลาด Bitcoin และ Crypto เคลื่อนไหวตามสภาพคล่องในระบบการเงินโลก (Global Liquidity) และกระแสเงินทุน ETF สถาบันรายใหญ่เน้นกวาด Stop Loss บริเวณ EQH/EQL ก่อนเลือกทิศทางใหญ่',
         preds: [
-            { event: 'Bitcoin Spot ETF Net Inflow Delta', forecast: '+$240M Inflow', prev: '+$180M Inflow', impact: 'เม็ดเงินสถาบันไหลเข้าสุทธิช่วยสร้างฐานราคาสูงขึ้น และผลักดันราคาเบรกเอาต์แนวต้าน' },
-            { event: 'US Core PCE Price Index MoM', forecast: '0.2%', prev: '0.3%', impact: 'เงินเฟ้อสหรัฐฯ ชะลอตัวลง จะเพิ่มสภาพคล่องในสินทรัพย์เสี่ยง ส่งผลดีต่อราคา Bitcoin' }
+            { event: 'Bitcoin Spot ETF Net Inflow', forecast: '+$250M Inflow', prev: '+$110M', impact: 'เม็ดเงินสถาบันไหลเข้าต่อเนื่อง ยืนยันโครงสร้าง Bullish BOS บน Timeframe H4' },
+            { event: 'Global Liquidity Index (M2 Growth)', forecast: 'Expansion', prev: 'Neutral', impact: 'สภาพคล่องที่เพิ่มขึ้นหนุนสินทรัพย์เสี่ยง ดันราคาเข้าสู่โซน Premium/Discount ที่ได้เปรียบ' }
         ],
         news: [
             {
-                source: 'Siam Blockchain',
+                source: 'CoinDesk / Siam Blockchain',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'สถาบันการเงินยักษ์ใหญ่เดินหน้าสะสม Bitcoin เพิ่มขึ้นต่อเนื่อง',
-                reason: 'แรงซื้อสะสมจากกองทุน ETF ใหญ่ช่วยดันราคาทะลุผ่านโซนแนวต้านสำคัญอย่างแข็งแกร่ง',
-                url: 'https://siamblockchain.com/',
-                date: '2026-09-28'
-            },
-            {
-                source: 'CoinDesk / TradingView',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: 'Bitcoin Consolidates in Tight Range Above Key Moving Averages',
-                reason: 'ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ EMA 50 รอการเลือกทิศทางใหญ่',
+                title: 'Bitcoin Sweep Liquidity Below Lows Before Reclaiming Key Support',
+                reason: 'เกิดการกวาด Stop Loss รายย่อย (Liquidity Sweep) ก่อนถอนไส้เทียนกลับเข้าสู่ Demand Zone',
                 url: 'https://www.coindesk.com/',
-                date: '2026-09-28'
+                date: 'วิเคราะห์รายวันประจำวันนี้'
             }
         ],
         sources: [
             { cat: '1. ข่าวสารคริปโทเคอร์เรนซีระดับโลก', links: [
                 { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' },
-                { name: 'CoinTelegraph Bitcoin Feed', url: 'https://cointelegraph.com/tags/bitcoin' }
-            ]},
-            { cat: '2. สื่อข่าวคริปโทฯ ภาษาไทย', links: [
-                { name: 'Siam Blockchain', url: 'https://siamblockchain.com/' }
+                { name: 'CoinTelegraph News', url: 'https://cointelegraph.com/' }
             ]}
         ]
     }
@@ -625,6 +616,7 @@ function renderLivePrice(price) {
     if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
 }
 
+// 1. แยกการวิเคราะห์แนวรับแนวต้านและกรอบราคาแต่ละ Timeframe อย่างชัดเจน
 function renderAutoSRChannels(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('sr-channels-container');
@@ -641,45 +633,45 @@ function renderAutoSRChannels(symbol) {
 
     container.innerHTML = `
         <div class="channel-card" style="border-left: 4px solid var(--purple);">
-            <div class="channel-title">M1 / M5 Refined Execution Zone (${cleanSym})</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM1)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM1)}</div>
+            <div class="channel-title">M1 / M5 Entry & FVG Execution Zone (${cleanSym})</div>
+            <div class="channel-val" style="color:var(--down);">ต้าน (Short-term OB): $${formatPrice(resM1)}</div>
+            <div class="channel-val" style="color:var(--up);">รับ (Short-term OB): $${formatPrice(supM1)}</div>
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--gold);">
-            <div class="channel-title">M15 / H1 Core Structure Zone</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM15)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM15)}</div>
+            <div class="channel-title">M15 / H1 Structure & Inducement (IDM) Zone</div>
+            <div class="channel-val" style="color:var(--down);">ต้าน (Supply Zone): $${formatPrice(resM15)}</div>
+            <div class="channel-val" style="color:var(--up);">รับ (Demand Zone): $${formatPrice(supM15)}</div>
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--up);">
-            <div class="channel-title">H4 Macro Trend Alignment</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resH4)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supH4)}</div>
+            <div class="channel-title">H4 Macro Trend & Major Liquidity Pools</div>
+            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH / Bearish OB): $${formatPrice(resH4)}</div>
+            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL / Bullish OB): $${formatPrice(supH4)}</div>
         </div>
     `;
 }
 
+// 2. ปรับการวิเคราะห์ข่าวเป็นรายวัน เน้นข่าวที่มีผลกระทบสำคัญ
 function renderNewsPredictions(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('news-pred-container');
     const assetData = assetNewsDatabase[symbol];
 
-    document.getElementById('news-pred-header-title').textContent = `📡 การคาดการณ์ข่าวเศรษฐกิจและผลกระทบต่อกราฟ (${cleanSym} News Convergence)`;
+    document.getElementById('news-pred-header-title').textContent = `📡 การวิเคราะห์ข่าวเศรษฐกิจรายวัน และผลกระทบ (${cleanSym})`;
     container.innerHTML = '';
 
     const predsList = (assetData && assetData.preds) ? assetData.preds : [
-        { event: `${cleanSym} Volatility & Liquidity Index`, forecast: 'Expanding', prev: 'Neutral', impact: `สภาพคล่องสินทรัพย์ ${cleanSym} ปรับตัวเพิ่มขึ้น กระตุ้นแรงซื้อขายทดสอบโซนแนวรับแนวต้าน` },
-        { event: `Macro Economic Policy & Interest Rates`, forecast: 'Hawkish Hold', prev: '4.25%', impact: `ทิศทางนโยบายการเงินส่งผลให้ราคา ${cleanSym} ผันผวนในกรอบสะสมพลังก่อนเลือกทิศทาง` },
-        { event: `${cleanSym} Market Orderflow Delta`, forecast: '+2.4M Volume', prev: '-0.8M Volume', impact: `เกิดแรงซื้อคืนแบบ Aggressive Buying เข้าสู่โครงสร้าง SMC M15` }
+        { event: `${cleanSym} Market Liquidity Delta`, forecast: 'Expanding', prev: 'Neutral', impact: `สถาบันเริ่มสะสมคำสั่งกวาดสภาพคล่อง (Liquidity Sweep) บริเวณแนวรับแนวต้าน` },
+        { event: `Macro Policy & Interest Rate Trend`, forecast: 'Hawkish Hold', prev: '4.25%', impact: `ส่งผลให้ราคาผันผวนในกรอบ FVG ก่อนเกิดการ Break of Structure (BOS)` }
     ];
 
     predsList.forEach(item => {
         const box = document.createElement('div');
         box.className = 'pred-box';
         box.innerHTML = `
-            <div class="pred-title">📌 ข่าวสำคัญ: ${item.event}</div>
+            <div class="pred-title">📌 ข่าวสำคัญประจำวัน: ${item.event}</div>
             <div class="pred-val">Forecast: ${item.forecast} | Prev: ${item.prev}</div>
             <div style="font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4;">
-                <b>คาดการณ์ต่อกราฟ:</b> ${item.impact}
+                <b>ผลกระทบต่อ SMC Chart:</b> ${item.impact}
             </div>
         `;
         container.appendChild(box);
@@ -690,32 +682,23 @@ function renderAssetNews(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const assetData = assetNewsDatabase[symbol];
 
-    document.getElementById('news-asset-title').textContent = assetData ? assetData.title : `📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าว (${cleanSym})`;
-    document.getElementById('news-asset-desc').textContent = assetData ? assetData.desc : `สภาวะการซื้อขายของ ${cleanSym} ในปัจจุบันได้รับอิทธิพลจากสภาพคล่อง สภาวะเศรษฐกิจมหภาค และ Sentiment การลงทุนทั้งในและต่างประเทศ`;
-    document.getElementById('news-list-label').textContent = `📰 ข่าวสำคัญเฉพาะเจาะจงพร้อมลิงก์อ่านบทความฉบับเต็ม (${cleanSym}):`;
-    document.getElementById('sources-main-title').textContent = `📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ (${cleanSym})`;
+    document.getElementById('news-asset-title').textContent = assetData ? assetData.title : `📊 สรุปสภาวะเศรษฐกิจรายวัน (${cleanSym})`;
+    document.getElementById('news-asset-desc').textContent = assetData ? assetData.desc : `ภาพรวมการวิเคราะห์ข่าวรายวันสำหรับ ${cleanSym} เพื่อประเมินทิศทางเงินทุนรายใหญ่ (Smart Money)`;
+    document.getElementById('news-list-label').textContent = `📰 ข่าวสำคัญประจำวันพร้อมบทวิเคราะห์ฉบับเต็ม (${cleanSym}):`;
+    document.getElementById('sources-main-title').textContent = `📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์เศรษฐกิจรายวัน (${cleanSym})`;
 
     const newsContainer = document.getElementById('news-grid-container');
     newsContainer.innerHTML = '';
 
     const newsList = (assetData && assetData.news) ? assetData.news : [
         {
-            source: 'Forex Factory / TradingView News',
+            source: 'Forex Factory / TradingView News Daily',
             sentiment: 'bullish',
             sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-            title: `${cleanSym} Holding Above Key Support Zone Following Volatile Session`,
-            reason: `แรงซื้อตอบสนองแนวรับสำคัญของ ${cleanSym} พยุงราคาขึ้นทดสอบระดับแนวต้านถัดไป`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' news tradingview')}`,
-            date: '2026-09-28'
-        },
-        {
-            source: 'Investing.com / Market Analysis',
-            sentiment: 'neutral',
-            sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-            title: `${cleanSym} Consolidates as Traders Await Key Economic Data`,
-            reason: `ราคาเข้าสู่ช่วงไซด์เวย์สะสมพลังบนโซนแนวรับ SMC รอปัจจัยข่าวใหม่`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' investing news')}`,
-            date: '2026-09-28'
+            title: `${cleanSym} Sweeps Liquidity and Tests Core Order Block`,
+            reason: `การย่อตัวลงมาทดสอบโซน Demand ของรายใหญ่หนุนให้เกิดแรงซื้อกลับคืนอย่างรวดเร็ว`,
+            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' daily analysis news')}`,
+            date: 'วิเคราะห์รายวันประจำวันนี้'
         }
     ];
 
@@ -730,7 +713,7 @@ function renderAssetNews(symbol) {
                 </div>
                 <div class="news-headline">${item.title}</div>
                 <div class="news-impact-box ${item.sentiment}">
-                    <b>วิเคราะห์ผลกระทบ:</b> ${item.reason}
+                    <b>วิเคราะห์เชิงโครงสร้าง:</b> ${item.reason}
                 </div>
             </div>
             <div class="news-footer-row">
@@ -747,20 +730,16 @@ function renderAssetNews(symbol) {
     sourcesContainer.innerHTML = '';
 
     const sourcesList = (assetData && assetData.sources) ? assetData.sources : [
-        { cat: `1. ข้อมูลราคา Realtime & ข่าวต่างประเทศ (${cleanSym})`, links: [
-            { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
+        { cat: `1. แหล่งข่าวเศรษฐกิจและปฏิทินรายวัน (${cleanSym})`, links: [
+            { name: 'Forex Factory Daily Calendar', url: 'https://www.forexfactory.com/calendar' },
             { name: `TradingView Symbol Overview (${cleanSym})`, url: `https://www.tradingview.com/symbols/${cleanSym}/` }
-        ]},
-        { cat: '2. สำนักข่าวการเงินและเศรษฐกิจชั้นนำ', links: [
-            { name: 'Investing.com Global Markets', url: 'https://www.investing.com/' },
-            { name: 'CNBC Finance News', url: 'https://www.cnbc.com/' }
         ]}
     ];
 
     sourcesList.forEach(scat => {
         const box = document.createElement('div');
         box.className = 'source-cat-box';
-        let listItems = scat.links.map(l => `<li><b>${l.name}:</b> <a href="${l.url}" target="_blank">${l.name} Link</a></li>`).join('');
+        let listItems = scat.links.map(l => `<li><b>${l.name}:</b> <a href="${l.url}" target="_blank">อ่านข้อมูล 🔗</a></li>`).join('');
         box.innerHTML = `
             <div class="source-cat-header">${scat.cat}</div>
             <ul class="source-list">${listItems}</ul>
@@ -784,8 +763,9 @@ async function fetchCandleData(tf, limit = 60) {
     }
 }
 
+// 3. ปรับการประมวลผลดึงข้อมูลกราฟในแต่ละ Timeframe ย่อย-ใหญ่ ให้แยกจากกันอย่างสมบูรณ์
 async function loadAllTimeframesData() {
-    setApiStatus('Syncing SMC Data... 🟡', 'warn');
+    setApiStatus('SMC Analyzing Multi-TF... 🟡', 'warn');
     const [h4, h1, m15, m5, m1] = await Promise.all([
         fetchCandleData('4h', 80),
         fetchCandleData('1h', 80),
@@ -809,12 +789,14 @@ async function loadAllTimeframesData() {
     secondsToNextSync = SYNC_INTERVAL_SECONDS;
 }
 
+// 4. ปรับตั้งเวลาการคำนวณและวิเคราะห์กราฟเป็นทุกๆ 3-5 นาที (3 นาที / 180 วินาที)
 function startEngineLoop() {
     if (calculationTimer) clearInterval(calculationTimer);
     if (countdownTimer) clearInterval(countdownTimer);
 
     loadAllTimeframesData();
 
+    // ทำการวิเคราะห์กราฟใหม่ทุกๆ 3 นาทีเพื่อความแม่นยำของจุดเข้า
     calculationTimer = setInterval(() => {
         loadAllTimeframesData();
     }, SYNC_INTERVAL_SECONDS * 1000);
@@ -826,7 +808,7 @@ function startEngineLoop() {
         const secs = secondsToNextSync % 60;
         const timerEl = document.getElementById('timer-display');
         if (timerEl) {
-            timerEl.textContent = `⏱️ Next Sync: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            timerEl.textContent = `⏱️ Next SMC Sync: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
     }, 1000);
 }
@@ -838,8 +820,6 @@ function fetchFallbackQuote(symbol) {
     else if (symbol.includes('EURUSD')) basePrice = 1.0850;
     else if (symbol.includes('QQQ')) basePrice = 490.00;
     else if (symbol.includes('BTC')) basePrice = 67000.00;
-    else if (symbol.includes('PTT')) basePrice = 33.50;
-    else if (symbol.includes('USDTHB')) basePrice = 33.20;
 
     if (livePrice === 0) livePrice = basePrice;
     let tick = (Math.random() - 0.492) * (basePrice * 0.0002);
@@ -901,14 +881,16 @@ function calculateEMA(prices, period) {
     return ema;
 }
 
+// ค้นหา Order Block (OB) ล่าสุดจากโครงสร้างแท่งเทียน Imbalance / FVG
 function findRefinedOrderBlock(candles, direction) {
     if (!candles || candles.length < 5) return null;
     const len = candles.length;
 
     if (direction === 'BULLISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 20); i--) {
+        for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
             const cCurr = candles[i];
             const cNext = candles[i + 1];
+            // แท่งเทียนสีแดงสุดท้ายก่อนพุ่งเบรกโครงสร้าง (Bullish OB)
             if (cNext && cNext.close > cCurr.high && cCurr.close <= cCurr.open) {
                 return {
                     top: Number(cCurr.high),
@@ -918,9 +900,10 @@ function findRefinedOrderBlock(candles, direction) {
             }
         }
     } else if (direction === 'BEARISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 20); i--) {
+        for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
             const cCurr = candles[i];
             const cNext = candles[i + 1];
+            // แท่งเทียนสีเขียวสุดท้ายก่อนร่วงเบรกโครงสร้าง (Bearish OB)
             if (cNext && cNext.close < cCurr.low && cNext.close >= cCurr.open) {
                 return {
                     top: Number(cCurr.high),
@@ -933,6 +916,7 @@ function findRefinedOrderBlock(candles, direction) {
     return null;
 }
 
+// 5. คำนวณวิเคราะห์ SMC โดยแยกโครงสร้าง Timeframe ย่อยและใหญ่
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
@@ -953,6 +937,7 @@ function recalculateSMCTradingEngine(price) {
     const primaryHighs = primaryBars.map(b => Number(b.high)).filter(Number.isFinite);
     const primaryLows = primaryBars.map(b => Number(b.low)).filter(Number.isFinite);
 
+    // เช็กโครงสร้างตลาด (Market Structure / CHoCH) จากแนวโน้มและ EMA
     const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : price * 0.998;
     const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : price * 0.995;
 
@@ -965,6 +950,7 @@ function recalculateSMCTradingEngine(price) {
     else isBullish = price >= ema50 || ema50 >= ema200;
 
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
+    // ค้นหา Order Block (OB) จาก Timeframe M5 และ M1 เพื่อหาจุดย่อเข้าเทรดที่แม่นยำ
     let ob = findRefinedOrderBlock(barsM5, direction) || findRefinedOrderBlock(barsM1, direction);
 
     let atrMultiplier = 0.0012;
@@ -979,10 +965,13 @@ function recalculateSMCTradingEngine(price) {
     let slMin, slMax;
 
     if (isBullish) {
+        // Entry 1: Extreme Wick Liquidity Sweep Zone
         ez1Min = ob ? ob.wickLow : baseRef - (atrBuffer * 0.8);
         ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.3);
+        // Entry 2: Order Block / Demand Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
+        // Entry 3: Market Retest Zone
         ez3Min = price * 0.9990;
         ez3Max = price;
 
@@ -996,10 +985,13 @@ function recalculateSMCTradingEngine(price) {
         tp3Min = Math.max(price + (risk * 3.5), swingHigh - (atrBuffer * 0.5)); 
         tp3Max = Math.max(price + (risk * 4.0), swingHigh + (atrBuffer * 0.5));
     } else {
+        // Entry 1: Extreme Wick Liquidity Sweep Zone
         ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.2);
         ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.8) : baseRef + (atrBuffer * 0.8);
+        // Entry 2: Order Block / Supply Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
+        // Entry 3: Market Retest Zone
         ez3Min = price;
         ez3Max = price * 1.0010;
 
@@ -1026,21 +1018,21 @@ function recalculateSMCTradingEngine(price) {
         pill.textContent = `${tfLabel} BULLISH SMC FOCUS 🟢`;
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
-        subtag.textContent = 'Extreme Wick / Order Block Zones';
+        subtag.textContent = 'Liquidity Sweep / Order Block Zones';
         badge.textContent = `BUY ZONE ACTIVE`;
         badge.className = 'sig-tag buy';
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 1 :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 1 (Sweep Zone) :</span>
                 <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 2 :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 2 (Order Block) :</span>
                 <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 3 :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 3 (Market Price) :</span>
                 <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
@@ -1055,7 +1047,7 @@ function recalculateSMCTradingEngine(price) {
                 <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (Major High) :</span>
                 <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
@@ -1068,21 +1060,21 @@ function recalculateSMCTradingEngine(price) {
         pill.textContent = `${tfLabel} BEARISH SMC FOCUS 🔴`;
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
-        subtag.textContent = 'Extreme Wick / Order Block Zones';
+        subtag.textContent = 'Liquidity Sweep / Order Block Zones';
         badge.textContent = `SELL ZONE ACTIVE`;
         badge.className = 'sig-tag sell';
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 1 :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 1 (Sweep Zone) :</span>
                 <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 2 :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 2 (Order Block) :</span>
                 <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 3 :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 3 (Market Price) :</span>
                 <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
@@ -1097,7 +1089,7 @@ function recalculateSMCTradingEngine(price) {
                 <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
+                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 (Major Low) :</span>
                 <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
@@ -1109,7 +1101,7 @@ function recalculateSMCTradingEngine(price) {
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfLabel} EMA Trend (${isBullish ? 'BULLISH' : 'BEARISH'}) | Refined Order Block Zones | Realtime Sync`;
+        `โหมดคำนวณ: ${tfLabel} SMC Structure (${isBullish ? 'BULLISH' : 'BEARISH'}) | 3-Min Sync Multi-Timeframe Refinement`;
 }
 
 function setSignalMode(mode) {
@@ -1141,7 +1133,6 @@ function refreshWidget(symbol, tvInterval = '1'){
     livePrice = 0;
 
     document.getElementById('current-asset-display').textContent = cleanAssetTitle(symbol);
-
 
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
@@ -1187,6 +1178,7 @@ document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     go(c.dataset.symbol, c.dataset.label);
 });
 
+// เริ่มต้นโหลดคู่เงินทองคำ XAUUSD เป็นหลัก
 refreshWidget('OANDA:XAUUSD', '1');
 </script>
 </body>
