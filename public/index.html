@@ -392,12 +392,21 @@
 
     <!-- MAIN GRID (CHART & SMC ENGINE) -->
     <div class="grid-main">
-        <div class="card" style="margin: 0;">
-            <div class="card-header">
-                <span class="card-title">📈 Advanced SMC Multi-Timeframe Chart</span>
-                <span style="font-size: 12px; color: var(--text-dim);">Realtime Indicators: EMA 50/200, Pivot High/Low</span>
+        <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+            <div class="card" style="margin: 0;">
+                <div class="card-header">
+                    <span class="card-title">📈 Advanced SMC Multi-Timeframe Chart</span>
+                    <span style="font-size: 12px; color: var(--text-dim);">Realtime Indicators: EMA 50/200, Pivot High/Low</span>
+                </div>
+                <div class="chart-container" id="tv-chart-mount"></div>
             </div>
-            <div class="chart-container" id="tv-chart-mount"></div>
+
+            <div class="card" style="margin: 0;">
+                <div class="card-header">
+                    <span class="card-title">📐 Multi-Timeframe Support & Resistance Channels</span>
+                </div>
+                <div class="channel-grid" id="sr-channels-container"></div>
+            </div>
         </div>
 
         <div>
@@ -438,22 +447,6 @@
                 </div>
                 <div id="tv-symbol-mount" style="height: 120px;"></div>
             </div>
-        </div>
-    </div>
-
-    <div class="grid-main" style="grid-template-columns: 1fr 340px;">
-        <div class="card" style="margin: 0;">
-            <div class="card-header">
-                <span class="card-title">📐 Multi-Timeframe Support & Resistance Channels</span>
-            </div>
-            <div class="channel-grid" id="sr-channels-container"></div>
-        </div>
-
-        <div class="card" style="margin: 0;">
-            <div class="card-header">
-                <span class="card-title">📊 Technical Gauge</span>
-            </div>
-            <div id="tv-ta-mount" style="height: 280px;"></div>
         </div>
     </div>
 
@@ -1149,12 +1142,6 @@ function refreshWidget(symbol, tvInterval = '1'){
 
     document.getElementById('current-asset-display').textContent = cleanAssetTitle(symbol);
 
-    let taInterval = '1m';
-    if (tvInterval === '1') taInterval = '1m';
-    else if (tvInterval === '5') taInterval = '5m';
-    else if (tvInterval === '15') taInterval = '15m';
-    else if (tvInterval === '60') taInterval = '1h';
-    else if (tvInterval === '240') taInterval = '4h';
 
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
@@ -1164,10 +1151,6 @@ function refreshWidget(symbol, tvInterval = '1'){
         autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
         backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
         studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
-    });
-
-    loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
 
     renderAutoSRChannels(symbol);
