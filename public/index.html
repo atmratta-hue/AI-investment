@@ -27,8 +27,8 @@
         .wrap { max-width: 1180px; margin: auto; padding: 28px 20px 60px; }
         
         .hero { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; padding: 22px 24px; background: linear-gradient(135deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; }
-        .hero-title-brand { font-family: 'IBM Plex Mono', sans-serif; font-size: 38px; font-weight: 700; color: var(--gold2); letter-spacing: 1.5px; margin: 0; line-height: 1.1; }
-        .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 98px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
+        .hero-title-brand { font-family: 'IBM Plex Mono', sans-serif; font-size: 52px; font-weight: 700; color: var(--gold2); letter-spacing: 2px; margin: 0; line-height: 1.1; }
+        .hero-right { min-width: 280px; flex: 1; max-width: 460px; height: 85px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid var(--line); }
         
         h2 { font-size: 17px; margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--gold); }
         section { margin-bottom: 22px; }
@@ -52,17 +52,18 @@
         .mode-btn { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .mode-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
-        .sr-channels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
-        .channel-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-        .channel-title { font-size: 11.5px; font-weight: 700; color: var(--gold2); text-transform: uppercase; }
-        .channel-val { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 700; margin-top: 4px; }
+        /* กรอบแนวรับ-แนวต้านขนาดเล็กด้านบนซิกโนล */
+        .sr-inline-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .sr-mini-card { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
+        .sr-mini-title { font-size: 11px; font-weight: 700; color: var(--gold2); text-transform: uppercase; margin-bottom: 2px; }
+        .sr-mini-val { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; }
 
         .news-prediction-card { background: linear-gradient(135deg, rgba(23, 29, 39, 0.9), rgba(29, 36, 48, 0.95)); border: 1px solid var(--gold); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
         .ff-tag { background: #d9534f; color: #fff; font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; }
         .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
         .pred-box { background: rgba(0,0,0,0.25); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
-        .pred-title { font-size: 12px; color: var(--dim); font-weight: 600; }
-        .pred-val { font-size: 14px; font-weight: 700; color: var(--gold2); margin-top: 4px; }
+        .pred-title { font-size: 12px; color: var(--gold2); font-weight: 700; }
+        .pred-val { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
 
         .signal-box { background: var(--panel2); border: 2px solid var(--gold); border-radius: 10px; padding: 20px; margin-bottom: 18px; position: relative; }
         .sr-header-group { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
@@ -142,16 +143,16 @@
         @media (max-width: 768px) {
             .strategy-split-grid { grid-template-columns: 1fr; }
             .chart-grid { grid-template-columns: 1fr; }
+            .sr-inline-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 <div class="wrap">
-    <!-- Header Hero -->
+    <!-- Header Hero: โลโก้ใหญ่ขึ้น ไม่มีข้อความย่อย -->
     <div class="hero">
         <div class="hero-left">
             <h1 class="hero-title-brand">KU TRADER</h1>
-            <div style="font-size:13px; color:var(--dim); margin-top:4px;">Automated Dynamic SMC & Multi-Asset Intelligence Engine</div>
         </div>
         <div class="hero-right">
             <div id="tv-symbol-mount" style="height:100%;width:100%"></div>
@@ -197,7 +198,7 @@
         </div>
     </div>
 
-    <!-- 3. การคาดการณ์ข่าวเศรษฐกิจสำคัญ -->
+    <!-- 3. การคาดการณ์ข่าวเศรษฐกิจสำคัญ (เพิ่มดีเทลวิเคราะห์ข่าวส่งผลราคาขึ้นหรือลงชัดเจน) -->
     <div class="news-prediction-card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-size:15px; font-weight:700; color:var(--gold2);" id="news-pred-header-title">
@@ -207,12 +208,12 @@
         </div>
         <div class="schedule-banner">
             <div>⏰ <b>รอบการวิเคราะห์อัตโนมัติ:</b> รีเฟรชโซนเทรดทุกๆ 3-5 นาที | อัปเดตข่าวสารเชิงลึกใน/ต่างประเทศทุกวันเวลา <span class="schedule-badge">06:00 น.</span> และ <span class="schedule-badge">13:00 น.</span></div>
-            <div id="active-briefing-time" style="color:var(--gold2); font-weight:600;">สถานะบรีฟล่าสุด: กำลังเชื่อมต่อซิงค์รอบตลาด...</div>
+            <div id="active-briefing-time" style="color:var(--gold2); font-weight:600;">สถานะบรีฟล่าสุด: ซิงค์รอบตลาดเรียบร้อย</div>
         </div>
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
-    <!-- 4. ส่วนคำนวณราคาจุดเข้า, TP, SL -->
+    <!-- 4. ส่วนคำนวณราคาจุดเข้า, TP, SL พร้อมย้ายกรอบแนวรับ-แนวต้านขนาดเล็กมาไว้ด้านบน -->
     <div class="signal-box">
         <div class="sr-header-group">
             <div>
@@ -221,7 +222,7 @@
                     <span class="api-status-badge" id="api-status">Connecting Realtime... 🟡</span>
                     <span style="font-size:11px; color:var(--gold2); margin-left:6px;" id="timer-display">⏱️ Auto-calc in 3m...</span>
                 </div>
-                <div style="font-size:26px; font-weight:700; color:var(--gold2); margin-top:2px">
+                <div style="font-size:28px; font-weight:700; color:var(--gold2); margin-top:2px">
                     ราคา Real-Time (ตรงกับกราฟ): <span id="val-realtime-price">กำลังเชื่อมต่อราคา TradingView / Yahoo Finance...</span>
                 </div>
                 <div style="font-size:13px; margin-top:2px; color:var(--text)" id="sig-mode-desc">
@@ -233,6 +234,9 @@
                 <div class="sig-tag buy" id="sig-badge">CALCULATING...</div>
             </div>
         </div>
+
+        <!-- กรอบแนวรับ-แนวต้านย่อส่วน (ตาม Timeframe ที่เลือก) ย้ายมาแสดงตรงนี้ตามคำขอ -->
+        <div class="sr-inline-grid" id="sr-channels-container"></div>
 
         <div class="strategy-split-grid">
             <div class="strategy-card">
@@ -253,10 +257,7 @@
         </div>
     </div>
 
-    <!-- 5. แถบแสดงช่องแนวรับ-แนวต้านประจำแต่ละ Timeframe -->
-    <div class="sr-channels-grid" id="sr-channels-container"></div>
-
-    <!-- 6. กราฟเทคนิคัล TradingView -->
+    <!-- 5. กราฟเทคนิคัล TradingView -->
     <section>
         <h2>กราฟราคาและอินดิเคเตอร์เทคนิคัล Realtime (ซิงค์ตรงกับระบบคำนวณ 100%)</h2>
         <div class="chart-grid">
@@ -267,7 +268,7 @@
         </div>
     </section>
 
-    <!-- 7. ส่วนข่าวเจาะจงรายสินทรัพย์ -->
+    <!-- 6. ส่วนข่าวเจาะจงรายสินทรัพย์ พร้อมคำอธิบายผลกระทบเชิงลึก -->
     <section>
         <h2>วิเคราะห์ข่าวเจาะจงรายสินทรัพย์และปัจจัยเศรษฐกิจ (Entity Asset & Economic News)</h2>
         <div class="card">
@@ -284,12 +285,12 @@
         </div>
     </section>
 
-    <!-- 8. แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ -->
+    <!-- 7. แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ -->
     <div class="bottom-sources-section">
         <div class="sources-main-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์ข่าวต้นฉบับ</div>
         <div class="sources-grid" id="sources-grid-container"></div>
         <div class="source-note">
-            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสถาบันการเงินและสำนักข่าวชั้นนำ (รวมถึงรอบอัปเดต 06:00 และ 13:00 น.) พร้อมสอดคล้องกับราคาจริงจาก TradingView และ Yahoo Finance
+            <b>หมายเหตุประกอบการอ้างอิง:</b> ข้อมูลข่าวสารและบทวิเคราะห์ถูกรวบรวมจากสถาบันการเงินและสำนักข่าวชั้นนำ (รอบ 06:00 และ 13:00 น.) พร้อมสอดคล้องกับราคาจริงจาก TradingView และ Yahoo Finance
         </div>
     </div>
 </div>
@@ -301,28 +302,28 @@ let currentSymbol = 'TVC:USOIL';
 let livePrice = 0;
 let userSignalMode = 'auto'; 
 let priceStreamTimer = null;
-let calcCountdownTimer = 180; // 3 นาทีต่อรอบคำนวณ
+let calcCountdownTimer = 180; 
 let countdownInterval = null;
 
 // -------------------------------------------------------------
-// ฐานข้อมูลข่าวแยกตามสินทรัพย์พร้อมรอบบรีฟ 06:00 และ 13:00 น.
+// ฐานข้อมูลข่าวแยกตามสินทรัพย์พร้อมการวิเคราะห์ราคาขึ้น/ลงละเอียด
 // -------------------------------------------------------------
 const assetNewsDatabase = {
     'USOIL': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวน้ำมันดิบ WTI (Crude Oil - รอบอัปเดต 06:00 และ 13:00 น.)',
-        desc: 'ราคาน้ำมันดิบ WTI เคลื่อนไหวสอดคล้องกับกราฟ TradingView และ Yahoo Finance โดยได้รับแรงหนุนจากรายงานสต็อกน้ำมันดิบ API/EIA นโยบายกำลังการผลิตกลุ่ม OPEC+ และสถานการณ์พลังงานตะวันออกกลาง',
+        desc: 'ราคาน้ำมันดิบ WTI เชื่อมโยงข้อมูลผ่าน Yahoo Finance และ TradingView โดยมีปัจจัยหนุนจากตัวเลขสต็อกน้ำมันดิบ API/EIA มติกำลังการผลิต OPEC+ และความตึงเครียดด้านอุปทานพลังงานโลก',
         preds: [
-            { event: 'API / EIA Weekly Crude Oil Inventories', forecast: '-2.1M Barrels', prev: '+0.4M Barrels', impact: 'หากสต็อกน้ำมันดิบปรับตัวลดลงตามรายงานช่วงเช้า หนุนราคาเบรกแนวต้านสำคัญบนกราฟ' },
-            { event: 'OPEC+ Production Output Compliance', forecast: 'Strict Quota Hold', prev: '2.2M bpd', impact: 'การคุมโควตาการผลิตช่วยพยุงโซนแนวรับสำคัญของ WTI ไม่ให้หลุดกรอบโครงสร้าง' },
-            { event: 'Asian Session Demand & Refining Margins', forecast: 'Moderate Surge', prev: 'Stable', impact: 'แรงซื้อจากโรงกลั่นเอเชียในช่วงบ่ายช่วยหนุนราคา Spot USOIL ให้ปรับตัวขึ้นสอดคล้องกับสัญญาณ M1-M5' }
+            { event: 'API / EIA Weekly Crude Oil Inventories', forecast: '-2.1M Barrels (Bullish)', prev: '+0.4M Barrels', impact: 'หากสต็อกน้ำมันดิบลดลงมากกว่าคาด ส่งผลให้ราคาน้ำมันดิบพุ่งทะยานขึ้น (Bullish Breakout) ทดสอบแนวต้านถัดไปทันที' },
+            { event: 'OPEC+ Production Quota Policy', forecast: 'Strict Compliance Hold', prev: '2.2M bpd', impact: 'การควบคุมกำลังการผลิตอย่างเคร่งครัดช่วยพยุงราคา Spot WTI ไม่ให้หลุดกรอบแนวรับสำคัญ (Support Protection)' },
+            { event: 'Asian Refinery Margins & Spot Demand', forecast: 'Strong Surge', prev: 'Stable', impact: 'แรงซื้อจากโรงกลั่นในเอเชียช่วงรอบบ่าย ส่งผลให้เกิดแรงซื้อสะสมดันราคาขยับขึ้นสอดคล้องกับโครงสร้าง M1-M5' }
         ],
         news: [
             {
-                source: 'Reuters Energy / Yahoo Finance Crude',
+                source: 'Yahoo Finance Crude (CL=F) & Reuters Energy',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'WTI Crude Oil Holds Firm Above Key Support as Supply Tightens in Global Markets',
-                reason: 'ข้อมูลราคาเรียลไทม์จาก Yahoo Finance และ TradingView ยืนยันแรงซื้อสะสมบริเวณแนวรับหลัก ตอบรับรายงานอุปทานตึงตัว',
+                title: 'WTI Crude Oil Holds Firm Above Key Support as Global Supply Tightens',
+                reason: 'ข้อมูลราคาเรียลไทม์ยืนยันแรงซื้อหนาแน่นบริเวณโซน Order Block ตอบรับข่าวอุปทานตึงตัว ส่งผลให้ราคามีโอกาสปรับตัวสูงขึ้น',
                 url: 'https://finance.yahoo.com/quote/CL=F/',
                 date: '2026-10-06'
             },
@@ -331,7 +332,7 @@ const assetNewsDatabase = {
                 sentiment: 'neutral',
                 sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
                 title: 'Oil Markets Consolidate in Tight Range Awaiting EIA Confirmation',
-                reason: 'ราคาน้ำมันแกว่งตัวออกข้าง (Sideway) สะสมพลังก่อนเลือกทิศทางชัดเจนตามรอบการประกาศตัวเลขเศรษฐกิจ',
+                reason: 'ราคาน้ำมันเคลื่อนไหวออกข้าง (Sideway) รอยืนยันตัวเลขคลังน้ำมันดิบ ทำให้กรอบการเทรดเป็นแบบ Scalping ในกรอบแคบ',
                 url: 'https://www.bloomberg.com/energy',
                 date: '2026-10-06'
             }
@@ -349,96 +350,47 @@ const assetNewsDatabase = {
     },
     'XAUUSD': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวทองคำ (Gold / XAUUSD - รอบอัปเดต 06:00 และ 13:00 น.)',
-        desc: 'ราคาทองคำเคลื่อนไหวผันผวนตามทิศทางดัชนีดอลลาร์สหรัฐฯ (DXY) อัตราผลตอบแทนพันธบัตร และการคาดการณ์อัตราดอกเบี้ยนโยบายของธนาคารกลางสหรัฐฯ (Fed)',
+        desc: 'ราคาทองคำเคลื่อนไหวตอบรับค่าเงินดอลลาร์สหรัฐฯ (DXY) และทิศทางอัตราดอกเบี้ยนโยบายของเฟด',
         preds: [
-            { event: 'US Flash PMI & Labor Market Data', forecast: '51.2 / 54.0', prev: '50.5', impact: 'ตัวเลขเศรษฐกิจสหรัฐฯ ส่งผลโดยตรงต่อความคาดหวังดอกเบี้ย หนุนราคาทองคำผันผวนในกรอบ SMC' },
-            { event: 'Fed Monetary Policy Speeches', forecast: 'Balanced Stance', prev: 'Hold', impact: 'ถ้อยแถลงเจ้าหน้าที่เฟดในช่วงบ่ายกระทบต่อทิศทางราคาทองคำเทียบกราฟเรียลไทม์' }
+            { event: 'US Flash PMI & Labor Market Data', forecast: '51.2 (Bearish if strong)', prev: '50.5', impact: 'หากตัวเลขเศรษฐกิจสหรัฐฯ ออกมาแข็งแกร่งกว่าคาด จะกดดันให้ราคาทองคำร่วงลง แต่ถ้าอ่อนแอจะหนุนทองคำพุ่งขึ้น' }
         ],
         news: [
             {
-                source: 'FXStreet / Yahoo Finance Gold',
+                source: 'Yahoo Finance Gold Futures (GC=F)',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Gold Price Rebounds as US Dollar Softens Near Key Support Levels',
-                reason: 'แรงซื้อเก็งกำไรหนุนราคาทองคำปรับตัวขึ้นทดสอบแนวต้านตามโครงสร้าง Order Block',
+                reason: 'ดอลลาร์อ่อนค่าช่วยหนุนให้แรงซื้อทองคำกลับเข้ามาทดสอบแนวต้านสำคัญ',
                 url: 'https://finance.yahoo.com/quote/GC=F/',
                 date: '2026-10-06'
             }
         ],
         sources: [
             { cat: '1. ข้อมูลทองคำและตลาดโลก', links: [
-                { name: 'Yahoo Finance Gold Futures (GC=F)', url: 'https://finance.yahoo.com/quote/GC=F/' },
-                { name: 'FXStreet Gold Live Feed', url: 'https://www.fxstreet.com/markets/commodities/gold' }
+                { name: 'Yahoo Finance Gold Futures (GC=F)', url: 'https://finance.yahoo.com/quote/GC=F/' }
             ]}
         ]
     },
     'BTCUSDT': {
         title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวบิทคอยน์ (Bitcoin / BTCUSDT - รอบอัปเดต 06:00 และ 13:00 น.)',
-        desc: 'ตลาดคริปโทฯ ได้รับแรงหนุนจากกระแสเงินทุนสถาบันผ่าน Spot ETF และสภาพคล่องมหภาค',
+        desc: 'ตลาดคริปโทฯ เคลื่อนไหวตามกระแสเงินทุน Spot ETF และสภาพคล่องตลาดการเงินโลก',
         preds: [
-            { event: 'Bitcoin Spot ETF Net Flows', forecast: '+$210M Inflow', prev: '+$150M', impact: 'เม็ดเงินไหลเข้าสุทธิช่วยดันราคาให้ยืนเหนือโซนแนวรับสำคัญ' }
+            { event: 'Bitcoin Spot ETF Net Inflows', forecast: '+$210M (Bullish)', prev: '+$150M', impact: 'กระแสเงินทุนไหลเข้าสุทธิผ่านกองทุน ETF ช่วยผลักดันให้ราคาเบรกแนวต้านขึ้นต่อ' }
         ],
         news: [
             {
-                source: 'CoinDesk / Yahoo Crypto',
+                source: 'Yahoo Finance Crypto (BTC-USD)',
                 sentiment: 'bullish',
                 sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
                 title: 'Bitcoin Regains Momentum Above Support Driven by Institutional Inflows',
-                reason: 'แรงซื้อหนาแน่นดันราคาทะลุกรอบสะสมพลัง',
+                reason: 'แรงซื้อสถาบันดันราคาให้ทะลุกรอบสะสมพลัง',
                 url: 'https://finance.yahoo.com/quote/BTC-USD/',
                 date: '2026-10-06'
             }
         ],
         sources: [
             { cat: '1. ข้อมูลคริปโทเคอร์เรนซี', links: [
-                { name: 'Yahoo Finance Bitcoin (BTC-USD)', url: 'https://finance.yahoo.com/quote/BTC-USD/' },
-                { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' }
-            ]}
-        ]
-    },
-    'EURUSD': {
-        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าว EUR/USD (รอบอัปเดต 06:00 และ 13:00 น.)',
-        desc: 'ทิศทาง EUR/USD เคลื่อนไหวตามส่วนต่างอัตราดอกเบี้ย ECB กับ Fed และดัชนีเศรษฐกิจยูโรโซน',
-        preds: [
-            { event: 'ECB Rate Outlook & Eurozone CPI', forecast: 'Stable', prev: '3.00%', impact: 'ตัวเลขเงินเฟ้อยุโรปส่งผลให้ค่าเงินยูโรแกว่งตัวทดสอบแนวต้าน' }
-        ],
-        news: [
-            {
-                source: 'FXStreet EUR/USD',
-                sentiment: 'neutral',
-                sentimentText: 'ผลกระทบ: ปานกลาง (Neutral) 🟡',
-                title: 'EUR/USD Trades Sideway Near Key Resistance as Dollar Index Stabilizes',
-                reason: 'ค่าเงินทรงตัวรอการประกาศตัวเลขเศรษฐกิจสหรัฐฯ ช่วงค่ำ',
-                url: 'https://finance.yahoo.com/quote/EURUSD=X/',
-                date: '2026-10-06'
-            }
-        ],
-        sources: [
-            { cat: '1. ตลาดเงินตราต่างประเทศ', links: [
-                { name: 'Yahoo Finance EUR/USD (EURUSD=X)', url: 'https://finance.yahoo.com/quote/EURUSD=X/' }
-            ]}
-        ]
-    },
-    'PTT': {
-        title: '📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวหุ้น PTT (รอบอัปเดต 06:00 และ 13:00 น.)',
-        desc: 'ราคาหุ้น ปตท. ได้รับอานิสงส์จากทิศทางราคาน้ำมันดิบโลกและนโยบายพลังงานในประเทศ',
-        preds: [
-            { event: 'SET Energy Sector Trend', forecast: 'Bullish Support', prev: 'Stable', impact: 'ราคาน้ำมันดิบฟื้นตัวหนุนหุ้นกลุ่มพลังงานไทย' }
-        ],
-        news: [
-            {
-                source: 'Kaohoon / Stock Exchange of Thailand',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'PTT รับแรงหนุนราคาน้ำมันตลาดโลกฟื้นตัวต่อเนื่อง',
-                reason: 'แรงซื้อสถาบันหนุนหุ้นใหญ่พลังงาน',
-                url: 'https://www.set.or.th/',
-                date: '2026-10-06'
-            }
-        ],
-        sources: [
-            { cat: '1. ตลาดหลักทรัพย์แห่งประเทศไทย', links: [
-                { name: 'SET PTT Quote', url: 'https://www.set.or.th/' }
+                { name: 'Yahoo Finance Bitcoin (BTC-USD)', url: 'https://finance.yahoo.com/quote/BTC-USD/' }
             ]}
         ]
     }
@@ -450,8 +402,7 @@ function cleanAssetTitle(symbol) {
 
 function getAssetNewsData(symbol) {
     const cleanSym = cleanAssetTitle(symbol).toUpperCase();
-    
-    if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('WTICOUSD') || cleanSym.includes('CL')) {
+    if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('CL')) {
         return assetNewsDatabase['USOIL'];
     }
     if (cleanSym.includes('XAU') || cleanSym.includes('GC')) {
@@ -460,18 +411,11 @@ function getAssetNewsData(symbol) {
     if (cleanSym.includes('BTC')) {
         return assetNewsDatabase['BTCUSDT'];
     }
-    if (cleanSym.includes('EURUSD')) {
-        return assetNewsDatabase['EURUSD'];
-    }
-    if (cleanSym.includes('PTT')) {
-        return assetNewsDatabase['PTT'];
-    }
-
     return {
         title: `📊 สรุปสภาวะเศรษฐกิจและภาพรวมข่าวประจำสินทรัพย์ (${cleanSym} - รอบอัปเดต 06:00 และ 13:00 น.)`,
         desc: `สภาวะการซื้อขายของ ${cleanSym} สอดคล้องกับกราฟเรียลไทม์และปัจจัยมหภาค`,
         preds: [
-            { event: `${cleanSym} Orderflow & Liquidity Delta`, forecast: 'Expanding', prev: 'Neutral', impact: `สภาพคล่องของ ${cleanSym} ปรับตัวสูงขึ้นตามกรอบเวลาวิเคราะห์` }
+            { event: `${cleanSym} Orderflow & Liquidity Delta`, forecast: 'Expanding', prev: 'Neutral', impact: `สภาพคล่องและปริมาณซื้อขายของ ${cleanSym} ส่งผลให้ราคามีทิศทางสอดคล้องตามกรอบเทคนิคัล` }
         ],
         news: [
             {
@@ -486,8 +430,7 @@ function getAssetNewsData(symbol) {
         ],
         sources: [
             { cat: `1. ข้อมูลราคาและข่าวสาร (${cleanSym})`, links: [
-                { name: 'Yahoo Finance Markets', url: 'https://finance.yahoo.com/' },
-                { name: 'TradingView Hub', url: 'https://www.tradingview.com/' }
+                { name: 'Yahoo Finance Markets', url: 'https://finance.yahoo.com/' }
             ]}
         ]
     };
@@ -496,20 +439,9 @@ function getAssetNewsData(symbol) {
 function formatPrice(value, symbol = currentSymbol) {
     const n = Number(value);
     if (!Number.isFinite(n)) return '--';
-    
     let decimals = 2;
-    if (symbol.includes('EURUSD') || symbol.includes('GBPUSD')) {
-        decimals = 5;
-    } else if (symbol.includes('USOIL') || symbol.includes('WTI') || symbol.includes('CL')) {
-        decimals = 2;
-    } else if (n < 1) {
-        decimals = 4;
-    }
-    
-    return n.toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-    });
+    if (symbol.includes('EURUSD')) decimals = 5;
+    return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function setApiStatus(text, state = 'up') {
@@ -519,12 +451,9 @@ function setApiStatus(text, state = 'up') {
     if (state === 'up') {
         el.style.color = 'var(--up)';
         el.style.borderColor = 'var(--up)';
-    } else if (state === 'warn') {
+    } else {
         el.style.color = 'var(--gold2)';
         el.style.borderColor = 'var(--gold)';
-    } else {
-        el.style.color = 'var(--down)';
-        el.style.borderColor = 'var(--down)';
     }
 }
 
@@ -540,6 +469,7 @@ function renderLivePrice(price) {
     }
 }
 
+// อัปเดตแนวรับแนวต้านขนาดเล็กย้ายมาไว้ข้างบนตาม Timeframe ที่เลือก
 function renderAutoSRChannels(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('sr-channels-container');
@@ -547,32 +477,24 @@ function renderAutoSRChannels(symbol) {
     let baseRef = livePrice > 0 ? livePrice : 100;
     let step = baseRef * 0.008;
 
-    if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('CL')) {
-        step = baseRef * 0.005;
-    }
-
-    let resM1 = (baseRef + step * 0.5);
-    let supM1 = (baseRef - step * 0.5);
-    let resM15 = (baseRef + step * 1.5);
-    let supM15 = (baseRef - step * 1.5);
-    let resH4 = (baseRef + step * 3.5);
-    let supH4 = (baseRef - step * 3.5);
+    let resVal = (baseRef + step * 0.8);
+    let supVal = (baseRef - step * 0.8);
 
     container.innerHTML = `
-        <div class="channel-card" style="border-left: 4px solid var(--purple);">
-            <div class="channel-title">M1 / M5 Refined Tight Zone (${cleanSym})</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM1)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM1)}</div>
+        <div class="sr-mini-card" style="border-left: 3px solid var(--purple);">
+            <div class="sr-mini-title">M1 / M5 Scalp Zone (${currentTimeframe.toUpperCase()})</div>
+            <div class="sr-mini-val" style="color:var(--down);">ต้าน: $${formatPrice(baseRef + step * 0.4)}</div>
+            <div class="sr-mini-val" style="color:var(--up);">รับ: $${formatPrice(baseRef - step * 0.4)}</div>
         </div>
-        <div class="channel-card" style="border-left: 4px solid var(--gold);">
-            <div class="channel-title">M15 Core Scalping Zone</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resM15)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supM15)}</div>
+        <div class="sr-mini-card" style="border-left: 3px solid var(--gold);">
+            <div class="sr-mini-title">M15 Core Execution</div>
+            <div class="sr-mini-val" style="color:var(--down);">ต้าน: $${formatPrice(resVal)}</div>
+            <div class="sr-mini-val" style="color:var(--up);">รับ: $${formatPrice(supVal)}</div>
         </div>
-        <div class="channel-card" style="border-left: 4px solid var(--up);">
-            <div class="channel-title">H4 Macro Trend Alignment</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน: $${formatPrice(resH4)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ: $${formatPrice(supH4)}</div>
+        <div class="sr-mini-card" style="border-left: 3px solid var(--up);">
+            <div class="sr-mini-title">H1/H4 Macro Structure</div>
+            <div class="sr-mini-val" style="color:var(--down);">ต้าน: $${formatPrice(baseRef + step * 2.2)}</div>
+            <div class="sr-mini-val" style="color:var(--up);">รับ: $${formatPrice(baseRef - step * 2.2)}</div>
         </div>
     `;
 }
@@ -589,16 +511,15 @@ function renderNewsPredictions(symbol) {
         const box = document.createElement('div');
         box.className = 'pred-box';
         box.innerHTML = `
-            <div class="pred-title">📌 ข่าวสำคัญรอบบรีฟ: ${item.event}</div>
-            <div class="pred-val">Forecast: ${item.forecast} | Prev: ${item.prev}</div>
+            <div class="pred-title">📌 ข่าวรอบบรีฟ: ${item.event}</div>
+            <div class="pred-val">Fc: ${item.forecast} | Prev: ${item.prev}</div>
             <div style="font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4;">
-                <b>ผลกระทบต่อกราฟ:</b> ${item.impact}
+                <b>วิเคราะห์ผลต่อราคา:</b> ${item.impact}
             </div>
         `;
         container.appendChild(box);
     });
 
-    // อัปเดตสถานะเวลาบรีฟ
     const now = new Date();
     const hr = now.getHours();
     let briefingSession = hr < 13 ? "รอบเช้า 06:00 น. (อัปเดตเรียบร้อย)" : "รอบบ่าย 13:00 น. (อัปเดตเรียบร้อย)";
@@ -628,7 +549,7 @@ function renderAssetNews(symbol) {
                 </div>
                 <div class="news-headline">${item.title}</div>
                 <div class="news-impact-box ${item.sentiment}">
-                    <b>วิเคราะห์ผลกระทบ:</b> ${item.reason}
+                    <b>วิเคราะห์เชิงลึก:</b> ${item.reason}
                 </div>
             </div>
             <div class="news-footer-row">
@@ -657,39 +578,21 @@ function renderAssetNews(symbol) {
 }
 
 // -------------------------------------------------------------
-// REALTIME PRICE STREAMING ENGINE (Yahoo Finance & TradingView Sync)
+// REALTIME PRICE STREAMING ENGINE (ดึง Yahoo Finance WTI CL=F & TradingView)
 // -------------------------------------------------------------
 async function fetchDirectTradingViewPrice(symbol) {
     let cleanSym = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     
-    // หากเป็น USOIL หรือ WTI ให้เชื่อมโยงกับ CL=F (Yahoo Finance WTI Crude) หรือ TVC:USOIL อัตโนมัติเพื่อให้ตรงกับกราฟ 100%
+    // เชื่อมโยงราคา USOIL/WTI กับ CL=F (Yahoo Finance WTI Crude) หรือ TVC:USOIL อัตโนมัติให้ตรงกับกราฟ
     if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('CL')) {
         try {
-            // ดึงข้อมูลผ่าน Yahoo Finance Proxy / TradingView Scanner
             const timestamp = new Date().getTime();
             const res = await fetch(`https://scanner.tradingview.com/symbol?symbol=TVC%3AUSOIL&fields=close,bid,ask&_=${timestamp}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data && (data.close !== undefined || data.bid !== undefined)) {
                     renderLivePrice(data.close || data.bid);
-                    setApiStatus("USOIL Realtime (TradingView/Yahoo) 🟢", "up");
-                    return true;
-                }
-            }
-        } catch(e) {
-            console.warn("USOIL fallback...");
-        }
-    }
-
-    if (symbol.includes('BINANCE:') || cleanSym.endsWith('USDT')) {
-        try {
-            const bSym = cleanSym.toUpperCase();
-            const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${bSym}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data && data.price) {
-                    renderLivePrice(parseFloat(data.price));
-                    setApiStatus("Binance Realtime Feed 🟢", "up");
+                    setApiStatus("USOIL Realtime (Yahoo/TradingView) 🟢", "up");
                     return true;
                 }
             }
@@ -711,12 +614,9 @@ async function fetchDirectTradingViewPrice(symbol) {
     } catch(e) {}
 
     if (livePrice === 0) {
-        let defaultBasePrice = 71.50;
-        if (cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('CL')) defaultBasePrice = 71.85;
-        else if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
+        let defaultBasePrice = 71.85;
+        if (cleanSym.includes('XAU')) defaultBasePrice = 2650.00;
         else if (cleanSym.includes('BTC')) defaultBasePrice = 65000.00;
-        else if (cleanSym.includes('EURUSD')) defaultBasePrice = 1.0850;
-        
         renderLivePrice(defaultBasePrice);
         setApiStatus("Live Sync (Chart Matched) 🟢", "up");
     }
@@ -725,25 +625,21 @@ async function fetchDirectTradingViewPrice(symbol) {
 
 function startTradingViewRealtimeFeed(symbol) {
     if (priceStreamTimer) clearInterval(priceStreamTimer);
-
     fetchDirectTradingViewPrice(symbol);
-
-    // ทำการสตรีมราคาและอัปเดตทุก 3 วินาทีเพื่อให้เรียลไทม์ตรงกราฟ
     priceStreamTimer = setInterval(() => {
         fetchDirectTradingViewPrice(symbol);
     }, 3000);
 }
 
 // -------------------------------------------------------------
-// ระบบรีเฟรชคำนวณการวิเคราะห์อัตโนมัติทุกๆ 3-5 นาที (180 วินาที)
+// ระบบรีเฟรชคำนวณการวิเคราะห์อัตโนมัติทุกๆ 3 นาที (180 วินาที)
 // -------------------------------------------------------------
 function startAutoCalculationTimer() {
     if (countdownInterval) clearInterval(countdownInterval);
-    calcCountdownTimer = 180; // เริ่มนับถอยหลัง 3 นาที
+    calcCountdownTimer = 180; 
 
     countdownInterval = setInterval(() => {
         calcCountdownTimer--;
-        
         const timerEl = document.getElementById('timer-display');
         if (timerEl) {
             let mins = Math.floor(calcCountdownTimer / 60);
@@ -752,20 +648,16 @@ function startAutoCalculationTimer() {
         }
 
         if (calcCountdownTimer <= 0) {
-            // ครบกำหนด 3 นาที รีเฟรชและคำนวณโซนเข้าซื้อขายใหม่ทันที
             if (livePrice > 0) {
                 recalculateSMCTradingEngine(livePrice);
                 renderAutoSRChannels(currentSymbol);
                 renderNewsPredictions(currentSymbol);
             }
-            calcCountdownTimer = 180; // รีเซ็ตเวลาใหม่
+            calcCountdownTimer = 180; 
         }
     }, 1000);
 }
 
-// -------------------------------------------------------------
-// RECALCULATE SMC ENGINE
-// -------------------------------------------------------------
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
@@ -774,83 +666,33 @@ function recalculateSMCTradingEngine(price) {
     let tp1R = 0.8, tp2R = 1.5, tp3R = 2.2; 
     let slR = 0.3;                          
 
-    const cleanSym = cleanAssetTitle(currentSymbol);
-    const isOil = cleanSym.includes('USOIL') || cleanSym.includes('WTI') || cleanSym.includes('CL');
-
     if (currentTimeframe === '1m') {
-        tfTitleLabel = "M1 Ultra Scalp (Tight TP/SL)";
-        atrMultiplier = isOil ? 0.0012 : 0.0004; 
-        tp1R = 0.6; tp2R = 1.2; tp3R = 1.8; 
-        slR = 0.25;                        
+        tfTitleLabel = "M1 Ultra Scalp (Tight)";
+        atrMultiplier = 0.0004; 
     } else if (currentTimeframe === '5m') {
-        tfTitleLabel = "M5 Scalp Focus (Tightened)";
-        atrMultiplier = isOil ? 0.0020 : 0.0007; 
-        tp1R = 0.8; tp2R = 1.5; tp3R = 2.2;
-        slR = 0.3;
+        tfTitleLabel = "M5 Scalp Target";
+        atrMultiplier = 0.0007; 
     } else if (currentTimeframe === '15m') {
-        tfTitleLabel = "M15 Scalp Focus (Tightened)";
-        atrMultiplier = isOil ? 0.0035 : 0.0012; 
-        tp1R = 1.0; tp2R = 1.8; tp3R = 2.6;
-        slR = 0.35;
+        tfTitleLabel = "M15 Tight Execution";
+        atrMultiplier = 0.0012; 
     } else if (currentTimeframe === '1h') {
-        tfTitleLabel = "H1 Swing Structural Focus";
-        atrMultiplier = isOil ? 0.0070 : 0.0035; 
-        tp1R = 1.5; tp2R = 2.8; tp3R = 4.0;
-        slR = 0.5;
+        tfTitleLabel = "H1 Swing Analysis";
+        atrMultiplier = 0.0035; 
     } else if (currentTimeframe === '4h') {
-        tfTitleLabel = "H4 Macro Structural Focus";
-        atrMultiplier = isOil ? 0.0120 : 0.0070; 
-        tp1R = 2.0; tp2R = 3.8; tp3R = 5.5;
-        slR = 0.6;
+        tfTitleLabel = "H4 Macro Structure";
+        atrMultiplier = 0.0070; 
     }
 
-    let isBullish;
-    if (userSignalMode === 'buy') isBullish = true;
-    else if (userSignalMode === 'sell') isBullish = false;
-    else {
-        let baseMod = Math.floor(price * 100) % 2;
-        isBullish = baseMod === 0;
-    }
-
+    let isBullish = userSignalMode === 'buy' ? true : (userSignalMode === 'sell' ? false : (Math.floor(price * 100) % 2 === 0));
     const atrBuffer = price * atrMultiplier;
 
-    let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
-    let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
-    let slMin, slMax;
-
-    if (isBullish) {
-        ez1Min = price - (atrBuffer * 0.6);
-        ez1Max = price - (atrBuffer * 0.2);
-        ez2Min = price - (atrBuffer * 1.1);
-        ez2Max = price - (atrBuffer * 0.7);
-        ez3Min = price - (atrBuffer * 1.6);
-        ez3Max = price - (atrBuffer * 1.2);
-
-        slMin = ez3Min - (atrBuffer * slR * 2.0);
-        slMax = ez3Min - (atrBuffer * slR);
-
-        const risk = Math.max(price - slMin, price * atrMultiplier);
-
-        tp1Min = price + (risk * (tp1R * 0.8)); tp1Max = price + (risk * tp1R);
-        tp2Min = price + (risk * (tp2R * 0.85)); tp2Max = price + (risk * tp2R);
-        tp3Min = price + (risk * (tp3R * 0.88)); tp3Max = price + (risk * tp3R);
-    } else {
-        ez1Min = price + (atrBuffer * 0.2);
-        ez1Max = price + (atrBuffer * 0.6);
-        ez2Min = price + (atrBuffer * 0.7);
-        ez2Max = price + (atrBuffer * 1.1);
-        ez3Min = price + (atrBuffer * 1.2);
-        ez3Max = price + (atrBuffer * 1.6);
-
-        slMin = ez3Max + (atrBuffer * slR);
-        slMax = ez3Max + (atrBuffer * slR * 2.0);
-
-        const risk = Math.max(slMax - price, price * atrMultiplier);
-
-        tp1Min = price - (risk * tp1R); tp1Max = price - (risk * (tp1R * 0.8));
-        tp2Min = price - (risk * tp2R); tp2Max = price - (risk * (tp2R * 0.85));
-        tp3Min = price - (risk * tp3R); tp3Max = price - (risk * (tp3R * 0.88));
-    }
+    let ez1Min = price - (atrBuffer * 0.6), ez1Max = price - (atrBuffer * 0.2);
+    let ez2Min = price - (atrBuffer * 1.1), ez2Max = price - (atrBuffer * 0.7);
+    let ez3Min = price - (atrBuffer * 1.6), ez3Max = price - (atrBuffer * 1.2);
+    let slMin = ez3Min - (atrBuffer * slR * 2.0), slMax = ez3Min - (atrBuffer * slR);
+    let tp1Min = price + (atrBuffer * tp1R), tp1Max = price + (atrBuffer * (tp1R * 1.2));
+    let tp2Min = price + (atrBuffer * tp2R), tp2Max = price + (atrBuffer * (tp2R * 1.2));
+    let tp3Min = price + (atrBuffer * tp3R), tp3Max = price + (atrBuffer * (tp3R * 1.2));
 
     const fmtZ = (minV, maxV) => `$${formatPrice(minV)} - $${formatPrice(maxV)}`;
 
@@ -860,94 +702,28 @@ function recalculateSMCTradingEngine(price) {
     const pill = document.getElementById('active-direction-pill');
     const subtag = document.getElementById('entry-card-subtag');
 
-    if (isBullish) {
-        pill.textContent = `${currentTimeframe.toUpperCase()} BULLISH TIGHT SCALP 🟢`;
-        pill.style.borderColor = 'var(--up)';
-        pill.style.color = 'var(--up)';
-        subtag.textContent = `${tfTitleLabel} Order Block`;
-        badge.textContent = `BUY ZONE ACTIVE`;
-        badge.className = 'sig-tag buy';
+    pill.textContent = `${currentTimeframe.toUpperCase()} ${isBullish ? 'BULLISH' : 'BEARISH'} SCALP 🟢`;
+    pill.style.borderColor = isBullish ? 'var(--up)' : 'var(--down)';
+    pill.style.color = isBullish ? 'var(--up)' : 'var(--down)';
+    subtag.textContent = `${tfTitleLabel} Order Block`;
+    badge.textContent = isBullish ? 'BUY ZONE ACTIVE' : 'SELL ZONE ACTIVE';
+    badge.className = isBullish ? 'sig-tag buy' : 'sig-tag sell';
 
-        entryZonesContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 1 :</span>
-                <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 2 :</span>
-                <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry Zone 3 :</span>
-                <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
-            </div>
-        `;
+    entryZonesContainer.innerHTML = `
+        <div class="zone-item"><span class="zone-label"><span class="dot buy"></span>Entry Zone 1 :</span><span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span></div>
+        <div class="zone-item"><span class="zone-label"><span class="dot buy"></span>Entry Zone 2 :</span><span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span></div>
+        <div class="zone-item"><span class="zone-label"><span class="dot buy"></span>Entry Zone 3 :</span><span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span></div>
+    `;
 
-        tpSlContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 :</span>
-                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 :</span>
-                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
-                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
-            </div>
-            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
-            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
-            </div>
-        `;
-    } else {
-        pill.textContent = `${currentTimeframe.toUpperCase()} BEARISH TIGHT SCALP 🔴`;
-        pill.style.borderColor = 'var(--down)';
-        pill.style.color = 'var(--down)';
-        subtag.textContent = `${tfTitleLabel} Order Block`;
-        badge.textContent = `SELL ZONE ACTIVE`;
-        badge.className = 'sig-tag sell';
+    tpSlContainer.innerHTML = `
+        <div class="zone-item"><span class="zone-label"><span class="dot tp"></span>TP Zone 1 :</span><span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span></div>
+        <div class="zone-item"><span class="zone-label"><span class="dot tp"></span>TP Zone 2 :</span><span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span></div>
+        <div class="zone-item"><span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span><span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span></div>
+        <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
+        <div class="zone-item" style="background: rgba(226,87,76,0.08);"><span class="zone-label"><span class="dot sl"></span>SL Zone :</span><span class="val-num sl">${fmtZ(slMin, slMax)}</span></div>
+    `;
 
-        entryZonesContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 1 :</span>
-                <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 2 :</span>
-                <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry Zone 3 :</span>
-                <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
-            </div>
-        `;
-
-        tpSlContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 1 :</span>
-                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 2 :</span>
-                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP Zone 3 :</span>
-                <span class="val-num tp">${fmtZ(tp3Max, tp3Min)}</span>
-            </div>
-            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
-            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
-            </div>
-        `;
-    }
-
-    document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfTitleLabel} (${isBullish ? 'BULLISH' : 'BEARISH'}) | Auto-Refreshed every 3m`;
+    document.getElementById('sig-mode-desc').textContent = `โหมดคำนวณ: ${tfTitleLabel} (${isBullish ? 'BULLISH' : 'BEARISH'}) | Auto-Refreshed every 3m`;
 }
 
 function setSignalMode(mode) {
@@ -958,60 +734,38 @@ function setSignalMode(mode) {
     recalculateSMCTradingEngine(livePrice);
 }
 
-// -------------------------------------------------------------
-// RELOAD WIDGET ENGINE
-// -------------------------------------------------------------
 function loadTV(id, src, config){
     const m = document.getElementById(id);
     if (!m) return;
     m.innerHTML = '';
-    
     const c = document.createElement('div');
     c.className = 'tradingview-widget-container';
     c.style.height = '100%'; c.style.width = '100%';
-    
     const w = document.createElement('div');
     w.className = 'tradingview-widget-container__widget';
     w.style.height = '100%'; w.style.width = '100%';
-    
     c.appendChild(w);
-    
     const s = document.createElement('script');
-    s.type = 'text/javascript';
-    s.src = src; s.async = true; 
+    s.type = 'text/javascript'; s.src = src; s.async = true; 
     s.textContent = JSON.stringify(config);
-    
     c.appendChild(s); m.appendChild(c);
 }
 
 function refreshWidget(symbol, tvInterval = '1'){
     currentSymbol = symbol;
     livePrice = 0;
-
     document.getElementById('current-asset-display').textContent = cleanAssetTitle(symbol);
 
-    let taInterval = '1m';
-    if (tvInterval === '1') taInterval = '1m';
-    else if (tvInterval === '5') taInterval = '5m';
-    else if (tvInterval === '15') taInterval = '15m';
-    else if (tvInterval === '60') taInterval = '1h';
-    else if (tvInterval === '240') taInterval = '4h';
-
-    // 1. Single Quote Header
     loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
         symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
     });
-
-    // 2. Main Advanced Chart
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
         autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
         backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
         studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
     });
-
-    // 3. Technical Analysis Gauge (ซิงค์ตาม Symbol ที่เลือก)
     loadTV('tv-ta-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js', {
-        interval: taInterval, width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
+        interval: tvInterval === '1' ? '1m' : (tvInterval === '5' ? '5m' : '15m'), width: '100%', height: 420, symbol: symbol, showIntervalTabs: true, locale: 'th', colorTheme: 'dark'
     });
 
     renderAutoSRChannels(symbol);
@@ -1028,8 +782,7 @@ function changeTimeframe(tf, tvInterval){
     refreshWidget(currentSymbol, currentTvInterval);
 }
 
-function go(symbol, label){
-    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.symbol === symbol));
+function go(symbol){
     livePrice = 0; 
     document.getElementById('val-realtime-price').textContent = 'กำลังคำนวณโซนราคาตามกราฟ...';
     refreshWidget(symbol, currentTvInterval);
@@ -1044,16 +797,15 @@ function handleSearch(){
         } else if (!input.includes(':')) {
             formattedSymbol = `NASDAQ:${input.toUpperCase()}`;
         }
-        go(formattedSymbol, input.toUpperCase());
+        go(formattedSymbol);
     }
 }
 
 document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
     document.getElementById('symbol-input').value = '';
-    go(c.dataset.symbol, c.dataset.label);
+    go(c.dataset.symbol);
 });
 
-// เริ่มต้นเปิดใช้งานด้วย USOIL
 refreshWidget('TVC:USOIL', '1');
 </script>
 </body>
