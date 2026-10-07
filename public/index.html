@@ -825,8 +825,8 @@ function renderAutoSRChannels(symbol) {
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--up);">
             <div class="channel-title">H4 Macro Trend & Major Liquidity Pools</div>
-            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH / Bearish OB): $${formatPrice(resH4)}</div>
-            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL / Bullish OB): $${formatPrice(supH4)}</div>
+            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH): $${formatPrice(resH4)}</div>
+            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL): $${formatPrice(supH4)}</div>
         </div>
     `;
 }
@@ -1240,21 +1240,21 @@ function recalculateSMCTradingEngine(price) {
         pill.textContent = `${tfLabel} BULLISH FOCUS 🟢`;
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
-        subtag.textContent = `3-In-1 Hybrid: OB Structure + Point Offset + Buffer`;
+        subtag.textContent = `3-In-1 Hybrid`;
         badge.textContent = `BUY ZONE ACTIVE`;
         badge.className = 'sig-tag buy';
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 1 (Sweep + Buffer Zone) :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 1 :</span>
                 <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 2 (${tfLabel} OB Body Zone) :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 2 (${tfLabel}) :</span>
                 <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 3 (Market Retest Zone) :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 3 :</span>
                 <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
@@ -1274,7 +1274,7 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (Fixed 300 Pts) :</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
                 <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
             </div>
         `;
@@ -1282,21 +1282,21 @@ function recalculateSMCTradingEngine(price) {
         pill.textContent = `${tfLabel} BEARISH FOCUS 🔴`;
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
-        subtag.textContent = `3-In-1 Hybrid: OB Structure + Point Offset + Buffer`;
+        subtag.textContent = `3-In-1 Hybrid`;
         badge.textContent = `SELL ZONE ACTIVE`;
         badge.className = 'sig-tag sell';
 
         entryZonesContainer.innerHTML = `
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 1 (Sweep + Buffer Zone) :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 1 :</span>
                 <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 2 (${tfLabel} OB Body Zone) :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 2 (${tfLabel}) :</span>
                 <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 3 (Market Retest Zone) :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 3 :</span>
                 <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
             </div>
         `;
@@ -1316,7 +1316,7 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (Fixed 300 Pts) :</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
                 <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
             </div>
         `;
