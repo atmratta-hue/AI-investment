@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER </title>
+    <title>KU TRADER</title>
     <style>
         :root {
             --bg: #0b0e14;
@@ -509,13 +509,13 @@
                 <div class="zone-group" id="entry-zones-container"></div>
 
                 <div style="margin: 12px 0 8px 0; border-top: 1px solid var(--line); padding-top: 8px; font-size: 12px; font-weight: bold; color: var(--gold);">
-                    🎯 Targets (TP) & Risk (SL)
+                    🎯 Targets (TP) & Risk (SL 300 Points)
                 </div>
 
                 <div class="zone-group" id="tp-sl-zones-container"></div>
 
                 <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right;" id="sig-mode-desc">
-                    การวิเคราะห์: Dynamic Timeframe Refined Order Block Engine
+                    การวิเคราะห์: Dynamic Timeframe Refined Order Block Engine (Fixed 300 Pts SL)
                 </div>
             </div>
 
@@ -905,8 +905,8 @@ function renderAutoSRChannels(symbol) {
         </div>
         <div class="channel-card" style="border-left: 4px solid var(--up);">
             <div class="channel-title">H4 Macro Trend & Major Liquidity Pools</div>
-            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH / Bearish OB): $${formatPrice(resH4)}</div>
-            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL / Bullish OB): $${formatPrice(supH4)}</div>
+            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH): $${formatPrice(resH4)}</div>
+            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL): $${formatPrice(supH4)}</div>
         </div>
     `;
 }
@@ -1201,7 +1201,7 @@ function findRefinedOrderBlock(candles, direction) {
     return null;
 }
 
-// 🎯 ปรับปรุงจุดวิเคราะห์ SMC Engine ให้คำนวณ OB, Entry, TP, และ SL ตาม Timeframe ที่เลือกโดยเฉพาะ
+// 🎯 ปรับปรุงจุดวิเคราะห์ SMC Engine ให้คำนวณ OB, Entry, TP และล็อกระยะ SL ไว้ที่ 300 จุดคงที่
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
@@ -1211,34 +1211,33 @@ function recalculateSMCTradingEngine(price) {
     let tfLabel = 'M1';
     let atrMultiplier = 0.0003; // ค่าเริ่มต้นปรับให้กระชับสำหรับ M1
 
-    // 1. เลือกชุดแท่งเทียน และกำหนดตัวคูณความกว้างกรอบ (ATR Multiplier) ให้สัมพันธ์กับ Timeframe
+    // 1. เลือกชุดแท่งเทียนตาม Timeframe
     if (currentTimeframe === '1m') {
         primaryBars = barsM1.length > 0 ? barsM1 : barsM5;
         tfLabel = 'M1';
-        atrMultiplier = 0.0003; // กระชับที่สุดสำหรับ M1
+        atrMultiplier = 0.0003;
     } else if (currentTimeframe === '5m') {
         primaryBars = barsM5.length > 0 ? barsM5 : barsM1;
         tfLabel = 'M5';
-        atrMultiplier = 0.0007; // เหมาะสำหรับ M5 Scalping
+        atrMultiplier = 0.0007;
     } else if (currentTimeframe === '15m') {
         primaryBars = barsM15.length > 0 ? barsM15 : barsM5;
         tfLabel = 'M15';
-        atrMultiplier = 0.0015; // M15 Day Trading
+        atrMultiplier = 0.0015;
     } else if (currentTimeframe === '1h') {
         primaryBars = barsH1.length > 0 ? barsH1 : barsM15;
         tfLabel = 'H1';
-        atrMultiplier = 0.0035; // H1 Swing Trading
+        atrMultiplier = 0.0035;
     } else if (currentTimeframe === '4h') {
         primaryBars = barsH4.length > 0 ? barsH4 : barsH1;
         tfLabel = 'H4';
-        atrMultiplier = 0.0075; // H4 Macro Trend
+        atrMultiplier = 0.0075;
     }
 
     const primaryCloses = primaryBars.map(b => Number(b.close)).filter(Number.isFinite);
     const primaryHighs = primaryBars.map(b => Number(b.high)).filter(Number.isFinite);
     const primaryLows = primaryBars.map(b => Number(b.low)).filter(Number.isFinite);
 
-    // คำนวณ EMA ตาม Timeframe ปัจจุบัน
     const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : price * 0.998;
     const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : price * 0.995;
 
@@ -1251,8 +1250,6 @@ function recalculateSMCTradingEngine(price) {
     else isBullish = price >= ema50 || ema50 >= ema200;
 
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
-    
-    // 2. สแกนหา Order Block (OB) จาก Timeframe ปัจจุบันโดยตรง
     let ob = findRefinedOrderBlock(primaryBars, direction);
 
     const atrBuffer = price * atrMultiplier; 
@@ -1262,55 +1259,49 @@ function recalculateSMCTradingEngine(price) {
     let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
     let slMin, slMax;
 
-    // 3. คำนวณโซน Entry, TP, และ SL กระชับตามกรอบ Volatility ของ Timeframe ที่เลือก
+    // 📍 กำหนดระยะ Stop Loss (SL) ให้เป็น 300 จุดคงที่ (0.00300 สำหรับ FX 5 ทศนิยม หรือ 3.00 สำหรับ ทองคำ/หุ้น/คริปโท)
+    const slDistance = (decimals === 5) ? 0.00300 : 3.00;
+
     if (isBullish) {
-        // Entry 1: Extreme Wick Sweep Zone
         ez1Min = ob ? ob.wickLow : baseRef - (atrBuffer * 0.6);
         ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         
-        // Entry 2: Order Block / Demand Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.15);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.15);
         
-        // Entry 3: Market Retest Price
         ez3Min = price * (1 - atrMultiplier * 0.3);
         ez3Max = price;
 
-        // SL: กระชับตามฐาน Order Block ใน Timeframe ปัจจุบัน
-        slMin = ez1Min - (atrBuffer * 0.3);
-        slMax = ez1Min - (atrBuffer * 0.05);
+        // ล็อกระยะ SL ขา Buy ต่ำกว่าราคาปัจจุบัน 300 จุด
+        slMin = price - slDistance;
+        slMax = price - slDistance;
 
-        const risk = Math.max(price - slMin, price * atrMultiplier);
+        const risk = slDistance; // คำนวณ TP จากอัตรา Risk 300 จุด
 
-        // TP: คำนวณอัตรา Risk-Reward (RR) จากระยะทางจริงของ Timeframe นั้นๆ
         tp1Min = price + (risk * 1.0); tp1Max = price + (risk * 1.5);
-        tp2Min = price + (risk * 2.0); tp2Max = price + (risk * 2.8);
-        tp3Min = Math.max(price + (risk * 3.2), swingHigh - (atrBuffer * 0.2)); 
-        tp3Max = Math.max(price + (risk * 4.0), swingHigh + (atrBuffer * 0.2));
+        tp2Min = price + (risk * 2.0); tp2Max = price + (risk * 2.5);
+        tp3Min = Math.max(price + (risk * 3.0), swingHigh); 
+        tp3Max = Math.max(price + (risk * 3.5), swingHigh);
     } else {
-        // Entry 1: Extreme Wick Sweep Zone
         ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.15);
         ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.6) : baseRef + (atrBuffer * 0.6);
         
-        // Entry 2: Order Block / Supply Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.15);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.15);
         
-        // Entry 3: Market Retest Price
         ez3Min = price;
         ez3Max = price * (1 + atrMultiplier * 0.3);
 
-        // SL: กระชับตามยอด Order Block ใน Timeframe ปัจจุบัน
-        slMin = ez1Max + (atrBuffer * 0.05);
-        slMax = ez1Max + (atrBuffer * 0.3);
+        // ล็อกระยะ SL ขา Sell สูงกว่าราคาปัจจุบัน 300 จุด
+        slMin = price + slDistance;
+        slMax = price + slDistance;
 
-        const risk = Math.max(slMax - price, price * atrMultiplier);
+        const risk = slDistance; // คำนวณ TP จากอัตรา Risk 300 จุด
 
-        // TP: คำนวณอัตรา Risk-Reward (RR) จากระยะทางจริงของ Timeframe นั้นๆ
         tp1Min = price - (risk * 1.5); tp1Max = price - (risk * 1.0);
-        tp2Min = price - (risk * 2.8); tp2Max = price - (risk * 2.0);
-        tp3Min = Math.min(price - (risk * 4.0), swingLow - (atrBuffer * 0.2)); 
-        tp3Max = Math.min(price - (risk * 3.2), swingLow + (atrBuffer * 0.2));
+        tp2Min = price - (risk * 2.5); tp2Max = price - (risk * 2.0);
+        tp3Min = Math.min(price - (risk * 3.5), swingLow); 
+        tp3Max = Math.min(price - (risk * 3.0), swingLow);
     }
 
     const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
@@ -1322,7 +1313,7 @@ function recalculateSMCTradingEngine(price) {
     const subtag = document.getElementById('entry-card-subtag');
 
     if (isBullish) {
-        pill.textContent = `${tfLabel} BULLISH SMC FOCUS 🟢`;
+        pill.textContent = `${tfLabel} BULLISH FOCUS 🟢`;
         pill.style.borderColor = 'var(--up)';
         pill.style.color = 'var(--up)';
         subtag.textContent = `Refined ${tfLabel} Order Block / Sweep Zones`;
@@ -1359,12 +1350,12 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel} Refined) :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
+                <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
             </div>
         `;
     } else {
-        pill.textContent = `${tfLabel} BEARISH SMC FOCUS 🔴`;
+        pill.textContent = `${tfLabel} BEARISH FOCUS 🔴`;
         pill.style.borderColor = 'var(--down)';
         pill.style.color = 'var(--down)';
         subtag.textContent = `Refined ${tfLabel} Order Block / Sweep Zones`;
@@ -1401,14 +1392,14 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel} Refined) :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
+                <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
             </div>
         `;
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfLabel} SMC Structure (${isBullish ? 'BULLISH' : 'BEARISH'}) | ${tfLabel} Refined OB & Tight TP/SL Engine`;
+        `โหมดคำนวณ: ${tfLabel} SMC Structure (${isBullish ? 'BULLISH' : 'BEARISH'}) | Fixed 300 Points SL & RR Engine`;
 }
 
 function setSignalMode(mode) {
