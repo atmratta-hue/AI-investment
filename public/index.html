@@ -1133,10 +1133,10 @@ function recalculateSMCTradingEngine(price) {
     } else if (currentTimeframe === '5m') {
         primaryBars = barsM5.length > 0 ? barsM5 : barsM1;
         tfLabel = 'M5';
-        pOffset1 = (decimals === 5) ? 0.00150 : 1.50;
-        pOffset2 = (decimals === 5) ? 0.00250 : 2.50;
-        pOffset3 = (decimals === 5) ? 0.00350 : 3.50;
-        atrMultiplier = 0.0007;
+        pOffset1 = (decimals === 5) ? 0.00050 : 0.50;
+        pOffset2 = (decimals === 5) ? 0.00120 : 1.20;
+        pOffset3 = (decimals === 5) ? 0.00250 : 2.50;
+        atrMultiplier = 0.0005;
     } else if (currentTimeframe === '15m') {
         primaryBars = barsM15.length > 0 ? barsM15 : barsM5;
         tfLabel = 'M15';
