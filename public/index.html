@@ -349,6 +349,86 @@
         .source-list li { margin-bottom: 6px; }
         .source-list a { color: var(--blue); text-decoration: none; }
         .source-list a:hover { text-decoration: underline; }
+
+        /* Impact Engine & 8-Layer Matrix Custom Styles */
+        .impact-engine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .impact-card {
+            background: #0f141c;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .impact-title {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .impact-val {
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .impact-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .calendar-table th, .calendar-table td {
+            border: 1px solid var(--panel-border);
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        .calendar-table th {
+            background: #0f141c;
+            color: var(--gold);
+        }
+
+        .layer-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .layer-card {
+            background: #0f141c;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .layer-header {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--blue);
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 4px;
+        }
+
+        .layer-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -356,7 +436,7 @@
     <!-- HEADER BAR -->
     <div class="header">
         <div class="header-title">
-            <span>⚡ KU TRADER </span>
+            <span>⚡ KU TRADER (SMC Engine v2.0)</span>
             <span style="font-size: 12px; color: var(--text-dim); font-weight: normal;">| Asset: <b id="current-asset-display" style="color:var(--gold);">XAUUSD</b></span>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
@@ -450,20 +530,51 @@
         </div>
     </div>
 
-    <!-- DAILY NEWS ANALYSIS SECTION -->
+    <!-- DAILY NEWS ANALYSIS & IMPACT ENGINE SECTION -->
     <div class="card" style="margin-top: 16px;">
         <div class="card-header">
-            <span class="card-title" id="news-pred-header-title">📡 การวิเคราะห์ข่าวเศรษฐกิจรายวัน และการคาดการณ์ต่อกราฟ (Daily Macro News)</span>
+            <span class="card-title" id="news-pred-header-title">⚙️ Impact Engine & Economic Calendar Data (Layer 8)</span>
+        </div>
+        
+        <!-- Table: Economic Calendar Data -->
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>ตัวแปรเศรษฐกิจ</th>
+                    <th>Previous (ครั้งก่อน)</th>
+                    <th>Forecast (คาดการณ์)</th>
+                    <th>Actual (ประกาศจริง)</th>
+                    <th>Surprise (ส่วนต่าง)</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-data-body">
+                <!-- JS Dynamic Render -->
+            </tbody>
+        </table>
+
+        <!-- Impact Engine Metrics -->
+        <div class="impact-engine-grid" id="impact-engine-container">
+            <!-- JS Dynamic Render -->
+        </div>
+
+        <div style="font-size: 13px; font-weight: bold; color: var(--gold); margin-bottom: 8px;">
+            📌 รายการข่าวและผลกระทบสำคัญประจำวันต่อ SMC Structure:
         </div>
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
+    <!-- 8-LAYER ANALYSIS MATRIX -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title" id="news-asset-title">📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อนราคา</span>
+            <span class="card-title" id="news-asset-title">🧠 8-Layer Analysis Framework (วิเคราะห์ 8 มิติเชิงลึก)</span>
         </div>
         <p id="news-asset-desc" style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;"></p>
-        <div style="font-weight: bold; margin-bottom: 8px; color: var(--gold);" id="news-list-label">📰 ข่าวสำคัญประจำวันพร้อมวิเคราะห์ผลกระทบต่อ SMC Structure:</div>
+        
+        <div class="layer-matrix-grid" id="layer-matrix-container">
+            <!-- JS Dynamic Render -->
+        </div>
+
+        <div style="font-weight: bold; margin: 16px 0 8px 0; color: var(--gold);" id="news-list-label">📰 ข่าวสำคัญประจำวันพร้อมวิเคราะห์ผลกระทบต่อ SMC Structure:</div>
         <div class="news-grid" id="news-grid-container"></div>
     </div>
 
@@ -492,19 +603,44 @@ let barsM1 = [];
 let calculationTimer = null;
 let countdownTimer = null;
 
-// ปรับระยะเวลาการวิเคราะห์คำนวณใหม่เป็นทุกๆ 3 นาที (180 วินาที)
 const SYNC_INTERVAL_SECONDS = 180;
 let secondsToNextSync = SYNC_INTERVAL_SECONDS;
 
-// ฐานข้อมูลข่าวรายวันและการคาดการณ์เศรษฐกิจสำคัญ
+// ฐานข้อมูลข่าวสาร 8-Layer Analysis Framework & Impact Engine รายสินทรัพย์
 const assetNewsDatabase = {
     'OANDA:XAUUSD': {
-        title: '📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อนทองคำ (XAUUSD Daily)',
-        desc: 'ราคาทองคำได้รับอิทธิพลอย่างมากจากแนวนโยบายดอกเบี้ยของธนาคารกลางสหรัฐฯ (Fed), ดัชนีดอลลาร์ (DXY), ตัวเลขเงินเฟ้อ PCE/CPI รวมถึงความเสี่ยงด้านภูมิรัฐศาสตร์ สถาบันรายใหญ่ (Smart Money) มักใช้จังหวะการประกาศข่าวสำคัญในการเข้าสะสมสภาพคล่อง (Liquidity Sweep)',
+        title: '🧠 8-Layer Analysis Framework: ทองคำ (XAUUSD Daily)',
+        desc: 'การวิเคราะห์เชิงลึก 8 มิติ เพื่อประเมินสภาวะตลาดทองคำอย่างครอบคลุม ตั้งแต่ปัจจัย Macro, Bond Yields, ดอลลาร์ จนถึงโครงสร้างราคา SMC รายวัน',
+        calendar: {
+            event: 'US Core CPI MoM (ดัชนีราคาผู้บริโภคพื้นฐานสหรัฐฯ)',
+            prev: '0.2%',
+            forecast: '0.3%',
+            actual: '0.4%',
+            surprise: '+0.1%',
+            surpriseColor: 'var(--down)'
+        },
+        impactEngine: {
+            overallScore: '92/100',
+            overallDesc: 'ความสำคัญระดับวิกฤต',
+            assetScore: '-85/100',
+            assetDesc: 'แรงกดดันฝั่งขายสูง',
+            bias: 'BEARISH 🔴',
+            biasColor: 'var(--down)',
+            strategy: 'เน้นเปิดสถานะ Sell ตามเทรนด์ย่อย'
+        },
+        layers: {
+            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'CPI สูงกว่าคาด ส่งผลให้ตลาดคาดว่า Fed จะคงอัตราดอกเบี้ยไว้นานขึ้น (Higher for longer) และชะลอการลดดอกเบี้ย' },
+            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'ความเสี่ยงทางภูมิรัฐศาสตร์ทรงตัว ไม่ได้มีเหตุรุนแรงใหม่ แรงส่งจากการเป็น Safe-haven จึงโดนปัจจัย Macro บดบัง' },
+            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'US 10Y Treasury Yield ดีดตัวขึ้นทะลุ 4.2% และ DXY แข็งค่าขึ้น เป็นปัจจัยลบโดยตรงต่อทองคำ' },
+            l4: { title: '4. 🛢️ Commodity Nuances / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'Real Yields ปรับตัวสูงขึ้น + เงินดอลลาร์แข็งค่า กดดันราคาทองคำระยะสั้น อย่างไรก็ตามยังมีแรงซื้อสะสมจากธนาคารกลางช่วยพยุงฐาน' },
+            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'ตลาดหุ้นสหรัฐฯ ปรับตัวลง ทำให้เกิดแรงขายสินทรัพย์เสี่ยง สินทรัพย์บางส่วนไหลเข้าถือเงินสด (USD) แทนทองคำ' },
+            l6: { title: '6. ₿ Crypto Context / ตลาดคริปโท', detail: 'ไม่มีผลกระทบโดยตรงจากฝั่ง Crypto' },
+            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'COT Report ชี้ว่าสถานะ Net Long ของสถาบันค่อนข้างตึงตัว (Overbought) มีความเสี่ยงเกิด Long Liquidation' },
+            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'Actual (0.4%) > Forecast (0.3%) = Hawkish Surprise หนุนดอลลาร์ กดดันราคาทองคำ' }
+        },
         preds: [
-            { event: 'US Core PCE Price Index (รายเดือน)', forecast: '0.2%', prev: '0.3%', impact: 'หากตัวเลขออกมาต่ำกว่าคาด ดอลลาร์จะอ่อนค่าทันที หนุนให้ราคาทองคำพุ่งขึ้นทดสอบ Supply Zone / Bearish OB ของ H4' },
-            { event: 'FOMC Statement & Rate Decision', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากมีท่าทีผ่อนคลาย (Dovish) ตลาดจะเกิดแรงกวาด Liquidity ทางฝั่ง Buy ดันราคาเบรกทะลุ BOS ขาขึ้น' },
-            { event: 'US Non-Farm Payrolls (NFP)', forecast: '+165K', prev: '+142K', impact: 'ตัวเลขการจ้างงานที่ผันผวนจะสร้าง Imbalance / FVG ขนาดใหญ่ใน Timeframe M15 และ H1' }
+            { event: 'US Core CPI MoM', forecast: '0.3%', prev: '0.2%', impact: 'หากตัวเลขจริงออกมาสูงกว่าคาด ดอลลาร์จะแข็งค่าขึ้นทันที กดดันราคาทองคำให้ลงมาทดสอบ Demand Zone / Bullish OB' },
+            { event: 'FOMC Statement & Rate Decision', forecast: 'Hold 4.25%-4.50%', prev: '4.50%', impact: 'หากมีท่าทีผ่อนคลาย (Dovish) ตลาดจะเกิดแรงกวาด Liquidity ทางฝั่ง Buy ดันราคาเบรกทะลุ BOS ขาขึ้น' }
         ],
         news: [
             {
@@ -538,8 +674,35 @@ const assetNewsDatabase = {
         ]
     },
     'BINANCE:BTCUSDT': {
-        title: '📊 สรุปสภาวะเศรษฐกิจรายวันและปัจจัยขับเคลื่อน Bitcoin (BTCUSDT Daily)',
-        desc: 'ตลาด Bitcoin และ Crypto เคลื่อนไหวตามสภาพคล่องในระบบการเงินโลก (Global Liquidity) และกระแสเงินทุน ETF สถาบันรายใหญ่เน้นกวาด Stop Loss บริเวณ EQH/EQL ก่อนเลือกทิศทางใหญ่',
+        title: '🧠 8-Layer Analysis Framework: Bitcoin (BTCUSDT Daily)',
+        desc: 'วิเคราะห์ 8 มิติเชิงลึกสำหรับ Bitcoin และสินทรัพย์ดิจิทัล เพื่อประเมินสภาวะสภาพคล่อง และทิศทางเงินทุนสถาบัน',
+        calendar: {
+            event: 'US Core CPI MoM',
+            prev: '0.2%',
+            forecast: '0.3%',
+            actual: '0.4%',
+            surprise: '+0.1%',
+            surpriseColor: 'var(--down)'
+        },
+        impactEngine: {
+            overallScore: '92/100',
+            overallDesc: 'ความสำคัญระดับวิกฤต',
+            assetScore: '-50/100',
+            assetDesc: 'ผันผวนปานกลาง',
+            bias: 'NEUTRAL / BEARISH 🟡',
+            biasColor: 'var(--gold)',
+            strategy: 'Wait & See หรือเน้นเก็งกำไรระยะกรอบสั้น'
+        },
+        layers: {
+            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'สภาพคล่อง (Global Liquidity) ถูกดึงกลับจากการคาดการณ์ดอกเบี้ยสูงนานขึ้น เป็นปัจจัยลบกดดันสินทรัพย์เสี่ยง' },
+            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'กระทบปานกลางผ่าน Risk-off sentiment ตลาดลดการถือครองสินทรัพย์ที่มีความเสี่ยงสูง' },
+            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'USD แข็งค่าทำให้สินทรัพย์เสี่ยงรวมถึง BTC ถูกลดความน่าสนใจลงชั่วคราว' },
+            l4: { title: '4. 🛢️ Commodity Nuances / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'ไม่มีผลกระทบโดยตรง' },
+            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'เทรดสัมพันธ์ในทิศทางเดียวกับดัชนี NASDAQ ในระยะสั้น' },
+            l6: { title: '6. ₿ Crypto Specific / ปัจจัยเฉพาะคริปโท', detail: 'BTC Spot ETF ยังมี Net Inflow ช่วยพยุงราคา ทำให้ปรับตัวลงน้อยกว่าหุ้น Tech' },
+            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'Funding Rate ในตลาด Futures ลดลงสู่ระดับปานกลาง ไม่พบการ Liquidation ขนาดใหญ่' },
+            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'ปัจจัย Macro กดดัน แต่ปัจจัยพื้นฐานฝั่ง On-chain ช่วยรับแรงกระแทก' }
+        },
         preds: [
             { event: 'Bitcoin Spot ETF Net Inflow', forecast: '+$250M Inflow', prev: '+$110M', impact: 'เม็ดเงินสถาบันไหลเข้าต่อเนื่อง ยืนยันโครงสร้าง Bullish BOS บน Timeframe H4' },
             { event: 'Global Liquidity Index (M2 Growth)', forecast: 'Expansion', prev: 'Neutral', impact: 'สภาพคล่องที่เพิ่มขึ้นหนุนสินทรัพย์เสี่ยง ดันราคาเข้าสู่โซน Premium/Discount ที่ได้เปรียบ' }
@@ -559,6 +722,106 @@ const assetNewsDatabase = {
             { cat: '1. ข่าวสารคริปโทเคอร์เรนซีระดับโลก', links: [
                 { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' },
                 { name: 'CoinTelegraph News', url: 'https://cointelegraph.com/' }
+            ]}
+        ]
+    },
+    'OANDA:EURUSD': {
+        title: '🧠 8-Layer Analysis Framework: EUR/USD Daily',
+        desc: 'การวิเคราะห์เชิงลึก 8 มิติ สำหรับคู่เงิน EUR/USD เพื่อประเมินส่วนต่างอัตราดอกเบี้ย นโยบาย ECB vs Fed และทิศทางดอลลาร์',
+        calendar: {
+            event: 'US Core CPI MoM',
+            prev: '0.2%',
+            forecast: '0.3%',
+            actual: '0.4%',
+            surprise: '+0.1%',
+            surpriseColor: 'var(--down)'
+        },
+        impactEngine: {
+            overallScore: '92/100',
+            overallDesc: 'ความสำคัญระดับวิกฤต',
+            assetScore: '-78/100',
+            assetDesc: 'แรงกดดันฝั่งขายสูง',
+            bias: 'BEARISH 🔴',
+            biasColor: 'var(--down)',
+            strategy: 'Sell on Rally เมื่อราคาชนแนวต้าน Supply Zone'
+        },
+        layers: {
+            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'ส่วนต่างอัตราดอกเบี้ย (Interest Rate Differential) ระหว่าง Fed และ ECB กว้างขึ้นจากเงินเฟ้อ US ที่ยังสูง' },
+            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'การเติบโตฝั่งยุโรปชะลอตัวเมื่อเทียบกับ US ประกอบกับราคาพลังงานที่ทรงตัวสูง' },
+            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'DXY พุ่งขึ้นอย่างแข็งแกร่ง กดดันให้ EUR/USD หลุดแนวรับสำคัญ' },
+            l4: { title: '4. 🛢️ Commodity Nuances / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'ไม่มีผลกระทบโดยตรง' },
+            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'ตลาดหุ้นยุโรป (DAX) เผชิญแรงกดดันตามตลาดสหรัฐฯ' },
+            l6: { title: '6. ₿ Crypto Context / ตลาดคริปโท', detail: 'ไม่มีผลกระทบโดยตรง' },
+            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'Retail Traders ส่วนใหญ่เริ่มเข้า Buy (Contrarian Indicator = สัญญาณกดดันลงต่อ)' },
+            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'การปรับตัวขึ้นของดอลลาร์กดดันค่าเงินยูโรโดยตรงจากตัวเลข Surprise ฝั่ง US' }
+        },
+        preds: [
+            { event: 'ECB Monetary Policy Statement', forecast: 'Hold 3.25%', prev: '3.25%', impact: 'นโยบายสายผ่อนคลายของ ECB ส่งผลให้ EUR อ่อนค่าเมื่อเทียบกับ USD' }
+        ],
+        news: [
+            {
+                source: 'FXStreet Daily Analysis',
+                sentiment: 'bearish',
+                sentimentText: 'ผลกระทบ: ลบ (Bearish) 🔴',
+                title: 'EUR/USD Breaks Key Support Zone Following US CPI Release',
+                reason: 'การทะลุผ่านแนวรับสำคัญส่งผลให้เกิด Bearish BOS ใน Timeframe H1',
+                url: 'https://www.fxstreet.com/rates-charts/eurusd',
+                date: 'วิเคราะห์รายวันประจำวันนี้'
+            }
+        ],
+        sources: [
+            { cat: '1. ข่าวสารค่าเงิน EURUSD รายวัน', links: [
+                { name: 'FXStreet EUR/USD Overview', url: 'https://www.fxstreet.com/rates-charts/eurusd' }
+            ]}
+        ]
+    },
+    'TVC:USOIL': {
+        title: '🧠 8-Layer Analysis Framework: USOIL (WTI Daily)',
+        desc: 'วิเคราะห์ 8 มิติเชิงลึกสำหรับตลาดน้ำมันดิบ ประเมินอุปสงค์อุปทาน อัตราดอกเบี้ย และสถานการณ์นโยบาย OPEC+',
+        calendar: {
+            event: 'US Core CPI MoM',
+            prev: '0.2%',
+            forecast: '0.3%',
+            actual: '0.4%',
+            surprise: '+0.1%',
+            surpriseColor: 'var(--down)'
+        },
+        impactEngine: {
+            overallScore: '92/100',
+            overallDesc: 'ความสำคัญระดับวิกฤต',
+            assetScore: '-20/100',
+            assetDesc: 'ผลกระทบจำกัด / ทรงตัว',
+            bias: 'NEUTRAL 🟡',
+            biasColor: 'var(--gold)',
+            strategy: 'เน้นเทรดตามกรอบการค้าน้ำมันดิบ (Range Trading)'
+        },
+        layers: {
+            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'ดอกเบี้ยสูงนานอาจชะลอการเติบโตทางเศรษฐกิจ ซึ่งกดดันความต้องการใช้น้ำมัน (Demand)' },
+            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'ความตึงเครียดในตะวันออกกลางและนโยบาย OPEC+ ยังคงเป็นปัจจัยพยุงฝั่งอุปทาน (Supply)' },
+            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'USD แข็งค่าทำให้โภคภัณฑ์ราคาดอลลาร์มีความแพงขึ้นเล็กน้อยสำหรับผู้ซื้อสกุลเงินอื่น' },
+            l4: { title: '4. 🛢️ Commodity Specific / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'สัปดาห์นี้ต้องจับตาตัวเลขสต็อกน้ำมันดิบ US Crude Oil Inventories ประกอบเพิ่มเติม' },
+            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'กลุ่มพลังงานในตลาดหุ้นยังทรงตัวได้ดี' },
+            l6: { title: '6. ₿ Crypto Context / ตลาดคริปโท', detail: 'ไม่มีผลกระทบโดยตรง' },
+            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'Positioning ในตลาด Futures ค่อนข้างสมดุล' },
+            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'CPI สหรัฐฯ มีผลกระทบทางอ้อมต่อคาดการณ์ Demand พลังงาน' }
+        },
+        preds: [
+            { event: 'EIA Crude Oil Inventories', forecast: '-1.2M', prev: '+0.8M', impact: 'หากสต็อกน้ำมันลดลงมากกว่าคาด จะส่งผลให้เกิดแรงซื้อกลับคืนสู่ Demand Zone' }
+        ],
+        news: [
+            {
+                source: 'Investing.com Oil News',
+                sentiment: 'neutral',
+                sentimentText: 'ผลกระทบ: ทรงตัว (Neutral) 🟡',
+                title: 'Crude Oil Holds Range as Geopolitical Risks Offset USD Strength',
+                reason: 'ราคายังคงวิ่งสร้างกรอบสะสมกำลัง (Liquidity Building) ระหว่างแนวรับแนวต้านสำคัญ',
+                url: 'https://www.investing.com/commodities/crude-oil',
+                date: 'วิเคราะห์รายวันประจำวันนี้'
+            }
+        ],
+        sources: [
+            { cat: '1. ข่าวสารพลังงานและน้ำมันดิบ', links: [
+                { name: 'EIA Official Data', url: 'https://www.eia.gov/' }
             ]}
         ]
     }
@@ -616,7 +879,6 @@ function renderLivePrice(price) {
     if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
 }
 
-// 1. แยกการวิเคราะห์แนวรับแนวต้านและกรอบราคาแต่ละ Timeframe อย่างชัดเจน
 function renderAutoSRChannels(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('sr-channels-container');
@@ -650,20 +912,55 @@ function renderAutoSRChannels(symbol) {
     `;
 }
 
-// 2. ปรับการวิเคราะห์ข่าวเป็นรายวัน เน้นข่าวที่มีผลกระทบสำคัญ
+// ปรับปรุงฟังก์ชันเรนเดอร์ Impact Engine, Layer 8 (Calendar) และ 8-Layer Analysis Matrix
 function renderNewsPredictions(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
     const container = document.getElementById('news-pred-container');
-    const assetData = assetNewsDatabase[symbol];
+    const assetData = assetNewsDatabase[symbol] || assetNewsDatabase['OANDA:XAUUSD'];
 
-    document.getElementById('news-pred-header-title').textContent = `📡 การวิเคราะห์ข่าวเศรษฐกิจรายวัน และผลกระทบ (${cleanSym})`;
+    document.getElementById('news-pred-header-title').textContent = `⚙️ Impact Engine & Economic Calendar Data (Layer 8: ${cleanSym})`;
+    
+    // Render Layer 8: Economic Calendar Table Data
+    const calBody = document.getElementById('calendar-data-body');
+    const cal = assetData.calendar;
+    if (calBody && cal) {
+        calBody.innerHTML = `
+            <tr>
+                <td><strong>${cal.event}</strong></td>
+                <td>${cal.prev}</td>
+                <td>${cal.forecast}</td>
+                <td style="color: ${cal.surpriseColor}; font-weight: bold;">${cal.actual}</td>
+                <td style="color: ${cal.surpriseColor}; font-weight: bold;">${cal.surprise}</td>
+            </tr>
+        `;
+    }
+
+    // Render Impact Engine Metrics Cards
+    const impactContainer = document.getElementById('impact-engine-container');
+    const ie = assetData.impactEngine;
+    if (impactContainer && ie) {
+        impactContainer.innerHTML = `
+            <div class="impact-card">
+                <div class="impact-title">Overall News Impact Score</div>
+                <div class="impact-val" style="color: var(--down);">${ie.overallScore}</div>
+                <div class="impact-sub">${ie.overallDesc}</div>
+            </div>
+            <div class="impact-card">
+                <div class="impact-title">Asset Impact Score (${cleanSym})</div>
+                <div class="impact-val" style="color: ${ie.biasColor};">${ie.assetScore}</div>
+                <div class="impact-sub">${ie.assetDesc}</div>
+            </div>
+            <div class="impact-card">
+                <div class="impact-title">Trading Bias</div>
+                <div class="impact-val" style="color: ${ie.biasColor};">${ie.bias}</div>
+                <div class="impact-sub">${ie.strategy}</div>
+            </div>
+        `;
+    }
+
+    // Render Predictions List
     container.innerHTML = '';
-
-    const predsList = (assetData && assetData.preds) ? assetData.preds : [
-        { event: `${cleanSym} Market Liquidity Delta`, forecast: 'Expanding', prev: 'Neutral', impact: `สถาบันเริ่มสะสมคำสั่งกวาดสภาพคล่อง (Liquidity Sweep) บริเวณแนวรับแนวต้าน` },
-        { event: `Macro Policy & Interest Rate Trend`, forecast: 'Hawkish Hold', prev: '4.25%', impact: `ส่งผลให้ราคาผันผวนในกรอบ FVG ก่อนเกิดการ Break of Structure (BOS)` }
-    ];
-
+    const predsList = assetData.preds || [];
     predsList.forEach(item => {
         const box = document.createElement('div');
         box.className = 'pred-box';
@@ -680,27 +977,33 @@ function renderNewsPredictions(symbol) {
 
 function renderAssetNews(symbol) {
     const cleanSym = cleanAssetTitle(symbol);
-    const assetData = assetNewsDatabase[symbol];
+    const assetData = assetNewsDatabase[symbol] || assetNewsDatabase['OANDA:XAUUSD'];
 
-    document.getElementById('news-asset-title').textContent = assetData ? assetData.title : `📊 สรุปสภาวะเศรษฐกิจรายวัน (${cleanSym})`;
-    document.getElementById('news-asset-desc').textContent = assetData ? assetData.desc : `ภาพรวมการวิเคราะห์ข่าวรายวันสำหรับ ${cleanSym} เพื่อประเมินทิศทางเงินทุนรายใหญ่ (Smart Money)`;
+    document.getElementById('news-asset-title').textContent = assetData.title;
+    document.getElementById('news-asset-desc').textContent = assetData.desc;
     document.getElementById('news-list-label').textContent = `📰 ข่าวสำคัญประจำวันพร้อมบทวิเคราะห์ฉบับเต็ม (${cleanSym}):`;
     document.getElementById('sources-main-title').textContent = `📚 แหล่งข้อมูลอ้างอิงบทวิเคราะห์เศรษฐกิจรายวัน (${cleanSym})`;
 
+    // Render 8-Layer Analysis Matrix
+    const layerContainer = document.getElementById('layer-matrix-container');
+    if (layerContainer && assetData.layers) {
+        layerContainer.innerHTML = '';
+        Object.keys(assetData.layers).forEach(k => {
+            const l = assetData.layers[k];
+            const card = document.createElement('div');
+            card.className = 'layer-card';
+            card.innerHTML = `
+                <div class="layer-header">${l.title}</div>
+                <div class="layer-desc">${l.detail}</div>
+            `;
+            layerContainer.appendChild(card);
+        });
+    }
+
+    // Render News Grid
     const newsContainer = document.getElementById('news-grid-container');
     newsContainer.innerHTML = '';
-
-    const newsList = (assetData && assetData.news) ? assetData.news : [
-        {
-            source: 'Forex Factory / TradingView News Daily',
-            sentiment: 'bullish',
-            sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-            title: `${cleanSym} Sweeps Liquidity and Tests Core Order Block`,
-            reason: `การย่อตัวลงมาทดสอบโซน Demand ของรายใหญ่หนุนให้เกิดแรงซื้อกลับคืนอย่างรวดเร็ว`,
-            url: `https://www.google.com/search?q=${encodeURIComponent(cleanSym + ' daily analysis news')}`,
-            date: 'วิเคราะห์รายวันประจำวันนี้'
-        }
-    ];
+    const newsList = assetData.news || [];
 
     newsList.forEach(item => {
         const card = document.createElement('div');
@@ -726,15 +1029,10 @@ function renderAssetNews(symbol) {
         newsContainer.appendChild(card);
     });
 
+    // Render Sources
     const sourcesContainer = document.getElementById('sources-grid-container');
     sourcesContainer.innerHTML = '';
-
-    const sourcesList = (assetData && assetData.sources) ? assetData.sources : [
-        { cat: `1. แหล่งข่าวเศรษฐกิจและปฏิทินรายวัน (${cleanSym})`, links: [
-            { name: 'Forex Factory Daily Calendar', url: 'https://www.forexfactory.com/calendar' },
-            { name: `TradingView Symbol Overview (${cleanSym})`, url: `https://www.tradingview.com/symbols/${cleanSym}/` }
-        ]}
-    ];
+    const sourcesList = assetData.sources || [];
 
     sourcesList.forEach(scat => {
         const box = document.createElement('div');
@@ -763,7 +1061,6 @@ async function fetchCandleData(tf, limit = 60) {
     }
 }
 
-// 3. ปรับการประมวลผลดึงข้อมูลกราฟในแต่ละ Timeframe ย่อย-ใหญ่ ให้แยกจากกันอย่างสมบูรณ์
 async function loadAllTimeframesData() {
     setApiStatus('SMC Analyzing Multi-TF... 🟡', 'warn');
     const [h4, h1, m15, m5, m1] = await Promise.all([
@@ -789,14 +1086,12 @@ async function loadAllTimeframesData() {
     secondsToNextSync = SYNC_INTERVAL_SECONDS;
 }
 
-// 4. ปรับตั้งเวลาการคำนวณและวิเคราะห์กราฟเป็นทุกๆ 3-5 นาที (3 นาที / 180 วินาที)
 function startEngineLoop() {
     if (calculationTimer) clearInterval(calculationTimer);
     if (countdownTimer) clearInterval(countdownTimer);
 
     loadAllTimeframesData();
 
-    // ทำการวิเคราะห์กราฟใหม่ทุกๆ 3 นาทีเพื่อความแม่นยำของจุดเข้า
     calculationTimer = setInterval(() => {
         loadAllTimeframesData();
     }, SYNC_INTERVAL_SECONDS * 1000);
@@ -881,7 +1176,6 @@ function calculateEMA(prices, period) {
     return ema;
 }
 
-// ค้นหา Order Block (OB) ล่าสุดจากโครงสร้างแท่งเทียน Imbalance / FVG
 function findRefinedOrderBlock(candles, direction) {
     if (!candles || candles.length < 5) return null;
     const len = candles.length;
@@ -890,7 +1184,6 @@ function findRefinedOrderBlock(candles, direction) {
         for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
             const cCurr = candles[i];
             const cNext = candles[i + 1];
-            // แท่งเทียนสีแดงสุดท้ายก่อนพุ่งเบรกโครงสร้าง (Bullish OB)
             if (cNext && cNext.close > cCurr.high && cCurr.close <= cCurr.open) {
                 return {
                     top: Number(cCurr.high),
@@ -903,7 +1196,6 @@ function findRefinedOrderBlock(candles, direction) {
         for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
             const cCurr = candles[i];
             const cNext = candles[i + 1];
-            // แท่งเทียนสีเขียวสุดท้ายก่อนร่วงเบรกโครงสร้าง (Bearish OB)
             if (cNext && cNext.close < cCurr.low && cNext.close >= cCurr.open) {
                 return {
                     top: Number(cCurr.high),
@@ -916,7 +1208,6 @@ function findRefinedOrderBlock(candles, direction) {
     return null;
 }
 
-// 5. คำนวณวิเคราะห์ SMC โดยแยกโครงสร้าง Timeframe ย่อยและใหญ่
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
@@ -937,7 +1228,6 @@ function recalculateSMCTradingEngine(price) {
     const primaryHighs = primaryBars.map(b => Number(b.high)).filter(Number.isFinite);
     const primaryLows = primaryBars.map(b => Number(b.low)).filter(Number.isFinite);
 
-    // เช็กโครงสร้างตลาด (Market Structure / CHoCH) จากแนวโน้มและ EMA
     const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : price * 0.998;
     const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : price * 0.995;
 
@@ -950,7 +1240,6 @@ function recalculateSMCTradingEngine(price) {
     else isBullish = price >= ema50 || ema50 >= ema200;
 
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
-    // ค้นหา Order Block (OB) จาก Timeframe M5 และ M1 เพื่อหาจุดย่อเข้าเทรดที่แม่นยำ
     let ob = findRefinedOrderBlock(barsM5, direction) || findRefinedOrderBlock(barsM1, direction);
 
     let atrMultiplier = 0.0012;
@@ -965,13 +1254,10 @@ function recalculateSMCTradingEngine(price) {
     let slMin, slMax;
 
     if (isBullish) {
-        // Entry 1: Extreme Wick Liquidity Sweep Zone
         ez1Min = ob ? ob.wickLow : baseRef - (atrBuffer * 0.8);
         ez1Max = ob ? ob.bottom : baseRef - (atrBuffer * 0.3);
-        // Entry 2: Order Block / Demand Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
-        // Entry 3: Market Retest Zone
         ez3Min = price * 0.9990;
         ez3Max = price;
 
@@ -985,13 +1271,10 @@ function recalculateSMCTradingEngine(price) {
         tp3Min = Math.max(price + (risk * 3.5), swingHigh - (atrBuffer * 0.5)); 
         tp3Max = Math.max(price + (risk * 4.0), swingHigh + (atrBuffer * 0.5));
     } else {
-        // Entry 1: Extreme Wick Liquidity Sweep Zone
         ez1Min = ob ? ob.top : baseRef - (atrBuffer * 0.2);
         ez1Max = ob ? (ob.wickHigh || ob.top + atrBuffer * 0.8) : baseRef + (atrBuffer * 0.8);
-        // Entry 2: Order Block / Supply Zone
         ez2Min = ob ? ob.bottom : baseRef - (atrBuffer * 0.2);
         ez2Max = ob ? ob.top : baseRef + (atrBuffer * 0.2);
-        // Entry 3: Market Retest Zone
         ez3Min = price;
         ez3Max = price * 1.0010;
 
