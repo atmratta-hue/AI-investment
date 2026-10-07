@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER</title>
+    <title>KU TRADER - Precision SMC Auto Engine</title>
     <style>
         :root {
             --bg: #0b0e14;
@@ -439,7 +439,7 @@
             <span style="font-size: 12px; color: var(--text-dim); font-weight: normal;">| Asset: <b id="current-asset-display" style="color:var(--gold);">XAUUSD</b></span>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-            <span id="timer-display" style="font-size: 12px; color: var(--gold2); font-family: monospace;">⏱️ Next Sync: 03:00</span>
+            <span id="timer-display" style="font-size: 12px; color: var(--gold2); font-family: monospace;">⏱️ Next Sync: 01:00</span>
             <div id="api-status" class="status-badge">Connecting...</div>
         </div>
     </div>
@@ -491,7 +491,7 @@
         <div>
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">🎯 Signals & Precision Hybrid Entry Zones</span>
+                    <span class="card-title">🎯 Signals & Entry Zones</span>
                     <span id="active-direction-pill" class="sig-pill">M1 BULLISH FOCUS 🟢</span>
                 </div>
 
@@ -502,20 +502,20 @@
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <span style="font-size: 11px; color: var(--text-dim);" id="entry-card-subtag">3-In-1 Hybrid: OB Structure + Point Offset + Buffer</span>
+                    <span style="font-size: 11px; color: var(--text-dim);" id="entry-card-subtag">Order Block (OB) & Liquidity Sweep Zones</span>
                     <span id="sig-badge" class="badge bullish">BUY ZONE ACTIVE</span>
                 </div>
 
                 <div class="zone-group" id="entry-zones-container"></div>
 
                 <div style="margin: 12px 0 8px 0; border-top: 1px solid var(--line); padding-top: 8px; font-size: 12px; font-weight: bold; color: var(--gold);">
-                    🎯 Targets (TP) & Risk (SL 300 Points)
+                    🎯 Targets (TP) & Risk (SL Zone)
                 </div>
 
                 <div class="zone-group" id="tp-sl-zones-container"></div>
 
                 <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right;" id="sig-mode-desc">
-                    การวิเคราะห์: Hybrid Engine (Order Block + Points Offset + Spread Buffer)
+                    การวิเคราะห์: Dynamic Timeframe Refined Order Block Engine (1-Min Multi-TF Auto Sync)
                 </div>
             </div>
 
@@ -598,7 +598,8 @@ let barsM1 = [];
 let calculationTimer = null;
 let countdownTimer = null;
 
-const SYNC_INTERVAL_SECONDS = 180;
+// 🎯 ระยะเวลา Auto Sync ให้ระบบคำนวณและสแกนกราฟใหม่ในทุกๆ Timeframe ทุก 1 นาที (60 วินาที)
+const SYNC_INTERVAL_SECONDS = 60;
 let secondsToNextSync = SYNC_INTERVAL_SECONDS;
 
 async function fetchLiveEconomicCalendar() {
@@ -871,7 +872,7 @@ function renderNewsPredictions(symbol) {
             <div class="pred-title">📌 ข่าวสำคัญประจำวัน: ${item.event}</div>
             <div class="pred-val">Forecast: ${item.forecast} | Prev: ${item.prev}</div>
             <div style="font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4;">
-                <b>ผลกระทบต่อ SMC Chart:</b> ${item.impact}
+                <b>ผลกระทบ:</b> ${item.impact}
             </div>
         `;
         container.appendChild(box);
@@ -959,6 +960,7 @@ async function fetchCandleData(tf, limit = 60) {
     }
 }
 
+// 🎯 ดึงข้อมูลแท่งเทียนทุก Timeframe พร้อมการันตีอัปเดตราคาจาก M1 ล่าสุด
 async function loadAllTimeframesData() {
     setApiStatus('SMC Analyzing Multi-TF... 🟡', 'warn');
     const [h4, h1, m15, m5, m1] = await Promise.all([
@@ -975,6 +977,7 @@ async function loadAllTimeframesData() {
     barsM5 = m5;
     barsM1 = m1;
 
+    // ซิงก์ราคาปิดล่าสุดจากแท่งเทียน M1 เสมอ เพื่อความแม่นยำของราคาสด
     if (barsM1.length > 0 && barsM1[barsM1.length - 1].close) {
         renderLivePrice(Number(barsM1[barsM1.length - 1].close));
     }
@@ -984,12 +987,14 @@ async function loadAllTimeframesData() {
     secondsToNextSync = SYNC_INTERVAL_SECONDS;
 }
 
+// 🎯 ตั้งค่า Auto Loop นับถอยหลังและสแกนกราฟใหม่ในทุกๆ Timeframe ทุก 1 นาที (60 วินาที)
 function startEngineLoop() {
     if (calculationTimer) clearInterval(calculationTimer);
     if (countdownTimer) clearInterval(countdownTimer);
 
     loadAllTimeframesData();
 
+    // รันการคำนวณและสแกนใหม่ทุกๆ 60 วินาที
     calculationTimer = setInterval(() => {
         loadAllTimeframesData();
     }, SYNC_INTERVAL_SECONDS * 1000);
@@ -1106,7 +1111,7 @@ function findRefinedOrderBlock(candles, direction) {
     return null;
 }
 
-// 🎯 ฟังก์ชันคำนวณจุดเข้าออเดอร์แบบ 3-In-1 Hybrid Engine
+// 🎯 ปรับปรุงจุดวิเคราะห์ SMC Engine: ซิงก์ราคา M1 ล่าสุดเสมอ เพื่อให้ทุกๆ Timeframe คำนวณจุดเข้าได้แม่นยำและสดใหม่ทุกๆ 1 นาที
 function recalculateSMCTradingEngine(price) {
     if (!price || price <= 0) return;
 
@@ -1114,118 +1119,120 @@ function recalculateSMCTradingEngine(price) {
 
     let primaryBars = barsM1;
     let tfLabel = 'M1';
-    let pOffset1 = 1.00, pOffset2 = 2.00, pOffset3 = 3.00; // ค่าระยะจุดพื้นฐาน (100 / 200 / 300 Points)
+    let pOffset1 = 1.00, pOffset2 = 2.00, pOffset3 = 3.00;
+    let atrMultiplier = 0.0003;
 
+    // เลือกชุดแท่งเทียนโครงสร้างราคาตาม Timeframe ที่เลือก
     if (currentTimeframe === '1m') {
         primaryBars = barsM1.length > 0 ? barsM1 : barsM5;
         tfLabel = 'M1';
         pOffset1 = (decimals === 5) ? 0.00100 : 1.00;
         pOffset2 = (decimals === 5) ? 0.00200 : 2.00;
         pOffset3 = (decimals === 5) ? 0.00300 : 3.00;
+        atrMultiplier = 0.0003;
     } else if (currentTimeframe === '5m') {
         primaryBars = barsM5.length > 0 ? barsM5 : barsM1;
         tfLabel = 'M5';
         pOffset1 = (decimals === 5) ? 0.00150 : 1.50;
         pOffset2 = (decimals === 5) ? 0.00250 : 2.50;
         pOffset3 = (decimals === 5) ? 0.00350 : 3.50;
+        atrMultiplier = 0.0007;
     } else if (currentTimeframe === '15m') {
         primaryBars = barsM15.length > 0 ? barsM15 : barsM5;
         tfLabel = 'M15';
         pOffset1 = (decimals === 5) ? 0.00200 : 2.00;
         pOffset2 = (decimals === 5) ? 0.00350 : 3.50;
         pOffset3 = (decimals === 5) ? 0.00500 : 5.00;
+        atrMultiplier = 0.0015;
     } else if (currentTimeframe === '1h') {
         primaryBars = barsH1.length > 0 ? barsH1 : barsM15;
         tfLabel = 'H1';
         pOffset1 = (decimals === 5) ? 0.00350 : 3.50;
         pOffset2 = (decimals === 5) ? 0.00550 : 5.50;
         pOffset3 = (decimals === 5) ? 0.00800 : 8.00;
+        atrMultiplier = 0.0035;
     } else if (currentTimeframe === '4h') {
         primaryBars = barsH4.length > 0 ? barsH4 : barsH1;
         tfLabel = 'H4';
         pOffset1 = (decimals === 5) ? 0.00600 : 6.00;
         pOffset2 = (decimals === 5) ? 0.01000 : 10.00;
         pOffset3 = (decimals === 5) ? 0.01500 : 15.00;
+        atrMultiplier = 0.0075;
     }
 
     const primaryCloses = primaryBars.map(b => Number(b.close)).filter(Number.isFinite);
     const primaryHighs = primaryBars.map(b => Number(b.high)).filter(Number.isFinite);
     const primaryLows = primaryBars.map(b => Number(b.low)).filter(Number.isFinite);
 
-    const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : price * 0.998;
-    const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : price * 0.995;
+    // 🔥 การันตีใช้ราคาปิดล่าสุดจาก M1 เพื่อซิงก์ราคาสดจริงกับ TradingView สำหรับทุกๆ Timeframe
+    const m1Closes = barsM1.map(b => Number(b.close)).filter(Number.isFinite);
+    const currentRefPrice = m1Closes.length > 0 ? m1Closes[m1Closes.length - 1] : (primaryCloses.length > 0 ? primaryCloses[primaryCloses.length - 1] : price);
 
-    const swingHigh = primaryHighs.length ? Math.max(...primaryHighs.slice(-15)) : price * 1.01;
-    const swingLow = primaryLows.length ? Math.min(...primaryLows.slice(-15)) : price * 0.99;
+    const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : currentRefPrice * 0.998;
+    const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : currentRefPrice * 0.995;
+
+    const swingHigh = primaryHighs.length ? Math.max(...primaryHighs.slice(-15)) : currentRefPrice * 1.01;
+    const swingLow = primaryLows.length ? Math.min(...primaryLows.slice(-15)) : currentRefPrice * 0.99;
 
     let isBullish;
     if (userSignalMode === 'buy') isBullish = true;
     else if (userSignalMode === 'sell') isBullish = false;
-    else isBullish = price >= ema50 || ema50 >= ema200;
+    else isBullish = currentRefPrice >= ema50 || ema50 >= ema200;
 
     const direction = isBullish ? 'BULLISH' : 'BEARISH';
     let ob = findRefinedOrderBlock(primaryBars, direction);
 
-    // 📍 ระยะ Smart Buffer เผื่อสเปรดและกันราคากวาดปลายไส้ (Spread & Liquidity Margin)
     const spreadBuffer = (decimals === 5) ? 0.00020 : 0.20; 
+    const atrBuffer = currentRefPrice * atrMultiplier;
 
     let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
     let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
     let slMin, slMax;
 
-    // ระยะ SL สแตนดาร์ด 300 จุด
-    const slDistance = (decimals === 5) ? 0.00300 : 3.00;
-
     if (isBullish) {
-        // 🔥 รวม 3 เทคนิคในการหาจุดเข้าขา BUY:
-        // Entry 1 (Liquidity Sweep Zone): โซนปลายไส้เทียน Order Block + ระยะย่อลึก Offset 300 Pts + Buffer เผื่อสเปรด
-        const baseSweep = ob ? ob.wickLow : (price - pOffset3);
+        // คำนวณโซนเข้าซื้อ BUY (Hybrid 3-In-1)
+        const baseSweep = ob ? ob.wickLow : (currentRefPrice - pOffset3);
         ez1Min = baseSweep - spreadBuffer;
-        ez1Max = (ob ? ob.bottom : (price - pOffset2)) - (spreadBuffer * 0.5);
+        ez1Max = (ob ? ob.bottom : (currentRefPrice - pOffset2)) - (spreadBuffer * 0.5);
 
-        // Entry 2 (Order Block Zone): กรอบ Body แท่งเทียน Order Block + ระยะย่อ 200 Pts
-        ez2Min = ob ? ob.bottom : (price - pOffset2);
-        ez2Max = ob ? ob.top : (price - pOffset1);
+        ez2Min = ob ? ob.bottom : (currentRefPrice - pOffset2);
+        ez2Max = ob ? ob.top : (currentRefPrice - pOffset1);
 
-        // Entry 3 (Market Retest): จุดเข้าโซนราคาตลาด + ย่อตัวสั้น Offset 100 Pts + Buffer สเปรด
-        ez3Min = price - pOffset1;
-        ez3Max = price + spreadBuffer;
+        ez3Min = currentRefPrice - pOffset1;
+        ez3Max = currentRefPrice + spreadBuffer;
 
-        // SL: คำนวณตามระยะ 300 จุดคงที่
-        slMin = price - slDistance;
-        slMax = price - slDistance;
+        // 🛡️ SL Zone คำนวณจากโครงสร้างไส้ Order Block ใน TF นั้นๆ + ATR Buffer
+        slMin = ob ? (ob.wickLow - atrBuffer * 1.2) : (ez1Min - atrBuffer * 1.5);
+        slMax = ez1Min - (spreadBuffer * 0.5);
 
-        const risk = slDistance;
+        const risk = Math.max(currentRefPrice - slMax, atrBuffer * 2);
 
-        tp1Min = price + (risk * 1.0); tp1Max = price + (risk * 1.5);
-        tp2Min = price + (risk * 2.0); tp2Max = price + (risk * 2.5);
-        tp3Min = Math.max(price + (risk * 3.0), swingHigh); 
-        tp3Max = Math.max(price + (risk * 3.5), swingHigh);
+        tp1Min = currentRefPrice + (risk * 1.0); tp1Max = currentRefPrice + (risk * 1.5);
+        tp2Min = currentRefPrice + (risk * 2.0); tp2Max = currentRefPrice + (risk * 2.5);
+        tp3Min = Math.max(currentRefPrice + (risk * 3.0), swingHigh); 
+        tp3Max = Math.max(currentRefPrice + (risk * 3.5), swingHigh);
     } else {
-        // 🔥 รวม 3 เทคนิคในการหาจุดเข้าขา SELL:
-        // Entry 1 (Liquidity Sweep Zone): โซนปลายไส้เทียน Order Block + ระยะดีดขึ้น Offset 300 Pts + Buffer เผื่อสเปรด
-        const baseSweepSell = ob ? (ob.wickHigh || ob.top) : (price + pOffset3);
-        ez1Min = (ob ? ob.top : (price + pOffset2)) + (spreadBuffer * 0.5);
+        // คำนวณโซนเข้าขาย SELL
+        const baseSweepSell = ob ? (ob.wickHigh || ob.top) : (currentRefPrice + pOffset3);
+        ez1Min = (ob ? ob.top : (currentRefPrice + pOffset2)) + (spreadBuffer * 0.5);
         ez1Max = baseSweepSell + spreadBuffer;
 
-        // Entry 2 (Order Block Zone): กรอบ Body แท่งเทียน Order Block + ระยะดีดขึ้น 200 Pts
-        ez2Min = ob ? ob.bottom : (price + pOffset1);
-        ez2Max = ob ? ob.top : (price + pOffset2);
+        ez2Min = ob ? ob.bottom : (currentRefPrice + pOffset1);
+        ez2Max = ob ? ob.top : (currentRefPrice + pOffset2);
 
-        // Entry 3 (Market Retest): จุดเข้าโซนราคาตลาด + ดีดตัวสั้น Offset 100 Pts + Buffer สเปรด
-        ez3Min = price - spreadBuffer;
-        ez3Max = price + pOffset1;
+        ez3Min = currentRefPrice - spreadBuffer;
+        ez3Max = currentRefPrice + pOffset1;
 
-        // SL: คำนวณตามระยะ 300 จุดคงที่
-        slMin = price + slDistance;
-        slMax = price + slDistance;
+        // 🛡️ SL Zone คำนวณจากโครงสร้างไส้ Order Block ใน TF นั้นๆ + ATR Buffer
+        slMin = ez1Max + (spreadBuffer * 0.5);
+        slMax = ob ? (ob.wickHigh + atrBuffer * 1.2) : (ez1Max + atrBuffer * 1.5);
 
-        const risk = slDistance;
+        const risk = Math.max(slMin - currentRefPrice, atrBuffer * 2);
 
-        tp1Min = price - (risk * 1.5); tp1Max = price - (risk * 1.0);
-        tp2Min = price - (risk * 2.5); tp2Max = price - (risk * 2.0);
-        tp3Min = Math.min(price - (risk * 3.5), swingLow); 
-        tp3Max = Math.min(price - (risk * 3.0), swingLow);
+        tp1Min = currentRefPrice - (risk * 1.5); tp1Max = currentRefPrice - (risk * 1.0);
+        tp2Min = currentRefPrice - (risk * 2.5); tp2Max = currentRefPrice - (risk * 2.0);
+        tp3Min = Math.min(currentRefPrice - (risk * 3.5), swingLow); 
+        tp3Max = Math.min(currentRefPrice - (risk * 3.0), swingLow);
     }
 
     const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
@@ -1250,7 +1257,7 @@ function recalculateSMCTradingEngine(price) {
                 <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 2 (${tfLabel}) :</span>
+                <span class="zone-label"><span class="dot buy"></span>Entry 2 :</span>
                 <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
@@ -1274,8 +1281,8 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
-                <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel}) :</span>
+                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
     } else {
@@ -1292,7 +1299,7 @@ function recalculateSMCTradingEngine(price) {
                 <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
             </div>
             <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 2 (${tfLabel}) :</span>
+                <span class="zone-label"><span class="dot sell"></span>Entry 2 :</span>
                 <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
             </div>
             <div class="zone-item">
@@ -1316,14 +1323,14 @@ function recalculateSMCTradingEngine(price) {
             </div>
             <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
             <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone :</span>
-                <span class="val-num sl">$${slMin.toFixed(decimals)}</span>
+                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel}) :</span>
+                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
             </div>
         `;
     }
 
     document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfLabel} SMC Hybrid Engine (OB Body + Point Offset + Spread Buffer)`;
+        `โหมดคำนวณ: ${tfLabel} SMC Precision Hybrid`;
 }
 
 function setSignalMode(mode) {
