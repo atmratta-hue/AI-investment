@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU TRADER - Precision SMC Auto Engine</title>
+    <title>KU TRADER</title>
     <style>
         :root {
             --bg: #0b0e14;
@@ -428,17 +428,56 @@
             color: var(--text-dim);
             line-height: 1.4;
         }
+    
+        /* ===== v2 additions ===== */
+        .tf-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+        .tf-card { background: #0f141c; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 7px; transition: border-color .2s; }
+        .tf-card:hover { border-color: var(--gold2); }
+        .tf-card.sel { box-shadow: 0 0 0 1px var(--gold); }
+        .tf-card.buy { border-top: 3px solid var(--up); }
+        .tf-card.sell { border-top: 3px solid var(--down); }
+        .tf-card.none { border-top: 3px solid var(--line); }
+        .tf-h { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .tf-name { font-size: 16px; font-weight: 800; color: var(--gold); }
+        .tf-status { font-size: 12px; font-weight: 600; }
+        .tf-struct { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+        .tf-row { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+        .tf-row span { color: var(--text-dim); }
+        .tf-row b { font-family: monospace; text-align: right; }
+        .tf-foot { font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; }
+        .grade { font-weight: 800; }
+        .grade.gA { color: var(--up); } .grade.gB { color: var(--gold); } .grade.gC { color: var(--down); }
+        .chips-row { display: flex; flex-wrap: wrap; gap: 4px; }
+        .cf { font-size: 10px; padding: 2px 6px; border-radius: 10px; border: 1px solid var(--line); color: var(--text-dim); }
+        .cf.on { color: var(--up); border-color: var(--up); }
+        .brief-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .brief-card { background: #0f141c; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
+        .brief-card:hover { border-color: var(--gold2); }
+        .brief-card.sel { box-shadow: 0 0 0 1px var(--gold); }
+        .feed-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+        .fbtn, .act-btn { background: #0f141c; border: 1px solid var(--line); color: var(--text); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .fbtn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; }
+        .act-btn:hover, .fbtn:hover { border-color: var(--gold2); }
+        .new-tag { background: var(--gold); color: #000; font-size: 9px; padding: 1px 5px; border-radius: 3px; margin-left: 5px; font-weight: bold; }
+        .src-line { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+        .disclaimer { font-size: 11px; color: var(--text-dim); margin-top: 10px; line-height: 1.5; }
+        .imp-high { color: var(--down); font-weight: bold; }
+        .imp-med { color: var(--gold); font-weight: bold; }
+        .toast-box { position: fixed; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; max-width: 340px; }
+        .toast { background: #1d2735; border: 1px solid var(--gold); border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.4; box-shadow: 0 4px 16px rgba(0,0,0,.5); }
+        .grade.gW { color: var(--blue); } .grade.gR { color: var(--purple); } .grade.gCT { color: var(--gold); }
+        .tf-alt { margin-top: 8px; padding: 8px; border-radius: 8px; border: 1px dashed var(--line); background: rgba(255,255,255,0.03); font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .tf-alt.buy { border-color: var(--up); } .tf-alt.sell { border-color: var(--down); }
+        .tf-alt .tf-row { font-size: 11.5px; }
     </style>
 </head>
 <body>
-
-    <!-- HEADER BAR -->
     <div class="header">
         <div class="header-title">
             <span>⚡ KU TRADER</span>
             <span style="font-size: 12px; color: var(--text-dim); font-weight: normal;">| Asset: <b id="current-asset-display" style="color:var(--gold);">XAUUSD</b></span>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <span id="timer-display" style="font-size: 12px; color: var(--gold2); font-family: monospace;">⏱️ Next Sync: 01:00</span>
             <div id="api-status" class="status-badge">Connecting...</div>
         </div>
@@ -455,12 +494,12 @@
 
         <div style="height: 20px; width: 1px; background: var(--line);"></div>
 
-        <div class="chip-group">
-            <button class="tf-btn active" data-tf="1m" onclick="changeTimeframe('1m', '1')">M1</button>
-            <button class="tf-btn" data-tf="5m" onclick="changeTimeframe('5m', '5')">M5</button>
-            <button class="tf-btn" data-tf="15m" onclick="changeTimeframe('15m', '15')">M15</button>
-            <button class="tf-btn" data-tf="1h" onclick="changeTimeframe('1h', '60')">H1 🎯</button>
-            <button class="tf-btn" data-tf="4h" onclick="changeTimeframe('4h', '240')">H4 🎯</button>
+        <div class="chip-group" title="เลือก TF เพื่อดูกราฟ/รายละเอียด — ทุก TF ถูกวิเคราะห์พร้อมกันอยู่แล้ว">
+            <button class="tf-btn active" data-tf="1m" onclick="selectTF('1m')">M1</button>
+            <button class="tf-btn" data-tf="5m" onclick="selectTF('5m')">M5</button>
+            <button class="tf-btn" data-tf="15m" onclick="selectTF('15m')">M15</button>
+            <button class="tf-btn" data-tf="1h" onclick="selectTF('1h')">H1</button>
+            <button class="tf-btn" data-tf="4h" onclick="selectTF('4h')">H4</button>
         </div>
 
         <div class="search-box">
@@ -469,7 +508,7 @@
         </div>
     </div>
 
-    <!-- MAIN GRID (CHART & SMC ENGINE) -->
+    <!-- MAIN GRID (CHART & DETAIL) -->
     <div class="grid-main">
         <div style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
             <div class="card" style="margin: 0;">
@@ -482,41 +521,36 @@
 
             <div class="card" style="margin: 0;">
                 <div class="card-header">
-                    <span class="card-title">📐 Multi-Timeframe Structure & SMC Channels</span>
+                    <span class="card-title">📐 Key Levels จริงจากโครงสร้าง</span>
                 </div>
-                <div class="channel-grid" id="sr-channels-container"></div>
+                <div class="channel-grid" id="key-levels-container"></div>
             </div>
         </div>
 
         <div>
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">🎯 Signals & Entry Zones</span>
-                    <span id="active-direction-pill" class="sig-pill">M1 BULLISH FOCUS 🟢</span>
+                    <span class="card-title">🎯 รายละเอียด Setup</span>
+                    <span id="active-direction-pill" class="sig-pill">--</span>
                 </div>
 
-                <div class="sig-mode-toggle">
-                    <button id="mode-auto" class="mode-btn active" onclick="setSignalMode('auto')">⚡ AUTO</button>
-                    <button id="mode-buy" class="mode-btn buy" onclick="setSignalMode('buy')">🟢 FORCE BUY</button>
-                    <button id="mode-sell" class="mode-btn sell" onclick="setSignalMode('sell')">🔴 FORCE SELL</button>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px; gap:8px;">
                     <span style="font-size: 11px; color: var(--text-dim);" id="entry-card-subtag">Order Block (OB) & Liquidity Sweep Zones</span>
-                    <span id="sig-badge" class="badge bullish">BUY ZONE ACTIVE</span>
+                    <span id="sig-badge" class="badge neutral">--</span>
                 </div>
+
+                <div class="chips-row" id="conf-chips" style="margin-bottom:10px;"></div>
 
                 <div class="zone-group" id="entry-zones-container"></div>
 
                 <div style="margin: 12px 0 8px 0; border-top: 1px solid var(--line); padding-top: 8px; font-size: 12px; font-weight: bold; color: var(--gold);">
-                    🎯 Targets (TP) & Risk (SL Zone)
+                    🎯 Targets (TP) & Risk (SL)
                 </div>
 
                 <div class="zone-group" id="tp-sl-zones-container"></div>
 
-                <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right;" id="sig-mode-desc">
-                    การวิเคราะห์: Dynamic Timeframe Refined Order Block Engine (1-Min Multi-TF Auto Sync)
-                </div>
+                <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right;" id="sig-mode-desc"></div>
+                <div class="disclaimer">ทุก TF คำนวณจากแท่งเทียนที่ปิดแล้วของ TF นั้นเอง และอัปเดตทุก 1 นาที · ถ้าไม่มี setup ที่เข้าเงื่อนไขจะแสดง NO ZONE · เพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำการลงทุน</div>
             </div>
 
             <div class="card">
@@ -529,886 +563,1428 @@
         </div>
     </div>
 
-    <!-- DAILY NEWS ANALYSIS & IMPACT ENGINE SECTION -->
+    <!-- NEWS CENTER -->
     <div class="card" style="margin-top: 16px;">
+        <div class="card-header" style="flex-wrap:wrap; gap:8px;">
+            <span class="card-title" id="news-title">📰 ศูนย์ข่าวรายวัน</span>
+            <span style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <span id="brief-badge" style="font-size:11px; color:var(--gold);"></span>
+                <span id="news-busy" style="font-size:11px; color:var(--gold2);"></span>
+                <button class="act-btn" onclick="refreshNow()">🔄 รีเฟรชข่าวทันที</button>
+                <button class="act-btn" onclick="enableNotify()">🔔 แจ้งเตือนข่าวสำคัญ</button>
+            </span>
+        </div>
+        <div id="news-meta" style="font-size:11px; color:var(--text-dim); margin-bottom:10px;">กำลังเตรียมดึงข่าว...</div>
+        <div style="font-size: 13px; font-weight: bold; color: var(--gold); margin-bottom: 8px;">🗞️ สรุปข่าวรายวันทุกสินทรัพย์ที่เลือก (กดเพื่อสลับสินทรัพย์)</div>
+        <div class="brief-grid" id="brief-container"></div>
+    </div>
+
+    <!-- ข่าวในตาราง (Economic Calendar) -->
+    <div class="card">
         <div class="card-header">
-            <span class="card-title" id="news-pred-header-title">⚙️ Live Impact Engine & Economic Calendar (Layer 8)</span>
+            <span class="card-title">📅 ข่าวในตาราง (Economic Calendar) + Impact Engine</span>
             <span id="calendar-last-updated" style="font-size: 11px; color: var(--gold);">🔄 Auto Syncing...</span>
         </div>
-        
-        <table class="calendar-table">
-            <thead>
-                <tr>
-                    <th>เวลา</th>
-                    <th>สกุลเงิน</th>
-                    <th>เหตุการณ์เศรษฐกิจประจำวัน</th>
-                    <th>Previous</th>
-                    <th>Forecast</th>
-                    <th>Actual (ประกาศจริง)</th>
-                </tr>
-            </thead>
-            <tbody id="calendar-data-body">
-                <tr><td colspan="6">กำลังดึงข้อมูลปฏิทินเศรษฐกิจ Real-Time...</td></tr>
-            </tbody>
-        </table>
+
+        <div style="overflow-x:auto;">
+            <table class="calendar-table">
+                <thead>
+                    <tr>
+                        <th>เวลา (ไทย)</th>
+                        <th>สกุลเงิน</th>
+                        <th>เหตุการณ์เศรษฐกิจ</th>
+                        <th>ระดับ</th>
+                        <th>Previous</th>
+                        <th>Forecast</th>
+                        <th>Actual / สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="calendar-data-body">
+                    <tr><td colspan="7">กำลังดึงข้อมูลปฏิทินเศรษฐกิจ...</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <div class="impact-engine-grid" id="impact-engine-container"></div>
 
         <div style="font-size: 13px; font-weight: bold; color: var(--gold); margin-bottom: 8px;">
-            📌 รายการข่าวและผลกระทบสำคัญประจำวันต่อ SMC Structure:
+            📌 ข่าวตารางที่กำลังจะออก และผลกระทบต่อสินทรัพย์
         </div>
         <div class="pred-grid" id="news-pred-container"></div>
     </div>
 
-    <!-- 8-LAYER ANALYSIS MATRIX -->
+    <!-- 8-LAYER ANALYSIS MATRIX (คำนวณจากข่าวจริง) -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title" id="news-asset-title">🧠 8-Layer Analysis Framework</span>
+            <span class="card-title">🧠 8-Layer Analysis (จากข่าวจริงรอบล่าสุด)</span>
         </div>
         <p id="news-asset-desc" style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;"></p>
-        
         <div class="layer-matrix-grid" id="layer-matrix-container"></div>
+    </div>
 
-        <div style="font-weight: bold; margin: 16px 0 8px 0; color: var(--gold);" id="news-list-label">📰 ข่าวสำคัญประจำวันพร้อมวิเคราะห์ผลกระทบ:</div>
+    <!-- ข่าวนอกตาราง -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">📰 ข่าวนอกตาราง (Breaking / ข่าวทั่วไป ทั้งในและต่างประเทศ)</span>
+        </div>
+        <div class="feed-filters" id="feed-filters"></div>
         <div class="news-grid" id="news-grid-container"></div>
+        <div class="disclaimer">การวิเคราะห์ผลกระทบเป็นแบบกฎคำสำคัญ (Rule-based EN/TH) ร่วมกับน้ำหนักแหล่งข่าวและความสดของข่าว ไม่ใช่การพยากรณ์ราคา ควรอ่านข่าวต้นฉบับประกอบเสมอ</div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span class="card-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงและบทวิเคราะห์เศรษฐกิจรายวัน</span>
+            <span class="card-title" id="sources-main-title">📚 แหล่งข้อมูลอ้างอิงเพิ่มเติม</span>
         </div>
         <div class="sources-grid" id="sources-grid-container"></div>
     </div>
 
+    <div class="toast-box" id="toast-box"></div>
+
 <script>
-let currentTimeframe = '1m';
-let currentTvInterval = '1';
-let currentSymbol = 'OANDA:XAUUSD';
-let livePrice = 0;
-let wsConnection = null;
-let pollInterval = null;
-let userSignalMode = 'auto'; 
+'use strict';
+/* =====================================================================
+   KU TRADER v2 — SMC Multi-Timeframe Engine + Multi-Source News Engine
+   ส่วนที่ 1: ตรรกะล้วน (ไม่แตะ DOM) เพื่อให้ทดสอบได้
+   ===================================================================== */
 
-let barsH4 = [];
-let barsH1 = [];
-let barsM15 = [];
-let barsM5 = [];
-let barsM1 = [];
+const TZ = 'Asia/Bangkok';
+const TFS = [
+    { key: '1m',  label: 'M1',  mins: 1,   tv: '1',   limit: 150 },
+    { key: '5m',  label: 'M5',  mins: 5,   tv: '5',   limit: 150 },
+    { key: '15m', label: 'M15', mins: 15,  tv: '15',  limit: 150 },
+    { key: '1h',  label: 'H1',  mins: 60,  tv: '60',  limit: 150 },
+    { key: '4h',  label: 'H4',  mins: 240, tv: '240', limit: 150 }
+];
+/* TF เล็ก (M1/M5/M15) วิเคราะห์เฉพาะแท่งที่ปิดแล้วล่าสุด N แท่ง (ปรับได้ 20–50) เพื่อไม่ให้ใช้ High/Low/OB เก่าที่ไกลเกินไป */
+const LOOKBACK = { '1m': 50, '5m': 50, '15m': 50 };
+/* OB ต้อง "ใหม่" (อายุนับจากแท่งที่เกิด BOS/CHoCH ไม่เกิน N แท่ง) และ "อยู่ใกล้ราคา" (ไม่เกิน N × ATR ของ TF นั้น) */
+const MAX_AGE = { '1m': 40, '5m': 40, '15m': 40 };
+const MAX_REACH = { '1m': 2.5, '5m': 3, '15m': 3, '1h': 4, '4h': 5 };
+/* Entry: ไม้แรกดักหน้าขอบ OB ออกมา ENTRY_FRONT×ATR เพื่อให้ราคาไปถึงก่อน; ไม้ 2 = 25% ของ OB, ไม้ 3 = 60% ของ OB (ไม่ลงไปสุดขอบไกล) */
+const ENTRY_FRONT = 0.2;
+/* TP1/TP2/TP3: ระยะอย่างน้อย max(RR × R, ATR × ตาราง) — TF ใหญ่ขึ้น RR และระยะ ATR ยิ่งมากขึ้น */
+const TP_RR  = { '1m': [1.5, 2.5, 4], '5m': [1.5, 3, 5], '15m': [2, 3.5, 6], '1h': [2, 4, 7], '4h': [2.5, 5, 8] };
+const TP_ATR = { '1m': [2, 3.5, 5.5], '5m': [2.5, 4.5, 7], '15m': [3, 5.5, 8.5], '1h': [3, 6, 10], '4h': [3.5, 7, 11] };
+const SYNC_MS = 60000;          // วิเคราะห์ใหม่ทุก TF ทุก 1 นาที
+const NEWS_MS = 5 * 60000;      // ข่าวของสินทรัพย์ที่เปิดอยู่ ทุก 5 นาที
+const NEWS_BG_MS = 30 * 60000;  // ข่าวสินทรัพย์อื่น ทุก 30 นาที
+const CAL_MS = 10 * 60000;      // ปฏิทินเศรษฐกิจ ทุก 10 นาที
 
-let calculationTimer = null;
-let countdownTimer = null;
-
-// 🎯 ระยะเวลา Auto Sync ให้ระบบคำนวณและสแกนกราฟใหม่ในทุกๆ Timeframe ทุก 1 นาที (60 วินาที)
-const SYNC_INTERVAL_SECONDS = 60;
-let secondsToNextSync = SYNC_INTERVAL_SECONDS;
-
-async function fetchLiveEconomicCalendar() {
-    const calendarBody = document.getElementById('calendar-data-body');
-    const updateTimeEl = document.getElementById('calendar-last-updated');
-    
-    try {
-        const response = await fetch('https://n8n.biquote.io/webhook/economic-calendar', { method: 'GET', cache: 'no-store' });
-        if (!response.ok) throw new Error("API Offline");
-        const events = await response.json();
-        
-        if (events && events.length > 0) {
-            calendarBody.innerHTML = '';
-            events.slice(0, 5).forEach(ev => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${ev.time || 'Today'}</td>
-                    <td><b>${ev.currency || 'USD'}</b></td>
-                    <td><strong>${ev.event}</strong></td>
-                    <td>${ev.previous || '-'}</td>
-                    <td>${ev.estimate || '-'}</td>
-                    <td style="color:var(--gold); font-weight:bold;">${ev.actual || 'รอประกาศ'}</td>
-                `;
-                calendarBody.appendChild(tr);
-            });
-            if (updateTimeEl) updateTimeEl.textContent = `🟢 Updated Today: ${new Date().toLocaleTimeString('th-TH')}`;
-        } else {
-            throw new Error("No events");
-        }
-    } catch (err) {
-        renderFallbackLiveCalendar();
-    }
-}
-
-function renderFallbackLiveCalendar() {
-    const calendarBody = document.getElementById('calendar-data-body');
-    const updateTimeEl = document.getElementById('calendar-last-updated');
-    const todayStr = new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric' });
-
-    calendarBody.innerHTML = `
-        <tr>
-            <td>20:30</td>
-            <td><b>USD</b></td>
-            <td><strong>US Core CPI MoM (ดัชนีราคาผู้บริโภค)</strong></td>
-            <td>0.2%</td>
-            <td>0.3%</td>
-            <td style="color:var(--up); font-weight:bold;">0.4% (Hawkish Surprise)</td>
-        </tr>
-        <tr>
-            <td>21:00</td>
-            <td><b>USD</b></td>
-            <td><strong>FOMC Statement & Rate Decision</strong></td>
-            <td>4.50%</td>
-            <td>4.50%</td>
-            <td style="color:var(--gold); font-weight:bold;">4.50% (Unchanged)</td>
-        </tr>
-    `;
-    if (updateTimeEl) updateTimeEl.textContent = `🟢 Auto Feed (${todayStr}): Live Calendar Sync`;
-}
-
-const assetNewsDatabase = {
-    'OANDA:XAUUSD': {
-        title: '🧠 8-Layer Analysis Framework: ทองคำ (XAUUSD Daily Live)',
-        desc: 'การวิเคราะห์เชิงลึก 8 มิติ เพื่อประเมินสภาวะตลาดทองคำอย่างครอบคลุม ตั้งแต่ปัจจัย Macro, Bond Yields, ดอลลาร์ จนถึงโครงสร้างราคา SMC รายวัน',
-        impactEngine: {
-            overallScore: '88/100',
-            overallDesc: 'ความสำคัญระดับสูง',
-            assetScore: '-75/100',
-            assetDesc: 'แรงกดดันฝั่งขายตาม Macro',
-            bias: 'BEARISH 🔴',
-            biasColor: 'var(--down)',
-            strategy: 'เน้นเปิดสถานะ Sell ตาม Order Block'
-        },
-        layers: {
-            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'ตัวเลขเศรษฐกิจสหรัฐฯ ทรงตัวแข็งแกร่ง ส่งผลให้ Fed ชะลอการลดดอกเบี้ย' },
-            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'ความตึงเครียดทรงตัว แรงซื้อจากทองคำ Safe-haven มีเข้ามาพยุงเป็นระยะ' },
-            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'US 10Y Yield พุ่งขึ้น และ DXY แข็งค่า กดดันราคาทองคำระยะสั้น' },
-            l4: { title: '4. 🛢️ Commodity Nuances / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'ธนาคารกลางต่างประเทศยังคงมี Net Buy สะสมทองคำในคลังสำรอง' },
-            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'ตลาดหุ้นเผชิญแรงขาย ทำให้เม็ดเงินส่วนหนึ่งไหลเข้าถือเงินสด' },
-            l6: { title: '6. ₿ Crypto Context / ตลาดคริปโท', detail: 'ไม่มีผลกระทบทางตรงต่อราคาทองคำ' },
-            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'COT Report ชี้ว่าสถานะออเดอร์สถาบันเริ่มมีความสมดุลมากขึ้น' },
-            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'ตัวเลขเศรษฐกิจประกาศออกมาหนุนเงินดอลลาร์ชั่วคราว' }
-        },
-        preds: [
-            { event: 'US Core CPI / Inflation Data', forecast: '0.3%', prev: '0.2%', impact: 'หากตัวเลขจริงออกมาสูงกว่าคาด ดอลลาร์จะแข็งค่า กดดันราคาทองคำลงทดสอบ Demand Zone' }
-        ],
-        news: [
-            {
-                source: 'Forex Factory Live Analysis',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Gold Defends Lower Demand Zone as Buyers Sweep Liquidity',
-                reason: 'เกิดการ Swept Liquidity บริเวณ Equal Lows ก่อนราคารีบาวด์ขึ้นอย่างรวดเร็ว',
-                url: 'https://www.forexfactory.com/calendar',
-                date: 'อัปเดตวันนี้'
-            }
-        ],
-        sources: [
-            { cat: '1. ข่าวสารปฏิทินเศรษฐกิจรายวันต่างประเทศ', links: [
-                { name: 'Forex Factory Economic Calendar', url: 'https://www.forexfactory.com/calendar' }
-            ]}
-        ]
-    },
-    'BINANCE:BTCUSDT': {
-        title: '🧠 8-Layer Analysis Framework: Bitcoin (BTCUSDT Daily Live)',
-        desc: 'วิเคราะห์ 8 มิติเชิงลึกสำหรับ Bitcoin และสินทรัพย์ดิจิทัล เพื่อประเมินสภาวะสภาพคล่อง และทิศทางเงินทุนสถาบัน',
-        impactEngine: {
-            overallScore: '82/100',
-            overallDesc: 'ความผันผวนสูง',
-            assetScore: '+65/100',
-            assetDesc: 'แรงซื้อสถาบันหนุน',
-            bias: 'BULLISH 🟢',
-            biasColor: 'var(--up)',
-            strategy: 'เน้นสะสม Buy ใน Demand Zone'
-        },
-        layers: {
-            l1: { title: '1. 🏦 Macro / เศรษฐกิจมหภาค', detail: 'สภาพคล่อง Global M2 มีสัญญาณฟื้นตัว หนุนสินทรัพย์เสี่ยง' },
-            l2: { title: '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', detail: 'มีผลกระทบจำกัดต่อตลาดสินทรัพย์ดิจิทัล' },
-            l3: { title: '3. 💵 Currency & Yields / ค่าเงินและอัตราผลตอบแทน', detail: 'DXY พักตัวเปิดโอกาสให้ Bitcoin ปรับตัวขึ้น' },
-            l4: { title: '4. 🛢️ Commodity Nuances / ปัจจัยเฉพาะโภคภัณฑ์', detail: 'ไม่มีผลกระทบทางตรง' },
-            l5: { title: '5. 📈 Stock / Equity Link / ความสัมพันธ์ตลาดหุ้น', detail: 'เคลื่อนไหวทิศทางเดียวกับดัชนี Tech NASDAQ' },
-            l6: { title: '6. ₿ Crypto Specific / ปัจจัยเฉพาะคริปโท', detail: 'Spot ETF Inflow ไหลเข้าต่อเนื่อง' },
-            l7: { title: '7. 📊 Market Sentiment & Position / โครงสร้างสถานะ', detail: 'Funding Rate อยู่ในระดับปกติ' },
-            l8: { title: '8. 📅 Calendar Assessment / ปฏิทินเศรษฐกิจ', detail: 'ปัจจัยมหภาคเริ่มสนับสนุนสินทรัพย์ดิจิทัล' }
-        },
-        preds: [
-            { event: 'Bitcoin Spot ETF Net Inflow', forecast: '+$200M', prev: '+$110M', impact: 'เม็ดเงินสถาบันไหลเข้าช่วยพยุงราคายืนเหนือแนวรับสำคัญ' }
-        ],
-        news: [
-            {
-                source: 'CoinDesk Live',
-                sentiment: 'bullish',
-                sentimentText: 'ผลกระทบ: บวก (Bullish) 🟢',
-                title: 'Bitcoin Holds Support Above Demand Zone Following ETF Inflows',
-                reason: 'เกิดแรงซื้อสะสมสถาบันช่วยรับราคาใน Demand Zone M15',
-                url: 'https://www.coindesk.com/',
-                date: 'อัปเดตวันนี้'
-            }
-        ],
-        sources: [
-            { cat: '1. ข่าวสารคริปโทเคอร์เรนซีระดับโลก', links: [
-                { name: 'CoinDesk Market News', url: 'https://www.coindesk.com/' }
-            ]}
-        ]
-    }
+/* ---------------------------------------------------------------------
+   สินทรัพย์ + คำค้นข่าว (ปรับเพิ่มได้ที่นี่)
+   --------------------------------------------------------------------- */
+const ASSETS = {
+    XAUUSD: { name: 'ทองคำ (XAUUSD)', icon: '🥇', ccy: ['USD', 'EUR', 'CNY'], lex: 'gold',
+        terms: /gold|xau|bullion|ทอง/i,
+        qEn: ['gold price', 'gold XAUUSD Fed dollar', 'gold central bank safe haven'],
+        qTh: ['ราคาทองคำ', 'ทองคำ เฟด ดอลลาร์'] },
+    BTCUSD: { name: 'Bitcoin (BTCUSD)', icon: '₿', ccy: ['USD'], lex: 'btc',
+        terms: /bitcoin|btc|crypto|ethereum|stablecoin|บิตคอยน์|คริปโต/i,
+        qEn: ['bitcoin price', 'bitcoin ETF flows', 'crypto regulation SEC'],
+        qTh: ['บิตคอยน์', 'คริปโต ราคา'] },
+    EURUSD: { name: 'EUR/USD', icon: '💶', ccy: ['USD', 'EUR'], lex: 'eur',
+        terms: /euro|eur\/usd|eurusd|ecb|eurozone|lagarde|ยูโร/i,
+        qEn: ['EUR/USD', 'ECB interest rate decision', 'eurozone inflation economy'],
+        qTh: ['ยูโร ดอลลาร์', 'ECB ดอกเบี้ย'] },
+    USOIL: { name: 'น้ำมันดิบ (USOIL)', icon: '🛢️', ccy: ['USD', 'CNY'], lex: 'oil',
+        terms: /oil|crude|wti|brent|opec|น้ำมัน/i,
+        qEn: ['crude oil price', 'OPEC production', 'oil inventories EIA'],
+        qTh: ['น้ำมันดิบ', 'OPEC กำลังการผลิต'] }
 };
+function getAsset(key) {
+    if (ASSETS[key]) return ASSETS[key];
+    const safe = String(key).replace(/[^A-Za-z0-9]/g, '');
+    return { name: key, icon: '📊', ccy: ['USD'], lex: 'equity',
+        terms: new RegExp(safe || 'zzzz', 'i'),
+        qEn: [`${key} stock`, `${key} earnings`], qTh: [`หุ้น ${key}`] };
+}
 
-function biquoteSymbol(tvSymbol) {
-    const s = (tvSymbol || '').toUpperCase().trim();
+/* คำค้นข่าวเศรษฐกิจมหภาคที่ใช้ร่วมกันทุกสินทรัพย์ */
+const MACRO_EN = ['Federal Reserve interest rates', 'US inflation CPI jobs report', 'geopolitical war sanctions markets', 'Wall Street stocks dollar Treasury yields'];
+const MACRO_TH = ['ธนาคารแห่งประเทศไทย กนง. ดอกเบี้ย', 'เศรษฐกิจไทย ค่าเงินบาท', 'ตลาดหุ้นไทย SET'];
+
+/* RSS ตรงจากแหล่งข่าว (URL บางตัวอาจเปลี่ยนในอนาคต — สถานะแต่ละแหล่งแสดงในหน้าเว็บ) */
+const DIRECT = [
+    { name: 'Federal Reserve (Press)', url: 'https://www.federalreserve.gov/feeds/press_all.xml', region: 'INTL', assets: '*' },
+    { name: 'ECB (Press)', url: 'https://www.ecb.europa.eu/rss/press.html', region: 'INTL', assets: '*' },
+    { name: 'BBC Business', url: 'https://feeds.bbci.co.uk/news/business/rss.xml', region: 'INTL', assets: '*' },
+    { name: 'CNBC Finance', url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000664', region: 'INTL', assets: '*' },
+    { name: 'Bangkok Post Business', url: 'https://www.bangkokpost.com/rss/data/business.xml', region: 'TH', assets: '*' },
+    { name: 'FXStreet News', url: 'https://www.fxstreet.com/rss/news', region: 'INTL', assets: ['XAUUSD', 'EURUSD'] },
+    { name: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', region: 'INTL', assets: ['BTCUSD'] },
+    { name: 'Cointelegraph', url: 'https://cointelegraph.com/rss', region: 'INTL', assets: ['BTCUSD'] },
+    { name: 'OilPrice.com', url: 'https://oilprice.com/rss/main', region: 'INTL', assets: ['USOIL'] }
+];
+
+const FF_URLS = ['https://nfs.faireconomy.media/ff_calendar_thisweek.json', 'https://cdn-nfs.faireconomy.media/ff_calendar_thisweek.json'];
+const FF_XML_URLS = ['https://nfs.faireconomy.media/ff_calendar_thisweek.xml', 'https://cdn-nfs.faireconomy.media/ff_calendar_thisweek.xml'];
+const N8N_URL = 'https://n8n.biquote.io/webhook/economic-calendar';
+
+/* ---------------------------------------------------------------------
+   ตัวช่วยทั่วไป
+   --------------------------------------------------------------------- */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '#';
+const bkkDate = ts => new Date(ts).toLocaleDateString('en-CA', { timeZone: TZ });
+const bkkTime = ts => new Date(ts).toLocaleTimeString('th-TH', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false });
+const bkkHour = () => Number(new Date().toLocaleString('en-GB', { timeZone: TZ, hour: '2-digit', hour12: false })) % 24;
+function agoText(ts) {
+    if (!ts) return 'ไม่ระบุเวลา';
+    const m = Math.max(0, Math.round((Date.now() - ts) / 60000));
+    if (m < 1) return 'เมื่อสักครู่';
+    if (m < 60) return `${m} นาทีที่แล้ว`;
+    if (m < 1440) return `${Math.floor(m / 60)} ชม.ที่แล้ว`;
+    return `${Math.floor(m / 1440)} วันที่แล้ว`;
+}
+function minsText(m) {
+    if (m < 1) return 'ไม่ถึง 1 นาที';
+    if (m < 60) return `~${Math.round(m)} นาที`;
+    if (m < 1440) return `~${(m / 60).toFixed(1)} ชม.`;
+    return `~${(m / 1440).toFixed(1)} วัน`;
+}
+function biquoteSymbol(tv) {
+    const s = (tv || '').toUpperCase().trim();
     if (s.includes('XAUUSD')) return 'XAUUSD';
     if (s.includes('BTCUSDT') || s.includes('BTCUSD')) return 'BTCUSD';
     if (s.includes('EURUSD')) return 'EURUSD';
     if (s.includes('USOIL')) return 'USOIL';
     return s.includes(':') ? s.split(':').pop() : s;
 }
+const decOf = p => (p < 10 ? 5 : 2);
+function fmt(v, ref) {
+    if (!Number.isFinite(v)) return '--';
+    const d = decOf(ref != null ? ref : v);
+    return Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
 
-function cleanAssetTitle(symbol) {
-    if (symbol.includes(':')) {
-        return symbol.split(':')[1];
+/* =====================================================================
+   SMC ENGINE  (วิเคราะห์แยกอิสระต่อ 1 Timeframe)
+   Swing pivots → BOS/CHoCH → Order Block (+mitigation) → FVG →
+   Liquidity sweep / EQH-EQL → Premium/Discount → Entry/SL/TP
+   ===================================================================== */
+function normBars(raw) {
+    let out = (raw || []).map(b => ({
+        o: +(b.open != null ? b.open : b.o), h: +(b.high != null ? b.high : b.h),
+        l: +(b.low != null ? b.low : b.l), c: +(b.close != null ? b.close : b.c),
+        t: b.time != null ? b.time : (b.t != null ? b.t : (b.timestamp != null ? b.timestamp : null))
+    })).filter(b => [b.o, b.h, b.l, b.c].every(Number.isFinite));
+    if (out.length > 1 && typeof out[0].t === 'number' && typeof out[out.length - 1].t === 'number' && out[0].t > out[out.length - 1].t) out.reverse();
+    return out;
+}
+function calcATR(b, n = 14) {
+    if (b.length < 2) return 0;
+    const trs = [];
+    for (let i = 1; i < b.length; i++) {
+        const p = b[i - 1].c;
+        trs.push(Math.max(b[i].h - b[i].l, Math.abs(b[i].h - p), Math.abs(b[i].l - p)));
     }
-    return symbol;
+    const s = trs.slice(-n);
+    return s.reduce((a, x) => a + x, 0) / s.length;
 }
-
-function formatPrice(value, symbol = currentSymbol) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return '--';
-    const bq = biquoteSymbol(symbol);
-    const decimals = (bq === 'EURUSD' || symbol.includes('EURUSD')) ? 5 : (n < 10 ? 4 : 2);
-    return n.toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-    });
-}
-
-function setApiStatus(text, state = 'up') {
-    const el = document.getElementById('api-status');
-    if (!el) return;
-    el.textContent = text;
-    if (state === 'up') {
-        el.style.color = 'var(--up)';
-        el.style.borderColor = 'var(--up)';
-    } else if (state === 'warn') {
-        el.style.color = 'var(--gold2)';
-        el.style.borderColor = 'var(--gold)';
-    } else {
-        el.style.color = 'var(--down)';
-        el.style.borderColor = 'var(--down)';
-    }
-}
-
-function renderLivePrice(price) {
-    livePrice = Number(price) || 0;
-    const el = document.getElementById('val-realtime-price');
-    if (el && livePrice > 0) {
-        el.textContent = `$${formatPrice(livePrice)}`;
-    }
-    if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
-}
-
-function renderAutoSRChannels(symbol) {
-    const cleanSym = cleanAssetTitle(symbol);
-    const container = document.getElementById('sr-channels-container');
-    
-    let baseRef = livePrice > 0 ? livePrice : 100;
-    let step = baseRef * 0.008;
-
-    let resM1 = (baseRef + step * 0.5).toFixed(2);
-    let supM1 = (baseRef - step * 0.5).toFixed(2);
-    let resM15 = (baseRef + step * 1.5).toFixed(2);
-    let supM15 = (baseRef - step * 1.5).toFixed(2);
-    let resH4 = (baseRef + step * 3.5).toFixed(2);
-    let supH4 = (baseRef - step * 3.5).toFixed(2);
-
-    container.innerHTML = `
-        <div class="channel-card" style="border-left: 4px solid var(--purple);">
-            <div class="channel-title">M1 / M5 Entry & FVG Execution Zone (${cleanSym})</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน (Short-term OB): $${formatPrice(resM1)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ (Short-term OB): $${formatPrice(supM1)}</div>
-        </div>
-        <div class="channel-card" style="border-left: 4px solid var(--gold);">
-            <div class="channel-title">M15 / H1 Structure & Inducement (IDM) Zone</div>
-            <div class="channel-val" style="color:var(--down);">ต้าน (Supply Zone): $${formatPrice(resM15)}</div>
-            <div class="channel-val" style="color:var(--up);">รับ (Demand Zone): $${formatPrice(supM15)}</div>
-        </div>
-        <div class="channel-card" style="border-left: 4px solid var(--up);">
-            <div class="channel-title">H4 Macro Trend & Major Liquidity Pools</div>
-            <div class="channel-val" style="color:var(--down);">ต้านใหญ่ (EQH): $${formatPrice(resH4)}</div>
-            <div class="channel-val" style="color:var(--up);">รับใหญ่ (EQL): $${formatPrice(supH4)}</div>
-        </div>
-    `;
-}
-
-function renderNewsPredictions(symbol) {
-    const cleanSym = cleanAssetTitle(symbol);
-    const container = document.getElementById('news-pred-container');
-    const assetData = assetNewsDatabase[symbol] || assetNewsDatabase['OANDA:XAUUSD'];
-
-    document.getElementById('news-pred-header-title').textContent = `⚙️ Live Impact Engine & Economic Calendar (${cleanSym})`;
-    
-    fetchLiveEconomicCalendar();
-
-    const impactContainer = document.getElementById('impact-engine-container');
-    const ie = assetData.impactEngine;
-    if (impactContainer && ie) {
-        impactContainer.innerHTML = `
-            <div class="impact-card">
-                <div class="impact-title">Overall News Impact Score</div>
-                <div class="impact-val" style="color: var(--down);">${ie.overallScore}</div>
-                <div class="impact-sub">${ie.overallDesc}</div>
-            </div>
-            <div class="impact-card">
-                <div class="impact-title">Asset Impact Score (${cleanSym})</div>
-                <div class="impact-val" style="color: ${ie.biasColor};">${ie.assetScore}</div>
-                <div class="impact-sub">${ie.assetDesc}</div>
-            </div>
-            <div class="impact-card">
-                <div class="impact-title">Trading Bias</div>
-                <div class="impact-val" style="color: ${ie.biasColor};">${ie.bias}</div>
-                <div class="impact-sub">${ie.strategy}</div>
-            </div>
-        `;
-    }
-
-    container.innerHTML = '';
-    const predsList = assetData.preds || [];
-    predsList.forEach(item => {
-        const box = document.createElement('div');
-        box.className = 'pred-box';
-        box.innerHTML = `
-            <div class="pred-title">📌 ข่าวสำคัญประจำวัน: ${item.event}</div>
-            <div class="pred-val">Forecast: ${item.forecast} | Prev: ${item.prev}</div>
-            <div style="font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4;">
-                <b>ผลกระทบ:</b> ${item.impact}
-            </div>
-        `;
-        container.appendChild(box);
-    });
-}
-
-function renderAssetNews(symbol) {
-    const cleanSym = cleanAssetTitle(symbol);
-    const assetData = assetNewsDatabase[symbol] || assetNewsDatabase['OANDA:XAUUSD'];
-
-    document.getElementById('news-asset-title').textContent = assetData.title;
-    document.getElementById('news-asset-desc').textContent = assetData.desc;
-
-    const layerContainer = document.getElementById('layer-matrix-container');
-    if (layerContainer && assetData.layers) {
-        layerContainer.innerHTML = '';
-        Object.keys(assetData.layers).forEach(k => {
-            const l = assetData.layers[k];
-            const card = document.createElement('div');
-            card.className = 'layer-card';
-            card.innerHTML = `
-                <div class="layer-header">${l.title}</div>
-                <div class="layer-desc">${l.detail}</div>
-            `;
-            layerContainer.appendChild(card);
-        });
-    }
-
-    const newsContainer = document.getElementById('news-grid-container');
-    newsContainer.innerHTML = '';
-    const newsList = assetData.news || [];
-
-    newsList.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'news-card';
-        card.innerHTML = `
-            <div>
-                <div class="news-header">
-                    <span class="news-source-tag">${item.source}</span>
-                    <span class="badge ${item.sentiment}">${item.sentimentText}</span>
-                </div>
-                <div class="news-headline">${item.title}</div>
-                <div class="news-impact-box ${item.sentiment}">
-                    <b>วิเคราะห์เชิงโครงสร้าง:</b> ${item.reason}
-                </div>
-            </div>
-            <div class="news-footer-row">
-                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="news-read-link">
-                    อ่านข่าวต้นฉบับ 🔗
-                </a>
-                <span class="news-date-tag">${item.date}</span>
-            </div>
-        `;
-        newsContainer.appendChild(card);
-    });
-
-    const sourcesContainer = document.getElementById('sources-grid-container');
-    sourcesContainer.innerHTML = '';
-    const sourcesList = assetData.sources || [];
-
-    sourcesList.forEach(scat => {
-        const box = document.createElement('div');
-        box.className = 'source-cat-box';
-        let listItems = scat.links.map(l => `<li><b>${l.name}:</b> <a href="${l.url}" target="_blank">อ่านข้อมูล 🔗</a></li>`).join('');
-        box.innerHTML = `
-            <div class="source-cat-header">${scat.cat}</div>
-            <ul class="source-list">${listItems}</ul>
-        `;
-        sourcesContainer.appendChild(box);
-    });
-}
-
-async function fetchCandleData(tf, limit = 60) {
-    const symbol = biquoteSymbol(currentSymbol);
-    try {
-        const response = await fetch(
-            `https://biquote.io/api/${encodeURIComponent(symbol)}/ohlc?interval=${encodeURIComponent(tf)}&limit=${limit}`,
-            { cache: 'no-store' }
-        );
-        if (!response.ok) return [];
-        const data = await response.json();
-        return Array.isArray(data.bars) ? data.bars : [];
-    } catch (err) {
-        return [];
-    }
-}
-
-// 🎯 ดึงข้อมูลแท่งเทียนทุก Timeframe พร้อมการันตีอัปเดตราคาจาก M1 ล่าสุด
-async function loadAllTimeframesData() {
-    setApiStatus('SMC Analyzing Multi-TF... 🟡', 'warn');
-    const [h4, h1, m15, m5, m1] = await Promise.all([
-        fetchCandleData('4h', 80),
-        fetchCandleData('1h', 80),
-        fetchCandleData('15m', 80),
-        fetchCandleData('5m', 60),
-        fetchCandleData('1m', 60)
-    ]);
-
-    barsH4 = h4;
-    barsH1 = h1;
-    barsM15 = m15;
-    barsM5 = m5;
-    barsM1 = m1;
-
-    // ซิงก์ราคาปิดล่าสุดจากแท่งเทียน M1 เสมอ เพื่อความแม่นยำของราคาสด
-    if (barsM1.length > 0 && barsM1[barsM1.length - 1].close) {
-        renderLivePrice(Number(barsM1[barsM1.length - 1].close));
-    }
-
-    if (livePrice > 0) recalculateSMCTradingEngine(livePrice);
-    setApiStatus('SMC Engine Live 🟢', 'up');
-    secondsToNextSync = SYNC_INTERVAL_SECONDS;
-}
-
-// 🎯 ตั้งค่า Auto Loop นับถอยหลังและสแกนกราฟใหม่ในทุกๆ Timeframe ทุก 1 นาที (60 วินาที)
-function startEngineLoop() {
-    if (calculationTimer) clearInterval(calculationTimer);
-    if (countdownTimer) clearInterval(countdownTimer);
-
-    loadAllTimeframesData();
-
-    // รันการคำนวณและสแกนใหม่ทุกๆ 60 วินาที
-    calculationTimer = setInterval(() => {
-        loadAllTimeframesData();
-    }, SYNC_INTERVAL_SECONDS * 1000);
-
-    countdownTimer = setInterval(() => {
-        secondsToNextSync--;
-        if (secondsToNextSync < 0) secondsToNextSync = SYNC_INTERVAL_SECONDS;
-        const mins = Math.floor(secondsToNextSync / 60);
-        const secs = secondsToNextSync % 60;
-        const timerEl = document.getElementById('timer-display');
-        if (timerEl) {
-            timerEl.textContent = `⏱️ Next Sync: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+function findPivots(b, k) {
+    const piv = [];
+    for (let i = k; i < b.length - k; i++) {
+        let hi = true, lo = true;
+        for (let j = 1; j <= k; j++) {
+            if (!(b[i].h > b[i - j].h && b[i].h >= b[i + j].h)) hi = false;
+            if (!(b[i].l < b[i - j].l && b[i].l <= b[i + j].l)) lo = false;
         }
-    }, 1000);
-}
-
-function fetchFallbackQuote(symbol) {
-    let basePrice = 100.00;
-    if (symbol.includes('XAUUSD')) basePrice = 2650.00;
-    else if (symbol.includes('USOIL')) basePrice = 72.50;
-    else if (symbol.includes('EURUSD')) basePrice = 1.0850;
-    else if (symbol.includes('QQQ')) basePrice = 490.00;
-    else if (symbol.includes('BTC')) basePrice = 67000.00;
-
-    if (livePrice === 0) livePrice = basePrice;
-    let tick = (Math.random() - 0.492) * (basePrice * 0.0002);
-    livePrice = parseFloat((livePrice + tick).toFixed(symbol.includes('EURUSD') ? 4 : 2));
-
-    renderLivePrice(livePrice);
-    renderAutoSRChannels(symbol);
-    setApiStatus("Live Price Feed Sync 🟢", "up");
-}
-
-function connectRealtimePriceAPI(symbol) {
-    if (wsConnection) { wsConnection.close(); wsConnection = null; }
-    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-
-    const bqSymbol = biquoteSymbol(symbol);
-    setApiStatus('Connecting Realtime Feed... 🟡', 'warn');
-
-    if (symbol.includes('BTC')) {
-        wsConnection = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        wsConnection.onopen = () => setApiStatus("Binance Stream Live 🟢", "up");
-        wsConnection.onmessage = (e) => {
-            let data = JSON.parse(e.data);
-            if (data && data.c) renderLivePrice(parseFloat(data.c));
-        };
-        wsConnection.onerror = () => startRESTPollingFallback(symbol);
-        return;
+        if (hi) piv.push({ i, p: b[i].h, type: 'H' });
+        if (lo) piv.push({ i, p: b[i].l, type: 'L' });
     }
-
-    try {
-        wsConnection = new WebSocket('wss://stream.biquote.io/v1/live');
-        wsConnection.onopen = () => {
-            setApiStatus('Biquote Stream Live 🟢', 'up');
-            wsConnection.send(JSON.stringify({ action: 'subscribe', symbols: [bqSymbol] }));
-        };
-        wsConnection.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            if (data && (data.price || data.mid)) {
-                renderLivePrice(Number(data.price || data.mid));
-            }
-        };
-        wsConnection.onerror = () => startRESTPollingFallback(symbol);
-    } catch (err) {
-        startRESTPollingFallback(symbol);
-    }
+    return piv;
 }
-
-function startRESTPollingFallback(symbol) {
-    fetchFallbackQuote(symbol);
-    pollInterval = setInterval(() => fetchFallbackQuote(symbol), 1500);
-}
-
-function calculateEMA(prices, period) {
-    if (prices.length < period) return prices[prices.length - 1] || 0;
-    const k = 2 / (period + 1);
-    let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
-    for (let i = period; i < prices.length; i++) {
-        ema = prices[i] * k + ema * (1 - k);
-    }
-    return ema;
-}
-
-function findRefinedOrderBlock(candles, direction) {
-    if (!candles || candles.length < 5) return null;
-    const len = candles.length;
-
-    if (direction === 'BULLISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
-            const cCurr = candles[i];
-            const cNext = candles[i + 1];
-            if (cNext && cNext.close > cCurr.high && cCurr.close <= cCurr.open) {
-                return {
-                    top: Number(cCurr.high),
-                    bottom: Number(cCurr.low),
-                    wickLow: Number(cCurr.low) - ((Number(cCurr.high) - Number(cCurr.low)) * 0.2)
-                };
-            }
+/* เดินทีละแท่ง: pivot จะ "ยืนยัน" หลังผ่านไป k แท่ง; ปิดทะลุ swing = BOS (ตามเทรนด์) / CHoCH (สวนเทรนด์) */
+function buildStructure(b, k) {
+    const piv = findPivots(b, k);
+    const conf = new Map();
+    piv.forEach(p => { const c = p.i + k; if (!conf.has(c)) conf.set(c, []); conf.get(c).push(p); });
+    let sh = null, sl = null, trend = 0;
+    const events = [];
+    for (let j = 0; j < b.length; j++) {
+        (conf.get(j) || []).forEach(p => { if (p.type === 'H') sh = { i: p.i, p: p.p, broken: false }; else sl = { i: p.i, p: p.p, broken: false }; });
+        const c = b[j].c;
+        if (sh && !sh.broken && c > sh.p) {
+            events.push({ type: trend < 0 ? 'CHoCH' : 'BOS', dir: 1, level: sh.p, idx: j, swingIdx: sh.i });
+            sh.broken = true; trend = 1;
+        } else if (sl && !sl.broken && c < sl.p) {
+            events.push({ type: trend > 0 ? 'CHoCH' : 'BOS', dir: -1, level: sl.p, idx: j, swingIdx: sl.i });
+            sl.broken = true; trend = -1;
         }
-    } else if (direction === 'BEARISH') {
-        for (let i = len - 2; i >= Math.max(0, len - 25); i--) {
-            const cCurr = candles[i];
-            const cNext = candles[i + 1];
-            if (cNext && cNext.close < cCurr.low && cNext.close >= cCurr.open) {
-                return {
-                    top: Number(cCurr.high),
-                    bottom: Number(cCurr.low),
-                    wickHigh: Number(cCurr.high) + ((Number(cCurr.high) - Number(cCurr.low)) * 0.2)
-                };
-            }
+    }
+    return { piv, events, trend };
+}
+/* Order Block = แท่งสวนสีล่าสุด ณ ต้นขาที่ทำให้เกิด BOS/CHoCH */
+function obForEvent(b, e) {
+    let idx = e.swingIdx;
+    for (let i = e.swingIdx; i <= e.idx; i++) {
+        if (e.dir > 0 ? b[i].l < b[idx].l : b[i].h > b[idx].h) idx = i;
+    }
+    let ob = -1;
+    for (let i = idx; i >= Math.max(0, idx - 5); i--) {
+        const c = b[i];
+        if (e.dir > 0 ? c.c < c.o : c.c > c.o) { ob = i; break; }
+    }
+    if (ob < 0) ob = idx;
+    return { dir: e.dir, idx: ob, top: b[ob].h, bottom: b[ob].l, brk: e.idx, type: e.type };
+}
+function obState(b, ob) {
+    let touched = false, invalid = false;
+    for (let i = ob.brk + 1; i < b.length; i++) {
+        if (ob.dir > 0) { if (b[i].c < ob.bottom) { invalid = true; break; } if (b[i].l <= ob.top) touched = true; }
+        else { if (b[i].c > ob.top) { invalid = true; break; } if (b[i].h >= ob.bottom) touched = true; }
+    }
+    return Object.assign({}, ob, { touched, invalid });
+}
+function findFVGs(b, a) {
+    const out = [];
+    for (let i = Math.max(1, b.length - 80); i < b.length - 1; i++) {
+        const c0 = b[i - 1], c2 = b[i + 1];
+        if (c2.l > c0.h && c2.l - c0.h >= a * 0.1) out.push({ dir: 1, top: c2.l, bottom: c0.h, idx: i });
+        else if (c2.h < c0.l && c0.l - c2.h >= a * 0.1) out.push({ dir: -1, top: c0.l, bottom: c2.h, idx: i });
+    }
+    return out.filter(g => {
+        for (let i = g.idx + 2; i < b.length; i++) if (g.dir > 0 ? b[i].l <= g.bottom : b[i].h >= g.top) return false;
+        return true;
+    });
+}
+function findSweep(b, piv, dir, k) {
+    for (let j = b.length - 1; j >= Math.max(0, b.length - 12); j--) {
+        for (const p of piv) {
+            if (p.i + k >= j) continue;
+            if (dir > 0 && p.type === 'L' && b[j].l < p.p && b[j].c > p.p) return { level: p.p, idx: j };
+            if (dir < 0 && p.type === 'H' && b[j].h > p.p && b[j].c < p.p) return { level: p.p, idx: j };
         }
     }
     return null;
 }
+function equalLevels(piv, a) {
+    const grp = arr => {
+        for (let x = arr.length - 1; x > 0; x--)
+            for (let y = x - 1; y >= 0; y--)
+                if (Math.abs(arr[x].p - arr[y].p) <= a * 0.15) return (arr[x].p + arr[y].p) / 2;
+        return null;
+    };
+    return { eqh: grp(piv.filter(p => p.type === 'H').slice(-8)), eql: grp(piv.filter(p => p.type === 'L').slice(-8)) };
+}
+const overlaps = (x, y) => x.bottom <= y.top && y.bottom <= x.top;
 
-// 🎯 ปรับปรุงจุดวิเคราะห์ SMC Engine: ซิงก์ราคา M1 ล่าสุดเสมอ เพื่อให้ทุกๆ Timeframe คำนวณจุดเข้าได้แม่นยำและสดใหม่ทุกๆ 1 นาที
-function recalculateSMCTradingEngine(price) {
-    if (!price || price <= 0) return;
+function analyzeTF(tf, rawBars) {
+    const bars = normBars(rawBars);
+    const base = { key: tf.key, label: tf.label, mins: tf.mins, nBars: bars.length };
+    if (bars.length < 30) return Object.assign(base, { ok: false, reason: `ข้อมูลไม่พอ (${bars.length} แท่ง)` });
 
-    const decimals = (biquoteSymbol(currentSymbol) === 'EURUSD' || currentSymbol.includes('EURUSD')) ? 5 : 2;
+    const closed = bars.slice(0, -1);               // แท่งที่ปิดแล้วเท่านั้น
+    const lb = LOOKBACK[tf.key];
+    const b = lb ? closed.slice(-lb) : closed;      // M1/M5: ใช้เฉพาะ 50 แท่งล่าสุด
+    const lastClose = bars[bars.length - 1].c;
+    const k = tf.mins <= 15 ? 2 : 3;
+    const a = calcATR(b, 14) || lastClose * 0.001;
+    const st = buildStructure(b, k);
+    const eq = equalLevels(st.piv, a);
+    const maxAge = MAX_AGE[tf.key], reach = MAX_REACH[tf.key] || 5;
+    const recentPiv = maxAge ? st.piv.filter(p => b.length - 1 - p.i <= maxAge) : st.piv;   // ใช้ High/Low ใหม่เท่านั้น
+    const lastH = [...recentPiv].reverse().find(p => p.type === 'H') || [...st.piv].reverse().find(p => p.type === 'H');
+    const lastL = [...recentPiv].reverse().find(p => p.type === 'L') || [...st.piv].reverse().find(p => p.type === 'L');
+    const range = (lastH && lastL && lastH.p > lastL.p) ? { hi: lastH.p, lo: lastL.p, mid: (lastH.p + lastL.p) / 2 } : null;
+    const fvgs = findFVGs(b, a);
+    const lastEv = st.events.length ? st.events[st.events.length - 1] : null;
 
-    let primaryBars = barsM1;
-    let tfLabel = 'M1';
-    let pOffset1 = 1.00, pOffset2 = 2.00, pOffset3 = 3.00;
-    let atrMultiplier = 0.0003;
+    const allOBs = st.events.map(e => obState(b, obForEvent(b, e))).filter(o => !o.invalid);   // ไว้ใช้เป็นเป้า TP
+    const res = Object.assign(base, {
+        nBars: b.length, tpObs: allOBs, reach,
+        ok: true, trend: st.trend, atr: a, lastClose, range, eqh: eq.eqh, eql: eq.eql,
+        fvgs: fvgs.slice(-4).reverse(),
+        lastEvent: lastEv ? { type: lastEv.type, dir: lastEv.dir, level: lastEv.level, agoMins: (b.length - 1 - lastEv.idx) * tf.mins } : null,
+        setup: null, reason: ''
+    });
+    res.piv = st.piv;
 
-    // เลือกชุดแท่งเทียนโครงสร้างราคาตาม Timeframe ที่เลือก
-    if (currentTimeframe === '1m') {
-        primaryBars = barsM1.length > 0 ? barsM1 : barsM5;
-        tfLabel = 'M1';
-        pOffset1 = (decimals === 5) ? 0.00100 : 1.00;
-        pOffset2 = (decimals === 5) ? 0.00200 : 2.00;
-        pOffset3 = (decimals === 5) ? 0.00300 : 3.00;
-        atrMultiplier = 0.0003;
-    } else if (currentTimeframe === '5m') {
-        primaryBars = barsM5.length > 0 ? barsM5 : barsM1;
-        tfLabel = 'M5';
-        pOffset1 = (decimals === 5) ? 0.00050 : 0.50;
-        pOffset2 = (decimals === 5) ? 0.00120 : 1.20;
-        pOffset3 = (decimals === 5) ? 0.00250 : 2.50;
-        atrMultiplier = 0.0005;
-    } else if (currentTimeframe === '15m') {
-        primaryBars = barsM15.length > 0 ? barsM15 : barsM5;
-        tfLabel = 'M15';
-        pOffset1 = (decimals === 5) ? 0.00200 : 2.00;
-        pOffset2 = (decimals === 5) ? 0.00350 : 3.50;
-        pOffset3 = (decimals === 5) ? 0.00500 : 5.00;
-        atrMultiplier = 0.0015;
-    } else if (currentTimeframe === '1h') {
-        primaryBars = barsH1.length > 0 ? barsH1 : barsM15;
-        tfLabel = 'H1';
-        pOffset1 = (decimals === 5) ? 0.00350 : 3.50;
-        pOffset2 = (decimals === 5) ? 0.00550 : 5.50;
-        pOffset3 = (decimals === 5) ? 0.00800 : 8.00;
-        atrMultiplier = 0.0035;
-    } else if (currentTimeframe === '4h') {
-        primaryBars = barsH4.length > 0 ? barsH4 : barsH1;
-        tfLabel = 'H4';
-        pOffset1 = (decimals === 5) ? 0.00600 : 6.00;
-        pOffset2 = (decimals === 5) ? 0.01000 : 10.00;
-        pOffset3 = (decimals === 5) ? 0.01500 : 15.00;
-        atrMultiplier = 0.0075;
-    }
-
-    const primaryCloses = primaryBars.map(b => Number(b.close)).filter(Number.isFinite);
-    const primaryHighs = primaryBars.map(b => Number(b.high)).filter(Number.isFinite);
-    const primaryLows = primaryBars.map(b => Number(b.low)).filter(Number.isFinite);
-
-    // 🔥 การันตีใช้ราคาปิดล่าสุดจาก M1 เพื่อซิงก์ราคาสดจริงกับ TradingView สำหรับทุกๆ Timeframe
-    const m1Closes = barsM1.map(b => Number(b.close)).filter(Number.isFinite);
-    const currentRefPrice = m1Closes.length > 0 ? m1Closes[m1Closes.length - 1] : (primaryCloses.length > 0 ? primaryCloses[primaryCloses.length - 1] : price);
-
-    const ema50 = primaryCloses.length >= 50 ? calculateEMA(primaryCloses, 50) : currentRefPrice * 0.998;
-    const ema200 = primaryCloses.length >= 80 ? calculateEMA(primaryCloses, 80) : currentRefPrice * 0.995;
-
-    const swingHigh = primaryHighs.length ? Math.max(...primaryHighs.slice(-15)) : currentRefPrice * 1.01;
-    const swingLow = primaryLows.length ? Math.min(...primaryLows.slice(-15)) : currentRefPrice * 0.99;
-
-    let isBullish;
-    if (userSignalMode === 'buy') isBullish = true;
-    else if (userSignalMode === 'sell') isBullish = false;
-    else isBullish = currentRefPrice >= ema50 || ema50 >= ema200;
-
-    const direction = isBullish ? 'BULLISH' : 'BEARISH';
-    let ob = findRefinedOrderBlock(primaryBars, direction);
-
-    const spreadBuffer = (decimals === 5) ? 0.00020 : 0.20; 
-    const atrBuffer = currentRefPrice * atrMultiplier;
-
-    let ez1Min, ez1Max, ez2Min, ez2Max, ez3Min, ez3Max;
-    let tp1Min, tp1Max, tp2Min, tp2Max, tp3Min, tp3Max;
-    let slMin, slMax;
-
-    if (isBullish) {
-        // คำนวณโซนเข้าซื้อ BUY (Hybrid 3-In-1)
-        const baseSweep = ob ? ob.wickLow : (currentRefPrice - pOffset3);
-        ez1Min = baseSweep - spreadBuffer;
-        ez1Max = (ob ? ob.bottom : (currentRefPrice - pOffset2)) - (spreadBuffer * 0.5);
-
-        ez2Min = ob ? ob.bottom : (currentRefPrice - pOffset2);
-        ez2Max = ob ? ob.top : (currentRefPrice - pOffset1);
-
-        ez3Min = currentRefPrice - pOffset1;
-        ez3Max = currentRefPrice + spreadBuffer;
-
-        // 🛡️ SL Zone คำนวณจากโครงสร้างไส้ Order Block ใน TF นั้นๆ + ATR Buffer
-        slMin = ob ? (ob.wickLow - atrBuffer * 1.2) : (ez1Min - atrBuffer * 1.5);
-        slMax = ez1Min - (spreadBuffer * 0.5);
-
-        const risk = Math.max(currentRefPrice - slMax, atrBuffer * 2);
-
-        tp1Min = currentRefPrice + (risk * 1.0); tp1Max = currentRefPrice + (risk * 1.5);
-        tp2Min = currentRefPrice + (risk * 2.0); tp2Max = currentRefPrice + (risk * 2.5);
-        tp3Min = Math.max(currentRefPrice + (risk * 3.0), swingHigh); 
-        tp3Max = Math.max(currentRefPrice + (risk * 3.5), swingHigh);
+    // OB ในทิศของเทรนด์ปัจจุบัน: ต้องไม่ถูกทะลุ, ชอบอันที่ยังไม่ถูกแตะ
+    // ต้องใหม่ (≤ MAX_AGE แท่ง) และอยู่ใกล้ราคา (≤ MAX_REACH ATR วัดถึง Entry1) → เลือกอันที่ใกล้ราคาที่สุด (OB ที่ถูกแตะแล้วโดนหักคะแนน)
+    const reachOf = (dir, z) => { const e1 = dir > 0 ? z.top + ENTRY_FRONT * a : z.bottom - ENTRY_FRONT * a; return Math.max(0, dir > 0 ? lastClose - e1 : e1 - lastClose) / a; };
+    const cands = (st.trend ? st.events.filter(e => e.dir === st.trend).map(e => obState(b, obForEvent(b, e))) : [])
+        .filter(o => !o.invalid && (!maxAge || b.length - 1 - o.brk <= maxAge))
+        .map(o => Object.assign(o, { dist: reachOf(o.dir, o) }))
+        .filter(o => o.dist <= reach)
+        .sort((x, y) => (x.dist + (x.touched ? 0.75 : 0)) - (y.dist + (y.touched ? 0.75 : 0)));
+    const ob = cands[0];
+    if (ob) {
+        const dir = ob.dir;
+        const s = makeSetup(dir, { top: ob.top, bottom: ob.bottom }, 'ob', a, st.piv, { tf: tf.key, obs: allOBs });
+        const fvgHit = fvgs.some(g => g.dir === dir && overlaps(g, s.zone));
+        const sweep = findSweep(b, st.piv, dir, k);
+        const rightHalf = range ? (dir > 0 ? s.e2 < range.mid : s.e2 > range.mid) : false;
+        s.ob = ob; s.sweep = sweep; s.label = 'Order Block';
+        s.conf = [
+            { ok: true, label: `${ob.type} ${dir > 0 ? '↑' : '↓'}` },
+            { ok: fvgHit, label: 'FVG ซ้อน OB' },
+            { ok: !!sweep, label: 'Liquidity Sweep' },
+            { ok: rightHalf, label: dir > 0 ? 'อยู่โซน Discount' : 'อยู่โซน Premium' },
+            { ok: !ob.touched, label: 'OB ยังไม่ถูกแตะ' }
+        ];
+        res.setup = s;
     } else {
-        // คำนวณโซนเข้าขาย SELL
-        const baseSweepSell = ob ? (ob.wickHigh || ob.top) : (currentRefPrice + pOffset3);
-        ez1Min = (ob ? ob.top : (currentRefPrice + pOffset2)) + (spreadBuffer * 0.5);
-        ez1Max = baseSweepSell + spreadBuffer;
-
-        ez2Min = ob ? ob.bottom : (currentRefPrice + pOffset1);
-        ez2Max = ob ? ob.top : (currentRefPrice + pOffset2);
-
-        ez3Min = currentRefPrice - spreadBuffer;
-        ez3Max = currentRefPrice + pOffset1;
-
-        // 🛡️ SL Zone คำนวณจากโครงสร้างไส้ Order Block ใน TF นั้นๆ + ATR Buffer
-        slMin = ez1Max + (spreadBuffer * 0.5);
-        slMax = ob ? (ob.wickHigh + atrBuffer * 1.2) : (ez1Max + atrBuffer * 1.5);
-
-        const risk = Math.max(slMin - currentRefPrice, atrBuffer * 2);
-
-        tp1Min = currentRefPrice - (risk * 1.5); tp1Max = currentRefPrice - (risk * 1.0);
-        tp2Min = currentRefPrice - (risk * 2.5); tp2Max = currentRefPrice - (risk * 2.0);
-        tp3Min = Math.min(currentRefPrice - (risk * 3.5), swingLow); 
-        tp3Max = Math.min(currentRefPrice - (risk * 3.0), swingLow);
+        // ไม่มี OB ใช้ได้ → ไม่ปล่อยว่าง แสดง "โซนรอเข้า" (Breaker → FVG → OTE) แทน
+        res.reason = st.trend ? `ไม่มี OB ที่ใหม่และอยู่ใกล้ราคา (≤ ${reach} ATR)` : 'ยังไม่เกิดโครงสร้างชัดเจน';
+        res.setup = buildWatch(res, b, st, a);
+        if (res.setup) res.reason += ' — แสดงเป็นโซนรอเข้าแทน';
     }
-
-    const fmtZ = (minV, maxV) => `$${minV.toFixed(decimals)} - $${maxV.toFixed(decimals)}`;
-
-    const entryZonesContainer = document.getElementById('entry-zones-container');
-    const tpSlContainer = document.getElementById('tp-sl-zones-container');
-    const badge = document.getElementById('sig-badge');
-    const pill = document.getElementById('active-direction-pill');
-    const subtag = document.getElementById('entry-card-subtag');
-
-    if (isBullish) {
-        pill.textContent = `${tfLabel} BULLISH FOCUS 🟢`;
-        pill.style.borderColor = 'var(--up)';
-        pill.style.color = 'var(--up)';
-        subtag.textContent = `3-In-1 Hybrid`;
-        badge.textContent = `BUY ZONE ACTIVE`;
-        badge.className = 'sig-tag buy';
-
-        entryZonesContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 1 :</span>
-                <span class="val-num buy">${fmtZ(ez1Min, ez1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 2 :</span>
-                <span class="val-num buy">${fmtZ(ez2Min, ez2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot buy"></span>Entry 3 :</span>
-                <span class="val-num buy">${fmtZ(ez3Min, ez3Max)}</span>
-            </div>
-        `;
-
-        tpSlContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 1 (RR 1:1.5) :</span>
-                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 2 (RR 1:2.5) :</span>
-                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 3 (${tfLabel} High) :</span>
-                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
-            </div>
-            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
-            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel}) :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
-            </div>
-        `;
-    } else {
-        pill.textContent = `${tfLabel} BEARISH FOCUS 🔴`;
-        pill.style.borderColor = 'var(--down)';
-        pill.style.color = 'var(--down)';
-        subtag.textContent = `3-In-1 Hybrid`;
-        badge.textContent = `SELL ZONE ACTIVE`;
-        badge.className = 'sig-tag sell';
-
-        entryZonesContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 1 :</span>
-                <span class="val-num sell">${fmtZ(ez1Min, ez1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 2 :</span>
-                <span class="val-num sell">${fmtZ(ez2Min, ez2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot sell"></span>Entry 3 :</span>
-                <span class="val-num sell">${fmtZ(ez3Min, ez3Max)}</span>
-            </div>
-        `;
-
-        tpSlContainer.innerHTML = `
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 1 (RR 1:1.5) :</span>
-                <span class="val-num tp">${fmtZ(tp1Min, tp1Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 2 (RR 1:2.5) :</span>
-                <span class="val-num tp">${fmtZ(tp2Min, tp2Max)}</span>
-            </div>
-            <div class="zone-item">
-                <span class="zone-label"><span class="dot tp"></span>TP 3 (${tfLabel} Low) :</span>
-                <span class="val-num tp">${fmtZ(tp3Min, tp3Max)}</span>
-            </div>
-            <div style="border-top:1px dashed var(--line);margin:2px 0;"></div>
-            <div class="zone-item" style="background: rgba(226,87,76,0.08);">
-                <span class="zone-label"><span class="dot sl"></span>SL Zone (${tfLabel}) :</span>
-                <span class="val-num sl">${fmtZ(slMin, slMax)}</span>
-            </div>
-        `;
-    }
-
-    document.getElementById('sig-mode-desc').textContent =
-        `โหมดคำนวณ: ${tfLabel} SMC Precision Hybrid`;
+    // โซนสวนเทรนด์ (ทิศตรงข้ามกับ setup หลัก) — ทำให้เห็น SELL ได้แม้โครงสร้างยัง Bullish
+    const altDir = res.setup ? -res.setup.dir : (st.trend ? -st.trend : 0);
+    res.alt = altDir ? buildCounter(res, b, st, a, altDir, maxAge, k) : null;
+    return res;
 }
 
-function setSignalMode(mode) {
-    userSignalMode = mode;
-    document.getElementById('mode-auto').classList.toggle('active', mode === 'auto');
-    document.getElementById('mode-buy').classList.toggle('active', mode === 'buy');
-    document.getElementById('mode-sell').classList.toggle('active', mode === 'sell');
-    recalculateSMCTradingEngine(livePrice);
+/* สร้าง Entry/SL/TP จากโซน
+   Entry1 = ดักหน้าขอบโซน ENTRY_FRONT×ATR (ราคาไปถึงแน่ๆ), Entry2 = 25% ของโซน, Entry3 = 60% ของโซน, SL = นอกขอบไกล 0.25 ATR
+   RR คิดจากราคาเข้าเฉลี่ย 3 ไม้
+   TP: ระยะอย่างน้อย max(RR×R, ATR×TP_ATR) แล้วเลือก 1) ขอบ OB ฝั่งตรงข้าม 2) Swing High/Low 3) ระยะตามตาราง */
+function makeSetup(dir, zone, kind, atr, piv, ctx) {
+    const Z = zone.top - zone.bottom;
+    const E1 = dir > 0 ? zone.top + ENTRY_FRONT * atr : zone.bottom - ENTRY_FRONT * atr;
+    const E2 = dir > 0 ? zone.top - 0.25 * Z : zone.bottom + 0.25 * Z;
+    const E3 = dir > 0 ? zone.top - 0.60 * Z : zone.bottom + 0.60 * Z;
+    const EA = (E1 + E2 + E3) / 3;
+    const SL = dir > 0 ? zone.bottom - 0.25 * atr : zone.top + 0.25 * atr;
+    const R = Math.max(Math.abs(EA - SL), 0.3 * atr);
+    const sortD = (x, y) => dir > 0 ? x - y : y - x;
+    const lv = (piv || []).filter(p => dir > 0 ? (p.type === 'H' && p.p > E1) : (p.type === 'L' && p.p < E1))
+        .map(p => p.p).sort(sortD);
+    // OB ฝั่งตรงข้าม: BUY → ขอบล่างของ Bearish OB เหนือ entry, SELL → ขอบบนของ Bullish OB ใต้ entry
+    const obLv = ((ctx && ctx.obs) || []).filter(o => o.dir === -dir)
+        .map(o => dir > 0 ? o.bottom : o.top).filter(x => dir * (x - E1) > 0).sort(sortD);
+    const tf = ctx && ctx.tf;
+    const rrT = TP_RR[tf] || TP_RR['1m'], atrT = TP_ATR[tf] || TP_ATR['1m'];
+    let prev = EA; const tps = [], src = [];
+    rrT.forEach((m, i) => {
+        const want = Math.max(m * R, atrT[i] * atr);   // ระยะ TP ขั้นต่ำจากราคาเข้าเฉลี่ย
+        const pick = arr => arr.find(x => dir * (x - prev) > 0.3 * R && Math.abs(x - EA) >= want * 0.85 && Math.abs(x - EA) <= want * 1.8);
+        let c = pick(obLv), t = 'OB';
+        if (c === undefined) { c = pick(lv); t = 'Swing'; }
+        if (c === undefined) { c = EA + dir * want; t = 'RR'; }
+        if (dir * (c - prev) <= 0) { c = prev + dir * R; t = 'RR'; }
+        tps.push(c); src.push(t); prev = c;
+    });
+    return { dir, kind, zone: { top: zone.top, bottom: zone.bottom }, e1: E1, e2: E2, e3: E3, ea: EA, sl: SL, tps, tpSrc: src, rr: tps.map(t => Math.abs(t - EA) / R), conf: [], sweep: null };
 }
 
-function loadTV(id, src, config){
-    const m = document.getElementById(id);
-    if (!m) return;
+/* โซนรอเข้า เมื่อไม่มี OB: 1) Breaker (OB ที่ถูกทะลุ → กลับด้าน) 2) FVG ที่ยังไม่ถูกเติม 3) OTE Fib 62–79% */
+function buildWatch(res, b, st, atr) {
+    const px = res.lastClose;
+    const mk = (dir, zone, kind, label) => {
+        const s = makeSetup(dir, zone, kind, atr, st.piv, { tf: res.key, obs: res.tpObs });
+        if (dir > 0 ? px < s.sl : px > s.sl) return null;      // ราคาทะลุ SL ของโซนนั้นไปแล้ว
+        if (Math.max(0, dir > 0 ? px - s.e1 : s.e1 - px) / atr > (res.reach || 5)) return null;   // โซนไกลเกินไป
+        s.label = label; s.conf = [{ ok: true, label: 'โซนรอเข้า: ' + label }];
+        return s;
+    };
+    const invs = st.events.slice(-6).reverse().map(e => obState(b, obForEvent(b, e))).filter(o => o.invalid);
+    for (const o of invs) { const s = mk(-o.dir, { top: o.top, bottom: o.bottom }, 'breaker', 'Breaker Block'); if (s) return s; }
+    const f = res.fvgs.filter(g => !st.trend || g.dir === st.trend)
+        .sort((x, y) => Math.abs((x.top + x.bottom) / 2 - px) - Math.abs((y.top + y.bottom) / 2 - px));
+    for (const g of f) { const s = mk(g.dir, { top: g.top, bottom: g.bottom }, 'fvg', g.dir > 0 ? 'Bullish FVG' : 'Bearish FVG'); if (s) return s; }
+    if (res.range) {
+        const r = res.range.hi - res.range.lo;
+        const dir = st.trend || (px > res.range.mid ? -1 : 1);
+        const zone = dir > 0 ? { top: res.range.hi - 0.62 * r, bottom: res.range.hi - 0.79 * r } : { top: res.range.lo + 0.79 * r, bottom: res.range.lo + 0.62 * r };
+        const s = mk(dir, zone, 'pd', `OTE ${dir > 0 ? 'Discount' : 'Premium'} (Fib 62–79%)`);
+        if (s) return s;
+    }
+    return null;
+}
+
+/* โซนสวนเทรนด์ (Counter-trend): ระบบเดิมเลือกเฉพาะ OB ตามเทรนด์ จึงไม่โชว์ SELL ตอนโครงสร้างยังเป็น Bullish (และกลับกัน)
+   ตรงนี้หา "ทิศตรงข้าม" แยกต่างหาก: 1) OB ฝั่งตรงข้ามที่ยังไม่ถูกทะลุ 2) FVG ฝั่งตรงข้ามที่ยังไม่ถูกเติม 3) โซน Premium/Discount (OTE 62–79%) */
+function buildCounter(res, b, st, atr, dir, maxAge, k) {
+    const px = res.lastClose, reach = res.reach || 5;
+    const gap = s => Math.max(0, dir > 0 ? px - s.e1 : s.e1 - px) / atr;
+    const mk = (zone, kind, label, extra) => {
+        const s = makeSetup(dir, zone, 'counter', atr, st.piv, { tf: res.key, obs: res.tpObs });
+        if (dir > 0 ? px < s.sl : px > s.sl) return null;      // ราคาทะลุ SL ของโซนนั้นไปแล้ว
+        if (gap(s) > reach) return null;                        // โซนไกลเกินไป
+        const sweep = findSweep(b, st.piv, dir, k);
+        const inHalf = res.range ? (dir > 0 ? s.e2 < res.range.mid : s.e2 > res.range.mid) : false;
+        s.label = 'สวนเทรนด์ · ' + label; s.src = kind; s.sweep = sweep; s.dist = gap(s);
+        s.conf = [{ ok: true, label: 'สวนเทรนด์ ' + (dir > 0 ? 'BUY' : 'SELL') + ': ' + label }, { ok: !!sweep, label: 'Liquidity Sweep' }, { ok: inHalf, label: dir > 0 ? 'อยู่โซน Discount' : 'อยู่โซน Premium' }].concat(extra || []);
+        return s;
+    };
+    // 1) OB ฝั่งตรงข้ามที่ยังใช้ได้ (ไม่ถูกปิดทะลุ) เลือกอันที่ใกล้ราคาที่สุด
+    const obs = st.events.filter(e => e.dir === dir).map(e => obState(b, obForEvent(b, e)))
+        .filter(o => !o.invalid && (!maxAge || b.length - 1 - o.brk <= maxAge * 2))
+        .map(o => ({ o, s: mk({ top: o.top, bottom: o.bottom }, 'ob', dir > 0 ? 'Bullish OB' : 'Bearish OB', [{ ok: !o.touched, label: 'OB ยังไม่ถูกแตะ' }]) }))
+        .filter(x => x.s).sort((x, y) => (x.s.dist + (x.o.touched ? 0.75 : 0)) - (y.s.dist + (y.o.touched ? 0.75 : 0)));
+    if (obs.length) { obs[0].s.ob = obs[0].o; return obs[0].s; }
+    // 2) FVG ฝั่งตรงข้าม
+    const fv = res.fvgs.filter(g => g.dir === dir).map(g => ({ g, s: mk({ top: g.top, bottom: g.bottom }, 'fvg', dir > 0 ? 'Bullish FVG' : 'Bearish FVG') }))
+        .filter(x => x.s).sort((x, y) => x.s.dist - y.s.dist);
+    if (fv.length) return fv[0].s;
+    // 3) Premium / Discount (OTE)
+    if (res.range) {
+        const r = res.range.hi - res.range.lo;
+        const zone = dir > 0 ? { top: res.range.hi - 0.62 * r, bottom: res.range.hi - 0.79 * r } : { top: res.range.lo + 0.79 * r, bottom: res.range.lo + 0.62 * r };
+        return mk(zone, 'pd', `OTE ${dir > 0 ? 'Discount' : 'Premium'} (Fib 62–79%)`);
+    }
+    return null;
+}
+
+/* ตามเทรนด์ TF ใหญ่ + สรุปเกรด */
+function analyzeAll(barsByTf) {
+    const out = TFS.map(tf => analyzeTF(tf, barsByTf[tf.key]));
+    out.forEach((r, i) => {
+        if (r.ok && r.alt) {
+            const higher = out.slice(i + 1).filter(x => x.ok && x.trend);
+            if (higher.length) r.alt.conf.push({ ok: higher.filter(x => x.trend === r.alt.dir).length > higher.length / 2, label: 'ตามเทรนด์ TF ใหญ่' });
+            r.alt.score = r.alt.conf.filter(c => c.ok).length; r.alt.total = r.alt.conf.length; r.alt.grade = 'CT';
+        }
+        if (!r.ok || !r.setup) return;
+        const higher = out.slice(i + 1).filter(x => x.ok && x.trend);
+        if (higher.length) {
+            const same = higher.filter(x => x.trend === r.setup.dir).length;
+            r.setup.conf.push({ ok: same > higher.length / 2, label: 'ตามเทรนด์ TF ใหญ่' });
+        }
+        r.setup.score = r.setup.conf.filter(c => c.ok).length;
+        r.setup.total = r.setup.conf.length;
+        const ratio = r.setup.score / r.setup.total;
+        r.setup.grade = r.setup.kind !== 'ob' ? 'W' : (ratio >= 0.8 ? 'A' : ratio >= 0.55 ? 'B' : 'C');
+    });
+    return out;
+}
+
+/* สถานะสด (เรียกทุกครั้งที่ราคาขยับ — ไม่ต้องคำนวณโครงสร้างใหม่) */
+function liveStatus(a, price, setupOverride) {
+    if (!a || !a.ok) return { code: 'NODATA' };
+    const s = setupOverride || a.setup;
+    if (!s) return { code: 'NOSETUP' };
+    if (!(price > 0)) return { code: 'WAIT', dist: null };
+    if (s.dir > 0 ? price < s.sl : price > s.sl) return { code: 'INVALID' };
+    const hi = s.dir > 0 ? s.e1 : s.zone.top, lo = s.dir > 0 ? s.zone.bottom : s.e1;   // ช่วงเข้าออเดอร์ (รวมไม้แรกที่ดักหน้าขอบ)
+    if (price >= lo && price <= hi) return { code: 'INZONE' };
+    const dist = s.dir > 0 ? price - hi : lo - price;
+    if (dist < 0) return { code: 'INZONE', deep: true };   // ทะลุผ่านโซนลงไปแต่ยังไม่ถึง SL
+    return { code: dist <= 1.5 * a.atr ? 'APPROACH' : 'WAIT', dist: dist / a.atr };
+}
+
+/* =====================================================================
+   NEWS ENGINE  (rule-based: คำสำคัญ EN+TH ต่อสินทรัพย์ — ไม่ใช่ AI)
+   ===================================================================== */
+const R_ = (re, w) => [re, w];
+const LEX = {
+    gold: {
+        pos: [R_(/rate cuts?|cuts? (interest )?rates|dovish|easing|rate.cut bets/i, 2), R_(/weak(er|ening)? (us )?dollar|dollar (slips?|slides?|falls?|weakens?|drops?|retreats?)|dxy (falls?|drops?)/i, 2),
+            R_(/safe.?haven|haven (demand|buying)|flight to safety/i, 2), R_(/central banks? (buy|purchas|accumulat)/i, 2),
+            R_(/gold (rises?|jumps?|surges?|climbs?|gains?|rall(y|ies)|advances|hits?)|record high|all.time high/i, 2), R_(/yields? (fall|drop|slip|retreat|decline)/i, 1),
+            R_(/\bwar\b|escalat|geopolitic|tensions?|missile|attack/i, 1), R_(/recession|slowdown|weak (jobs|payroll)/i, 1),
+            R_(/ลดดอกเบี้ย|ดอกเบี้ยขาลง|ดอลลาร์อ่อน|ทอง(คำ)?(พุ่ง|ปรับขึ้น|ทะยาน|บวก|เพิ่มขึ้น|ทำนิวไฮ|ขึ้น)|สงคราม|ตึงเครียด|สินทรัพย์ปลอดภัย/, 2)],
+        neg: [R_(/rate hikes?|hikes? rates|hawkish|higher for longer/i, 2), R_(/strong(er)? (us )?dollar|dollar (rises?|climbs?|strengthens?|jumps?|surges?|gains?|firm)|dxy (rises?|climbs?)/i, 2),
+            R_(/yields? (rise|jump|climb|surge|higher)/i, 2), R_(/gold (falls?|drops?|slips?|slides?|tumbles?|declines?|retreats?|loses|dips?)/i, 2),
+            R_(/profit.?taking|risk.?on|ceasefire|peace (deal|talks)/i, 1), R_(/rate cut (bets|hopes) (fade|dim|recede)/i, 2),
+            R_(/ขึ้นดอกเบี้ย|ไม่ลดดอกเบี้ย|ดอลลาร์แข็ง|ทอง(คำ)?(ร่วง|ปรับลด|ลดลง|ย่อตัว|ดิ่ง|ลง)|ขายทำกำไร|หยุดยิง/, 2)]
+    },
+    btc: {
+        pos: [R_(/etf (inflows?|approval|approved|launch)|inflows?/i, 2), R_(/institutional (adoption|buying|demand)|treasury (buys?|purchase)/i, 2),
+            R_(/bitcoin (rises?|jumps?|surges?|climbs?|rall(y|ies)|soars?|gains?|hits?)|record high|all.time high|halving/i, 2), R_(/rate cuts?|dovish|liquidity/i, 1),
+            R_(/พุ่ง|ทะยาน|ไหลเข้า|อนุมัติ|นิวไฮ|ปรับขึ้น/, 2)],
+        neg: [R_(/\bban\b|crackdown|lawsuit|sues|charges|hack(ed)?|exploit|rug pull/i, 2), R_(/outflows?|sell.?off|plunge|crash|liquidat|slump|tumbles?|drops?|falls?/i, 2),
+            R_(/hawkish|rate hikes?|higher for longer/i, 1), R_(/ร่วง|ดิ่ง|ไหลออก|แฮก|แบน|ห้าม|ปรับลด/, 2)]
+    },
+    eur: {
+        pos: [R_(/ecb (hawkish|hikes?|raises?)|euro (rises?|gains?|jumps?|climbs?|strengthens?)|dollar (weakens?|falls?|slides?|slips?)/i, 2),
+            R_(/eurozone (growth|recovery)|eurozone inflation (rises?|jumps?|accelerates?)/i, 1), R_(/fed (cuts?|dovish)|rate cuts?/i, 2), R_(/ยูโร(แข็ง|พุ่ง)|ดอลลาร์อ่อน/, 2)],
+        neg: [R_(/ecb (dovish|cuts?)|euro (falls?|slips?|drops?|weakens?|slides?)|dollar (rises?|strengthens?|jumps?|climbs?|surges?)/i, 2),
+            R_(/eurozone (recession|contraction|slowdown|stagnation)/i, 2), R_(/fed (hikes?|hawkish)|tariffs?/i, 2), R_(/ยูโร(อ่อน|ร่วง)|ดอลลาร์แข็ง/, 2)]
+    },
+    oil: {
+        pos: [R_(/opec\+? (cuts?|extends?|curbs?|restrain)|output cuts?|supply (disruption|cuts?|concerns?|shortage)/i, 2), R_(/inventor(y|ies) (draw|fall|drop|decline|decrease)|stockpiles? (fall|drop|decline)/i, 2),
+            R_(/(oil|crude|brent|wti) (rises?|jumps?|surges?|climbs?|gains?|rall(y|ies)|advances)/i, 2), R_(/sanctions?|pipeline (attack|outage)|red sea|middle east (tensions?|conflict)/i, 1),
+            R_(/demand (growth|recovery|rebound)/i, 1), R_(/น้ำมัน(พุ่ง|ขึ้น|ปรับขึ้น|ทะยาน)|ลดกำลังการผลิต|คว่ำบาตร/, 2)],
+        neg: [R_(/opec\+? (raises?|boosts?|increases?|hikes?) (output|production)|oversupply|glut/i, 2), R_(/inventor(y|ies) (build|rise|increase|jump)|stockpiles? (rise|build|jump)/i, 2),
+            R_(/demand (fears?|concerns?|weak|slump|slowdown|worries)/i, 2), R_(/(oil|crude|brent|wti) (falls?|drops?|slides?|tumbles?|slumps?|declines?|dips?)/i, 2),
+            R_(/ceasefire|peace (deal|talks)|recession|strong(er)? dollar/i, 1), R_(/น้ำมัน(ร่วง|ลง|ปรับลด|ดิ่ง)|เพิ่มกำลังการผลิต|หยุดยิง/, 2)]
+    },
+    equity: {
+        pos: [R_(/beats? (estimates|expectations|forecasts)|earnings (beat|surge|jump)|record (high|revenue)|upgrade[sd]?|soars?|surges?|rall(y|ies)/i, 2), R_(/rate cuts?|dovish/i, 1), R_(/พุ่ง|ทะยาน|กำไรเกินคาด|นิวไฮ/, 2)],
+        neg: [R_(/miss(es|ed)? (estimates|expectations|forecasts)|plunges?|tumbles?|downgrade[sd]?|lawsuit|recall|layoffs?|probe/i, 2), R_(/rate hikes?|hawkish|sell.?off|crash/i, 1), R_(/ร่วง|ดิ่ง|ขาดทุน|ปรับลด/, 2)]
+    }
+};
+const HI_RE = /fed\b|fomc|powell|\bcpi\b|\bppi\b|inflation|payrolls?|\bnfp\b|jobs report|rate (decision|hike|cut)|interest rates?|\bgdp\b|opec|\bwar\b|sanction|tariff|\betf\b|halving|\bsec\b|\becb\b|lagarde|\bboj\b|treasury|recession|กนง|เฟด|ดอกเบี้ย|เงินเฟ้อ|สงคราม|คว่ำบาตร|ภาษีนำเข้า|แบงก์ชาติ|ธปท|ธนาคารแห่งประเทศไทย/i;
+const BREAKING_RE = /breaking|urgent|record|surge|plunge|crash|soar|tumble|ด่วน|พุ่ง|ร่วง|ทะลุ|ดิ่ง/i;
+const AUTH_RE = /reuters|bloomberg|cnbc|wsj|wall street journal|financial times|\bft\b|bbc|\bap\b|associated press|federal reserve|\becb\b|kitco|coindesk|bangkok post|ประชาชาติ|กรุงเทพธุรกิจ|ทันหุ้น|ฐานเศรษฐกิจ|bank of thailand|ธนาคารแห่งประเทศไทย/i;
+const LAYER_RE = [
+    /gdp|inflation|\bcpi\b|\bppi\b|payroll|jobs|unemployment|fed\b|fomc|interest rate|rate (cut|hike|decision)|\becb\b|recession|เงินเฟ้อ|ดอกเบี้ย|เศรษฐกิจ|กนง|เฟด|จีดีพี/i,
+    /\bwar\b|missile|sanction|tariff|conflict|ceasefire|israel|iran|ukraine|russia|taiwan|geopolit|สงคราม|คว่ำบาตร|ภาษีนำเข้า|ตึงเครียด/i,
+    /dollar|\bdxy\b|yield|treasur|\bbonds?\b|\busd\b|\byen\b|\beuro\b|baht|ค่าเงิน|บาท|ดอลลาร์|พันธบัตร/i,
+    /gold|\boil\b|crude|opec|brent|wti|silver|copper|inventor|ทอง|น้ำมัน/i,
+    /stocks?|wall street|nasdaq|s&p|\bdow\b|earnings|equit|หุ้น|\bset\b/i,
+    /bitcoin|crypto|ethereum|\betf\b|stablecoin|บิตคอยน์|คริปโต/i,
+    /\bcot\b|positioning|sentiment|fear|greed|inflows?|outflows?|speculat|net long|net short|สถานะ/i
+];
+const LAYER_TITLES = ['1. 🏦 Macro / เศรษฐกิจมหภาค', '2. 🌎 Geopolitical / ภูมิรัฐศาสตร์', '3. 💵 Currency & Yields / ค่าเงินและผลตอบแทน', '4. 🛢️ Commodity / ปัจจัยโภคภัณฑ์',
+    '5. 📈 Equity Link / ตลาดหุ้น', '6. ₿ Crypto / ตลาดคริปโท', '7. 📊 Sentiment & Positioning / สถานะตลาด', '8. 📅 Calendar / ปฏิทินเศรษฐกิจ'];
+
+function scoreItem(it, key) {
+    const A = getAsset(key), L = LEX[A.lex] || LEX.equity, t = it.title;
+    let sent = 0;
+    L.pos.forEach(([re, w]) => { if (re.test(t)) sent += w; });
+    L.neg.forEach(([re, w]) => { if (re.test(t)) sent -= w; });
+    sent = Math.max(-3, Math.min(3, sent));
+    const layers = [];
+    LAYER_RE.forEach((re, i) => { if (re.test(t)) layers.push(i); });
+    const assetHit = A.terms.test(t), hi = HI_RE.test(t);
+    let imp = 20;
+    if (hi) imp += 25;
+    if (assetHit) imp += 15;
+    if (BREAKING_RE.test(t)) imp += 10;
+    if (AUTH_RE.test((it.src || '') + ' ' + t)) imp += 8;
+    const ageH = it.ts ? (Date.now() - it.ts) / 3.6e6 : 99;
+    imp += ageH < 2 ? 12 : ageH < 6 ? 8 : ageH < 24 ? 4 : 0;
+    imp = Math.min(100, imp);
+    return { sent, layers, imp, relevant: assetHit || hi || layers.length > 0 };
+}
+function dedupeKey(t) { return t.toLowerCase().replace(/[^a-z0-9\u0E00-\u0E7F]+/g, '').slice(0, 60); }
+
+/* รวมข่าวจากทุกแหล่ง → ให้คะแนน → กรอง → เรียง */
+function buildNewsList(rawItems, key) {
+    const seen = new Set(), out = [];
+    for (const it of rawItems) {
+        if (!it.title) continue;
+        if (it.ts && Date.now() - it.ts > 48 * 3.6e6) continue;
+        const dk = dedupeKey(it.title);
+        if (!dk || seen.has(dk)) continue;
+        seen.add(dk);
+        const sc = scoreItem(it, key);
+        if (!sc.relevant) continue;
+        out.push(Object.assign({}, it, sc, { id: dk, region: /[\u0E00-\u0E7F]/.test(it.title) ? 'TH' : it.region }));
+    }
+    out.sort((x, y) => (y.imp - x.imp) || (y.ts - x.ts));
+    return out;
+}
+function computeImpact(items) {
+    const now = Date.now();
+    let sum = 0, bull = 0, bear = 0, neu = 0;
+    items.slice(0, 40).forEach(it => {
+        const ageH = it.ts ? (now - it.ts) / 3.6e6 : 99;
+        const w = ageH < 6 ? 1 : ageH < 24 ? 0.7 : 0.4;
+        sum += it.sent * (it.imp / 100) * w;
+        if (it.sent > 0) bull++; else if (it.sent < 0) bear++; else neu++;
+    });
+    const top = [...items].sort((x, y) => y.imp - x.imp).slice(0, 5);
+    const overall = top.length ? Math.round(top.reduce((s, x) => s + x.imp, 0) / top.length) : 0;
+    const score = Math.round(100 * Math.tanh(sum / 5));
+    const bias = score > 25 ? 'BULLISH' : score < -25 ? 'BEARISH' : 'NEUTRAL';
+    return { overall, score, bias, bull, bear, neu, n: items.length };
+}
+
+/* ---------------- ปฏิทินเศรษฐกิจ ---------------- */
+function normFF(list) {
+    return (list || []).filter(e => e && e.title && e.date && e.impact !== 'Holiday').map(e => ({
+        ts: Date.parse(e.date) || 0, ccy: e.country || '', title: e.title,
+        impact: e.impact || 'Low', forecast: e.forecast || '', previous: e.previous || '', actual: e.actual || ''
+    }));
+}
+function calKey(ccy, title) { return (ccy + '|' + title).toLowerCase().replace(/[^a-z0-9|]/g, ''); }
+function mergeN8n(events, n8n) {
+    if (!Array.isArray(n8n) || !n8n.length) return events;
+    const m = new Map();
+    n8n.forEach(e => { if (e && e.event) m.set(calKey(e.currency || 'USD', e.event), e); });
+    events.forEach(ev => {
+        const x = m.get(calKey(ev.ccy, ev.title));
+        if (x && x.actual && !ev.actual) ev.actual = String(x.actual);
+        if (x && x.estimate && !ev.forecast) ev.forecast = String(x.estimate);
+    });
+    return events;
+}
+function normN8nOnly(n8n) {
+    return (n8n || []).filter(e => e && e.event).map(e => ({
+        ts: 0, timeText: e.time || '', ccy: e.currency || 'USD', title: e.event, impact: 'Medium',
+        forecast: e.estimate || '', previous: e.previous || '', actual: e.actual || ''
+    }));
+}
+function relevantEvents(events, key) {
+    const A = getAsset(key), now = Date.now(), today = bkkDate(now);
+    return events.filter(e => A.ccy.includes(e.ccy) && (e.impact === 'High' || e.impact === 'Medium'))
+        .filter(e => !e.ts || bkkDate(e.ts) === today || (e.ts > now && e.ts < now + 12 * 3.6e6))
+        .sort((x, y) => x.ts - y.ts);
+}
+/* ผลกระทบของตัวเลขต่อสินทรัพย์ (กฎตายตัว: สกุลเงินแข็ง/อ่อน → สินทรัพย์) */
+function assetEffect(key, ccy) {
+    const m = { XAUUSD: { USD: -1, EUR: 1, CNY: 1 }, BTCUSD: { USD: -1 }, EURUSD: { USD: -1, EUR: 1 }, USOIL: { USD: -1, CNY: 1 } };
+    return (m[key] && m[key][ccy] != null) ? m[key][ccy] : (ccy === 'USD' ? -1 : 0);
+}
+function eventImpactText(ev, key) {
+    const inverse = /unemployment|jobless|claims/i.test(ev.title);
+    const eff = assetEffect(key, ev.ccy);
+    if (!eff) return 'ผลกระทบทางอ้อม — ติดตามปฏิกิริยาราคา';
+    const up = inverse ? -1 : 1;                // ตัวเลขสูงกว่าคาด → สกุลเงินแข็งหรืออ่อน
+    const hi = eff * up > 0 ? 'Bullish 🟢' : 'Bearish 🔴';
+    const lo = eff * up > 0 ? 'Bearish 🔴' : 'Bullish 🟢';
+    return `ถ้าจริง “สูงกว่า” Forecast → ${ev.ccy} ${up > 0 ? 'แข็งค่า' : 'อ่อนค่า'} → ${hi}; ถ้า “ต่ำกว่า” → ${lo}. ช่วงประกาศผันผวนสูง ควรรอแท่งเทียนปิดยืนยันโครงสร้าง SMC ก่อนเข้า`;
+}
+
+//__UI__
+/* =====================================================================
+   ส่วนที่ 2: State, การดึงข้อมูล, การแสดงผล
+   ===================================================================== */
+const S = {
+    symbol: 'OANDA:XAUUSD', key: 'XAUUSD', tf: '1m', price: 0, lastTick: 0, lastRender: 0,
+    bars: {}, analysis: [], epoch: 0, syncing: false, nextSync: 0, lastSync: 0, okTf: 0,
+    watch: ['XAUUSD', 'BTCUSD', 'EURUSD', 'USOIL'],
+    news: {}, nextNews: {}, inflight: {}, seen: {}, shared: { ts: 0, p: null },
+    calendar: { events: [], ts: 0, ok: null, src: '' }, nextCal: 0, released: new Set(),
+    filter: 'all', sort: 'important', briefDay: '', briefLabel: '',
+    flipped: new Set(), ws: null, pollT: null, priceEpoch: 0, started: false, lastMinuteCheck: 0
+};
+const $ = id => document.getElementById(id);
+const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+};
+
+function setApiStatus(text, state = 'up') {
+    const el = $('api-status'); if (!el) return;
+    el.textContent = text;
+    const c = state === 'up' ? 'var(--up)' : state === 'warn' ? 'var(--gold2)' : 'var(--down)';
+    el.style.color = c; el.style.borderColor = c;
+}
+function toast(html, ms = 9000) {
+    const box = $('toast-box'); if (!box) return;
+    const d = document.createElement('div'); d.className = 'toast'; d.innerHTML = html;
+    box.appendChild(d); setTimeout(() => d.remove(), ms);
+    while (box.children.length > 4) box.firstChild.remove();
+}
+
+/* ---------------------------------------------------------------------
+   ดึงแท่งเทียน
+   --------------------------------------------------------------------- */
+async function candlesRaw(tf, limit) {
+    try {
+        const r = await fetch(`https://biquote.io/api/${encodeURIComponent(biquoteSymbol(S.symbol))}/ohlc?interval=${encodeURIComponent(tf)}&limit=${limit}`, { cache: 'no-store' });
+        if (!r.ok) return [];
+        const d = await r.json();
+        return Array.isArray(d.bars) ? d.bars : [];
+    } catch (e) { return []; }
+}
+async function fetchCandles(tf, limit) {
+    let r = await candlesRaw(tf, limit);
+    if (r.length < 30 && limit > 80) r = await candlesRaw(tf, 80);   // เผื่อ API จำกัดจำนวนแท่ง
+    return r;
+}
+
+/* ---------------------------------------------------------------------
+   รอบวิเคราะห์ SMC ทุก 1 นาที — คำนวณ "ทุก TF พร้อมกัน" แยกอิสระ
+   --------------------------------------------------------------------- */
+const nextBoundary = () => (Math.floor(Date.now() / 60000) + 1) * 60000 + 2000;
+async function syncAll() {
+    if (S.syncing) return;
+    S.syncing = true;
+    const ep = S.epoch;
+    S.nextSync = nextBoundary();
+    setApiStatus('SMC Analyzing Multi-TF... 🟡', 'warn');
+    try {
+        const res = await Promise.all(TFS.map(tf => fetchCandles(tf.key, tf.limit)));
+        if (ep !== S.epoch) return;
+        TFS.forEach((tf, i) => { S.bars[tf.key] = res[i]; });
+        const m1 = normBars(S.bars['1m']);
+        if (m1.length && (Date.now() - S.lastTick > 20000 || !S.price)) onPrice(m1[m1.length - 1].c, true);
+        S.analysis = analyzeAll(S.bars);
+        S.lastSync = Date.now();
+        S.okTf = S.analysis.filter(a => a.ok).length;
+        checkStops();
+        renderBoard(); renderDetail(); renderNews();
+        setApiStatus(S.okTf ? `SMC Engine Live 🟢 (${S.okTf}/${TFS.length} TF)` : 'ไม่มีข้อมูลแท่งเทียน ❌', S.okTf ? 'up' : 'down');
+    } finally { if (ep === S.epoch) S.syncing = false; }
+}
+
+/* ---------------------------------------------------------------------
+   ราคาสด (WebSocket → ถ้าล่มใช้ราคาปิด M1 จริงจาก API; ไม่มีการสุ่มราคาอีกต่อไป)
+   --------------------------------------------------------------------- */
+function closePrice() {
+    if (S.ws) { S.ws.onclose = null; S.ws.onerror = null; try { S.ws.close(); } catch (e) { /* ignore */ } S.ws = null; }
+    if (S.pollT) { clearInterval(S.pollT); S.pollT = null; }
+}
+function startPoll(ep) {
+    if (S.pollT) return;
+    setApiStatus('Price: REST Poll (M1 close) 🟡', 'warn');
+    S.pollT = setInterval(async () => {
+        if (ep !== S.priceEpoch) return;
+        const b = normBars(await candlesRaw('1m', 3));
+        if (b.length) onPrice(b[b.length - 1].c); else setApiStatus('Price feed offline ❌', 'down');
+    }, 5000);
+}
+function connectPrice() {
+    closePrice();
+    const ep = ++S.priceEpoch, bq = biquoteSymbol(S.symbol);
+    setApiStatus('Connecting Realtime Feed... 🟡', 'warn');
+    const fallback = () => { if (ep === S.priceEpoch) startPoll(ep); };
+    try {
+        const ws = new WebSocket(bq === 'BTCUSD' ? 'wss://stream.binance.com:9443/ws/btcusdt@ticker' : 'wss://stream.biquote.io/v1/live');
+        ws.onopen = () => {
+            if (bq === 'BTCUSD') setApiStatus('Binance Stream Live 🟢', 'up');
+            else { setApiStatus('Biquote Stream Live 🟢', 'up'); ws.send(JSON.stringify({ action: 'subscribe', symbols: [bq] })); }
+        };
+        ws.onmessage = e => {
+            try {
+                const d = JSON.parse(e.data);
+                if (bq === 'BTCUSD') { if (d && d.c) onPrice(parseFloat(d.c)); }
+                else if (d && (d.price || d.mid)) onPrice(Number(d.price || d.mid));
+            } catch (_) { /* ignore */ }
+        };
+        ws.onerror = fallback; ws.onclose = fallback;
+        S.ws = ws;
+    } catch (e) { fallback(); }
+}
+function onPrice(p, force) {
+    if (!(p > 0)) return;
+    S.price = p;
+    if (!force) S.lastTick = Date.now();
+    const now = Date.now();
+    if (!force && now - S.lastRender < 500) return;
+    S.lastRender = now;
+    checkStops();
+    const el = $('val-realtime-price'); if (el) el.textContent = `$${fmt(p)}`;
+    renderBoard(); renderDetail();
+}
+
+/* ---------------------------------------------------------------------
+   แสดงผล: Signal Board ทุก Timeframe
+   --------------------------------------------------------------------- */
+/* ออเดอร์โดน SL → กลับด้านเป็นโซน Reversal (Breaker) ของ setup เดิมทันที */
+function flipKey(a) { return `${a.key}|${a.setup.kind}|${a.setup.dir}|${a.setup.zone.top.toFixed(5)}`; }
+function reverseSetup(a) {
+    if (a._rev) return a._rev;
+    const o = a.setup;
+    const s = makeSetup(-o.dir, o.zone, 'reversal', a.atr, a.piv, { tf: a.key, obs: a.tpObs });
+    s.label = 'Reversal (Breaker)';
+    s.conf = [{ ok: true, label: `SL ${o.dir > 0 ? 'BUY' : 'SELL'} โดน → กลับด้าน` }, { ok: true, label: 'Breaker Block' }];
+    s.grade = 'R'; s.score = 2; s.total = 2;
+    a._rev = s; return s;
+}
+function effSetup(a, price) {
+    if (!a || !a.ok) return { s: null, st: { code: 'NODATA' } };
+    if (!a.setup) return { s: null, st: { code: 'NOSETUP' } };
+    const st = liveStatus(a, price);
+    if (st.code === 'INVALID' || S.flipped.has(flipKey(a))) {
+        const rev = reverseSetup(a), st2 = liveStatus(a, price, rev);
+        if (st2.code !== 'INVALID') return { s: rev, st: st2, rev: true };
+    }
+    return { s: a.setup, st };
+}
+/* ตรวจ SL แบบสด: โดน SL → วิเคราะห์ใหม่ทันที + กลับด้านออเดอร์; ราคากลับเข้าโซนเดิม → ยกเลิกการกลับด้าน */
+function checkStops() {
+    if (!(S.price > 0)) return;
+    let hit = false;
+    S.analysis.forEach(a => {
+        if (!a.ok || !a.setup) return;
+        const fk = flipKey(a), z = a.setup.zone, d = a.setup.dir;
+        if (S.flipped.has(fk)) {
+            if (d > 0 ? S.price >= z.bottom : S.price <= z.top) S.flipped.delete(fk);
+            return;
+        }
+        if (liveStatus(a, S.price).code === 'INVALID') {
+            S.flipped.add(fk); hit = true;
+            toast(`🛑 <b>${a.label}</b>: ${d > 0 ? 'BUY' : 'SELL'} โดน SL → วิเคราะห์ใหม่ทันที และกลับด้านเป็นโซน <b>${d > 0 ? 'SELL' : 'BUY'} (Reversal)</b> รอราคากลับมาทดสอบโซนเดิม`, 12000);
+        }
+    });
+    if (hit && !S.syncing && Date.now() - S.lastSync > 5000) syncAll();   // ดึงแท่งเทียนใหม่แล้วคำนวณโครงสร้างใหม่ทุก TF ทันที
+}
+const KIND_LABEL = { ob: 'Order Block', breaker: 'Breaker Block', fvg: 'FVG', pd: 'OTE', reversal: 'Reversal', counter: 'Counter-trend' };
+/* มุมมองโซนสวนเทรนด์ของ TF นั้น (ไม่ใช้ระบบ flip; ถ้าราคาทะลุ SL ไปแล้วจะซ่อน) */
+function altView(a, price) {
+    if (!a || !a.ok || !a.alt) return null;
+    const st = liveStatus(a, price, a.alt);
+    if (st.code === 'INVALID' || st.code === 'NODATA') return null;
+    const s = a.alt, d = s.dir;
+    let line;
+    if (st.code === 'INZONE') line = '🎯 ราคาอยู่ในโซนเข้า' + (st.deep ? ' (ลึก ใกล้ SL)' : '');
+    else if (st.code === 'APPROACH') line = `⏳ ใกล้โซนเข้า (${st.dist.toFixed(1)} ATR)`;
+    else line = `⌛ รอราคา${d > 0 ? 'ย่อ' : 'เด้ง'}เข้าโซน` + (st.dist != null ? ` (${st.dist.toFixed(1)} ATR)` : '');
+    return { s, st, d, line };
+}
+function altHTML(a, price) {
+    const v = altView(a, price); if (!v) return '';
+    const s = v.s, r = a.lastClose, buy = v.d > 0;
+    return `<div class="tf-alt ${buy ? 'buy' : 'sell'}">
+        <div class="tf-row"><b style="color:${buy ? 'var(--up)' : 'var(--down)'}">${buy ? '🟢 BUY' : '🔴 SELL'} สวนเทรนด์</b><span>${esc(s.label.replace('สวนเทรนด์ · ', ''))}</span></div>
+        <div style="color:var(--text-dim)">${v.line}</div>
+        <div class="tf-row"><span>Entry</span><b>${fmt(Math.min(s.e1, s.e3), r)} – ${fmt(Math.max(s.e1, s.e3), r)}</b></div>
+        <div class="tf-row"><span>SL</span><b style="color:var(--down)">${fmt(s.sl, r)}</b></div>
+        <div class="tf-row"><span>TP1 / TP2 / TP3</span><b style="color:var(--gold)">${fmt(s.tps[0], r)} / ${fmt(s.tps[1], r)} / ${fmt(s.tps[2], r)}</b></div>
+        <div class="tf-foot"><span>Counter-trend <b class="grade gCT">${s.score}/${s.total}</b></span><span>RR 1:${s.rr[1].toFixed(1)}</span></div></div>`;
+}
+function sigView(a, price) {
+    const e = effSetup(a, price), st = e.st;
+    if (st.code === 'NODATA') return { cls: 'none', badge: ['neutral', 'NO DATA'], line: esc((a && a.reason) || 'ไม่มีข้อมูล'), st, active: false, s: null };
+    if (!e.s) return { cls: 'none', badge: ['neutral', 'NO ZONE'], line: '⏸ ' + esc(a.reason || 'ยังไม่มีโซนที่ใช้ได้ — รอรอบวิเคราะห์ถัดไป'), st, active: false, s: null };
+    const s = e.s, d = s.dir, kind = s.kind;
+    let text = d > 0 ? 'BUY' : 'SELL';
+    text = kind === 'ob' ? text + ' SETUP' : kind === 'reversal' ? 'REVERSE ' + text : 'WATCH ' + text;
+    const v = { cls: d > 0 ? 'buy' : 'sell', badge: [d > 0 ? 'bullish' : 'bearish', text], st, active: true, s, kind, rev: !!e.rev };
+    let status;
+    if (st.code === 'INZONE') status = '🎯 ราคาอยู่ในโซนเข้า' + (st.deep ? ' (ลึก ใกล้ SL)' : '');
+    else if (st.code === 'APPROACH') status = `⏳ ใกล้โซนเข้า (${st.dist.toFixed(1)} ATR)`;
+    else status = `⌛ รอราคา${d > 0 ? 'ย่อ' : 'เด้ง'}เข้าโซน` + (st.dist != null ? ` (${st.dist.toFixed(1)} ATR)` : '');
+    const prefix = kind === 'reversal' ? '🔄 โดน SL → กลับด้าน · ' : kind !== 'ob' ? `👀 โซนรอเข้า (${esc(s.label)}) · ` : '';
+    v.line = prefix + status;
+    return v;
+}
+function trendText(a) { return a.trend > 0 ? '▲ Bullish' : a.trend < 0 ? '▼ Bearish' : '◆ Range'; }
+function eventText(a) {
+    if (!a.lastEvent) return 'ยังไม่มี BOS/CHoCH';
+    const e = a.lastEvent;
+    return `${e.type} ${e.dir > 0 ? '↑' : '↓'} @ ${fmt(e.level, a.lastClose)} · ${minsText(e.agoMins)}ที่แล้ว`;
+}
+function cardHTML(a, price) {
+    const v = sigView(a, price), sel = a.key === S.tf ? ' sel' : '';
+    let body = '';
+    if (a.ok) {
+        body += `<div class="tf-struct">${trendText(a)} · ${esc(eventText(a))}</div>`;
+        if (v.active) {
+            const s = v.s, r = a.lastClose;
+            body += `<div class="tf-row"><span>Entry (${esc(KIND_LABEL[s.kind] || 'โซน')})</span><b>${fmt(Math.min(s.e1, s.e3), r)} – ${fmt(Math.max(s.e1, s.e3), r)}</b></div>
+                <div class="tf-row"><span>SL</span><b style="color:var(--down)">${fmt(s.sl, r)}</b></div>
+                <div class="tf-row"><span>TP1 / TP2 / TP3</span><b style="color:var(--gold)">${fmt(s.tps[0], r)} / ${fmt(s.tps[1], r)} / ${fmt(s.tps[2], r)}</b></div>
+                <div class="chips-row">${s.conf.map(c => `<span class="cf ${c.ok ? 'on' : ''}">${c.ok ? '✓' : '·'} ${esc(c.label)}</span>`).join('')}</div>
+                <div class="tf-foot"><span>${s.grade === 'W' ? '<b class="grade gW">WATCH</b>' : s.grade === 'R' ? '<b class="grade gR">REVERSAL</b>' : `Grade <b class="grade g${s.grade}">${s.grade}</b> (${s.score}/${s.total})`}</span><span>RR 1:${s.rr[1].toFixed(1)}</span></div>`;
+        } else body += `<div class="tf-foot"><span>ATR ${fmt(a.atr, a.lastClose)}</span><span>${a.nBars} แท่ง</span></div>`;
+    }
+    return `<div class="tf-card ${v.cls}${sel}" onclick="selectTF('${a.key}')">
+        <div class="tf-h"><span class="tf-name">${a.label}</span><span class="badge ${v.badge[0]}">${v.badge[1]}</span></div>
+        <div class="tf-status">${v.line}</div>${body}${altHTML(a, price)}</div>`;
+}
+function renderBoard() {
+    const el = $('tf-board'); if (!el) return;
+    if (!S.analysis.length) { el.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">กำลังดึงแท่งเทียนและวิเคราะห์ทุก Timeframe...</div>'; return; }
+    el.innerHTML = S.analysis.map(a => cardHTML(a, S.price)).join('');
+    let buy = 0, sell = 0, watch = 0, none = 0, ctBuy = 0, ctSell = 0; const inz = [];
+    S.analysis.forEach(a => {
+        const av = altView(a, S.price); if (av) { if (av.d > 0) ctBuy++; else ctSell++; }
+        const v = sigView(a, S.price);
+        if (!v.active) none++;
+        else {
+            if (v.kind === 'ob' || v.kind === 'reversal') { if (v.s.dir > 0) buy++; else sell++; } else watch++;
+            if (v.st.code === 'INZONE') inz.push(a.label);
+        }
+    });
+    const sm = $('mtf-summary');
+    if (sm) sm.innerHTML = `<span class="badge bullish">BUY ${buy}</span> <span class="badge bearish">SELL ${sell}</span> <span class="badge neutral">WATCH ${watch}</span>` + ((ctBuy || ctSell) ? ` <span class="badge neutral">สวนเทรนด์: BUY ${ctBuy} / SELL ${ctSell}</span>` : '') + (none ? ` <span class="badge neutral">NO ZONE ${none}</span>` : '') +
+        (inz.length ? ` <span style="color:var(--gold);font-size:12px;margin-left:6px;">🎯 ราคาอยู่ในโซนเข้า: <b>${inz.join(', ')}</b></span>` : '');
+}
+function selectTF(key) {
+    const tf = TFS.find(t => t.key === key); if (!tf) return;
+    S.tf = key;
+    document.querySelectorAll('.tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === key));
+    loadChart(); renderBoard(); renderDetail();     // เปลี่ยนแค่กราฟ/รายละเอียด — ไม่ดึงข้อมูลใหม่ทั้งหมด
+}
+function changeTimeframe(tf) { selectTF(tf); }
+
+/* รายละเอียด TF ที่เลือก */
+function zoneRow(dotCls, label, valCls, val) {
+    return `<div class="zone-item"><span class="zone-label"><span class="dot ${dotCls}"></span>${label}</span><span class="val-num ${valCls}">${val}</span></div>`;
+}
+function renderDetail() {
+    const a = S.analysis.find(x => x.key === S.tf);
+    const pill = $('active-direction-pill'); if (!pill) return;
+    const tfL = (TFS.find(t => t.key === S.tf) || {}).label || S.tf;
+    const v = a ? sigView(a, S.price) : null;
+    const ez = $('entry-zones-container'), tz = $('tp-sl-zones-container'), badge = $('sig-badge'), chips = $('conf-chips'), kl = $('key-levels-container');
+    if (!a || !a.ok) {
+        pill.textContent = `${tfL} — ไม่มีข้อมูล`; pill.style.color = 'var(--text-dim)'; pill.style.borderColor = 'var(--line)';
+        ez.innerHTML = ''; tz.innerHTML = ''; chips.innerHTML = ''; badge.className = 'badge neutral'; badge.textContent = 'NO DATA';
+        $('sig-mode-desc').textContent = a ? a.reason : 'กำลังโหลด...'; kl.innerHTML = ''; return;
+    }
+    const c = !v.active ? 'var(--text-dim)' : v.s.dir > 0 ? 'var(--up)' : 'var(--down)';
+    pill.textContent = v.active ? `${tfL} ${v.badge[1]} ${v.s.dir > 0 ? '🟢' : '🔴'}` : `${tfL} NO ZONE ⚪`;
+    pill.style.color = c; pill.style.borderColor = c;
+    badge.className = `badge ${v.badge[0]}`; badge.textContent = v.line.replace(/<[^>]+>/g, '');
+    $('entry-card-subtag').textContent = `${tfL} · Structure ${trendText(a)}`;
+    const r = a.lastClose;
+    if (v.active) {
+        const s = v.s, dc = s.dir > 0 ? 'buy' : 'sell';
+        ez.innerHTML = zoneRow(dc, (KIND_LABEL[s.kind] || 'โซน') + ' :', dc, `${fmt(s.zone.bottom, r)} – ${fmt(s.zone.top, r)}`) +
+            zoneRow(dc, 'Entry 1 (ดักหน้าขอบโซน) :', dc, '$' + fmt(s.e1, r)) +
+            zoneRow(dc, 'Entry 2 (25% ของโซน) :', dc, '$' + fmt(s.e2, r)) +
+            zoneRow(dc, 'Entry 3 (60% ของโซน) :', dc, '$' + fmt(s.e3, r));
+        tz.innerHTML = zoneRow('sl', 'SL (นอกโซน + 0.25 ATR) :', 'sl', '$' + fmt(s.sl, r)) +
+            s.tps.map((t, i) => zoneRow('tp', `TP ${i + 1} (RR 1:${s.rr[i].toFixed(1)} · ${(s.tpSrc || [])[i] || 'RR'}) :`, 'tp', '$' + fmt(t, r))).join('');
+        chips.innerHTML = s.conf.map(x => `<span class="cf ${x.ok ? 'on' : ''}">${x.ok ? '✓' : '·'} ${esc(x.label)}</span>`).join('') + ` <span class="cf on">${s.grade === 'W' ? 'WATCH' : s.grade === 'R' ? 'REVERSAL' : 'Grade ' + s.grade}</span>`;
+        $('sig-mode-desc').textContent = v.kind === 'reversal' ? `${tfL}: ออเดอร์เดิมโดน SL → วิเคราะห์ใหม่แล้ว กลับด้านเป็นโซน Breaker รอราคากลับมาทดสอบ` : v.kind !== 'ob' ? `${tfL}: ยังไม่มี OB ใช้ได้ → แสดงเป็นโซนรอเข้า (${s.label})` : `โหมด: ${tfL} SMC (BOS/CHoCH + OB + FVG + Liquidity) · คำนวณจากแท่งที่ปิดแล้วล่าสุด ${a.nBars} แท่ง`;
+    } else {
+        ez.innerHTML = `<div style="font-size:12.5px;color:var(--text-dim);line-height:1.5;">${esc(a.reason || 'ยังไม่มี setup ที่เข้าเงื่อนไข')}<br>ระบบจะไม่สร้างสัญญาณปลอม — รอโครงสร้าง/OB ใหม่ในรอบวิเคราะห์ถัดไป</div>`;
+        tz.innerHTML = ''; chips.innerHTML = '';
+        $('sig-mode-desc').textContent = `โหมด: ${tfL} SMC · ไม่มี setup`;
+    }
+    /* Key levels จริงจากโครงสร้าง */
+    const items = [];
+    items.push(`<div class="channel-card" style="border-left:4px solid var(--gold);"><div class="channel-title">Structure (${tfL})</div>
+        <div class="channel-val">${trendText(a)}</div><div class="channel-val" style="font-size:11px;color:var(--text-dim);">${esc(eventText(a))}</div>
+        ${a.range ? `<div class="channel-val" style="color:var(--down);">Swing High: ${fmt(a.range.hi, r)}</div><div class="channel-val" style="color:var(--up);">Swing Low: ${fmt(a.range.lo, r)}</div><div class="channel-val" style="color:var(--text-dim);">Equilibrium: ${fmt(a.range.mid, r)}</div>` : ''}</div>`);
+    items.push(`<div class="channel-card" style="border-left:4px solid var(--purple);"><div class="channel-title">Liquidity Pools</div>
+        <div class="channel-val" style="color:var(--down);">EQH: ${a.eqh ? fmt(a.eqh, r) : 'ไม่พบ'}</div><div class="channel-val" style="color:var(--up);">EQL: ${a.eql ? fmt(a.eql, r) : 'ไม่พบ'}</div>
+        <div class="channel-val" style="font-size:11px;color:var(--text-dim);">${v.active && v.s.sweep ? 'Sweep ล่าสุดที่ ' + fmt(v.s.sweep.level, r) : 'ยังไม่พบ liquidity sweep ล่าสุด'}</div></div>`);
+    items.push(`<div class="channel-card" style="border-left:4px solid var(--blue);"><div class="channel-title">Fair Value Gap (ยังไม่ถูกเติม)</div>
+        ${a.fvgs.length ? a.fvgs.slice(0, 3).map(g => `<div class="channel-val" style="color:${g.dir > 0 ? 'var(--up)' : 'var(--down)'};">${g.dir > 0 ? 'Bull' : 'Bear'} FVG: ${fmt(g.bottom, r)} – ${fmt(g.top, r)}</div>`).join('') : '<div class="channel-val" style="color:var(--text-dim);">ไม่พบ</div>'}</div>`);
+    const av = altView(a, S.price);
+    if (av) {
+        const s = av.s, buy = av.d > 0;
+        items.push(`<div class="channel-card" style="border-left:4px solid ${buy ? 'var(--up)' : 'var(--down)'};"><div class="channel-title">${buy ? '🟢 BUY' : '🔴 SELL'} สวนเทรนด์ (Counter-trend)</div>
+        <div class="channel-val" style="font-size:11px;color:var(--text-dim);">${esc(s.label.replace('สวนเทรนด์ · ', ''))} · ${av.line}</div>
+        <div class="channel-val">โซน: ${fmt(s.zone.bottom, r)} – ${fmt(s.zone.top, r)}</div>
+        <div class="channel-val">Entry: ${fmt(s.e1, r)} / ${fmt(s.e2, r)} / ${fmt(s.e3, r)}</div>
+        <div class="channel-val" style="color:var(--down);">SL: ${fmt(s.sl, r)}</div>
+        <div class="channel-val" style="color:var(--gold);">TP: ${s.tps.map(t => fmt(t, r)).join(' / ')}</div>
+        <div class="chips-row">${s.conf.map(c => `<span class="cf ${c.ok ? 'on' : ''}">${c.ok ? '✓' : '·'} ${esc(c.label)}</span>`).join('')}</div></div>`);
+    }
+    kl.innerHTML = items.join('');
+}
+
+/* ---------------------------------------------------------------------
+   ข่าว: ดึงจากหลายแหล่ง (ผ่าน CORS proxy เพราะเบราว์เซอร์เรียก RSS ตรงๆ ไม่ได้)
+   --------------------------------------------------------------------- */
+const gnews = (q, lang) => {
+    const L = lang === 'th' ? { hl: 'th', gl: 'TH', ceid: 'TH:th' } : { hl: 'en-US', gl: 'US', ceid: 'US:en' };
+    return `https://news.google.com/rss/search?q=${encodeURIComponent(q + ' when:2d')}&hl=${L.hl}&gl=${L.gl}&ceid=${L.ceid}`;
+};
+async function fetchT(u, ms = 12000) {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+    try { return await fetch(u, { signal: c.signal, cache: 'no-store' }); } finally { clearTimeout(t); }
+}
+/* CORS proxy หลายตัว ยิงแบบ "สลับสำรอง": เริ่มตัวแรกก่อน ถ้าช้า/พังค่อยปล่อยตัวถัดไป (ตัวไหนได้ข้อมูลถูกต้องก่อนใช้ตัวนั้น) */
+const PROXIES = [
+    { build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+    { build: u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, unwrap: t => JSON.parse(t).contents },
+    { build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
+    { build: u => `https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+    { build: u => `https://corsproxy.io/?${encodeURIComponent(u)}` },
+    { build: u => `https://api.cors.lol/?url=${encodeURIComponent(u)}` },
+    { build: u => `https://yacdn.org/proxy/${u}` },
+    { build: u => `https://thingproxy.freeboard.io/fetch/${u}` }
+];
+function viaProxies(url, parse, ms = 10000, gap = 2500) {
+    return new Promise((resolve, reject) => {
+        let finished = false, started = 0, running = 0, timer = null;
+        const arm = () => { clearTimeout(timer); if (!finished && started < PROXIES.length) timer = setTimeout(() => { launch(); arm(); }, gap); };
+        const launch = () => {
+            if (finished || started >= PROXIES.length) return;
+            const px = PROXIES[started++]; running++;
+            (async () => {
+                try {
+                    const r = await fetchT(px.build(url), ms); if (!r.ok) throw new Error('http');
+                    let t = await r.text(); if (px.unwrap) t = px.unwrap(t);
+                    const v = parse(t); if (!v) throw new Error('empty');
+                    if (!finished) { finished = true; clearTimeout(timer); resolve(v); }
+                } catch (e) { /* ลองตัวถัดไป */ }
+                finally {
+                    running--;
+                    if (!finished) { if (started < PROXIES.length) { launch(); arm(); } else if (running === 0) { clearTimeout(timer); reject(new Error('proxy failed')); } }
+                }
+            })();
+        };
+        launch(); arm();
+    });
+}
+function parseXML(text) {
+    const doc = new DOMParser().parseFromString(text, 'text/xml');
+    if (doc.querySelector('parsererror')) throw new Error('xml');
+    let nodes = [...doc.querySelectorAll('item')];
+    if (!nodes.length) nodes = [...doc.querySelectorAll('entry')];
+    return nodes.map(it => {
+        const g = s => { try { const e = it.querySelector(s); return e ? e.textContent.trim() : ''; } catch (_) { return ''; } };
+        const le = it.querySelector('link');
+        const link = le ? (le.textContent.trim() || le.getAttribute('href') || '') : '';
+        return { title: g('title'), link, ts: Date.parse(g('pubDate') || g('published') || g('updated')) || 0, src: g('source') };
+    });
+}
+async function fetchFeed(url) {
+    try { return await viaProxies(url, t => { const items = parseXML(t); return items.length ? items : null; }); } catch (e) { /* สำรองสุดท้าย */ }
+    try {   // สำรองสุดท้าย: rss2json (อาจแคชนานกว่า)
+        const r = await fetchT(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+        if (r.ok) {
+            const j = await r.json();
+            if (j.status === 'ok' && Array.isArray(j.items) && j.items.length) return j.items.map(i => ({
+                title: i.title || '', link: i.link || '', src: '',
+                ts: Date.parse(/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(i.pubDate || '') ? i.pubDate.replace(' ', 'T') + 'Z' : i.pubDate) || 0
+            }));
+        }
+    } catch (e) { /* ignore */ }
+    throw new Error('feed failed');
+}
+/* JSON (ปฏิทิน): ลองตรงก่อน → ไม่ได้ค่อยผ่าน proxy; ต้องเป็น array ที่มีข้อมูลเท่านั้นจึงนับว่าสำเร็จ */
+const parseJsonArr = t => { const j = JSON.parse(t); return Array.isArray(j) && j.length ? j : null; };
+async function fetchJSONSmart(url) {
+    try { const r = await fetchT(url, 8000); if (r.ok) { const j = parseJsonArr(await r.text()); if (j) return j; } } catch (e) { /* ลอง proxy */ }
+    return viaProxies(url, parseJsonArr);
+}
+
+const gnTask = (q, lang, region) => ({ name: `Google News${lang === 'th' ? ' TH' : ''}: ${q}`, url: gnews(q, lang), region, gn: true });
+function sharedTasks() {
+    return [...MACRO_EN.map(q => gnTask(q, 'en', 'INTL')), ...MACRO_TH.map(q => gnTask(q, 'th', 'TH')),
+        ...DIRECT.filter(f => f.assets === '*').map(f => ({ name: f.name, url: f.url, region: f.region, gn: false }))];
+}
+function assetTasks(key) {
+    const A = getAsset(key);
+    return [...A.qEn.map(q => gnTask(q, 'en', 'INTL')), ...A.qTh.map(q => gnTask(q, 'th', 'TH')),
+        ...DIRECT.filter(f => f.assets !== '*' && f.assets.includes(key)).map(f => ({ name: f.name, url: f.url, region: f.region, gn: false }))];
+}
+async function runTasks(tasks, limit = 5) {
+    const out = []; let i = 0;
+    async function worker() {
+        while (i < tasks.length) {
+            const t = tasks[i++];
+            try { out.push({ task: t, ok: true, items: await fetchFeed(t.url) }); } catch (e) { out.push({ task: t, ok: false, items: [] }); }
+        }
+    }
+    await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, worker));
+    return out;
+}
+function getShared(force) {
+    const now = Date.now();
+    if (!force && S.shared.p && now - S.shared.ts < 4 * 60000) return S.shared.p;
+    S.shared = { ts: now, p: runTasks(sharedTasks()) };
+    return S.shared.p;
+}
+function toItem(raw, task) {
+    let title = (raw.title || '').replace(/\s+/g, ' ').trim(), src = raw.src || '';
+    if (task.gn) { const m = title.match(/^(.*\S)\s+-\s+([^-]{2,40})$/); if (m) { title = m[1]; src = src || m[2]; } }
+    return { title, link: raw.link, ts: raw.ts || 0, src: src || task.name, region: task.region };
+}
+async function refreshNews(key, opt = {}) {
+    if (S.inflight[key]) return;
+    S.inflight[key] = true;
+    S.nextNews[key] = Date.now() + (key === S.key ? NEWS_MS : NEWS_BG_MS);
+    if (key === S.key) setNewsBusy(true);
+    try {
+        const [own, shared] = await Promise.all([runTasks(assetTasks(key)), getShared(opt.force)]);
+        const all = [...own, ...shared], raw = [], status = [];
+        all.forEach(r => { status.push({ name: r.task.name, ok: r.ok, count: r.items.length, region: r.task.region }); r.items.forEach(x => raw.push(toItem(x, r.task))); });
+        if (!status.some(s => s.ok)) { if (key === S.key) { const m = $('news-meta'); if (m) m.innerHTML = '<span style="color:var(--down)">❌ ดึงข่าวไม่สำเร็จ (ตรวจสอบอินเทอร์เน็ต/proxy) — จะลองใหม่อัตโนมัติ</span>'; } return; }
+        const items = buildNewsList(raw, key);
+        const prev = S.seen[key], first = !prev, seen = prev || new Set(), fresh = [];
+        const oldMap = new Map(((S.news[key] && S.news[key].items) || []).map(o => [o.id, o]));
+        items.forEach(it => {
+            const o = oldMap.get(it.id);
+            if (o && o.isNew && Date.now() - o.newAt < 10 * 60000) { it.isNew = true; it.newAt = o.newAt; }
+            if (!seen.has(it.id)) { if (!first) { it.isNew = true; it.newAt = Date.now(); if (it.imp >= 60) fresh.push(it); } seen.add(it.id); }
+        });
+        S.seen[key] = seen;
+        S.news[key] = { items, ts: Date.now(), impact: computeImpact(items), status };
+        if (fresh.length) announce(key, fresh);
+        renderNews();
+    } finally { S.inflight[key] = false; if (key === S.key) setNewsBusy(false); }
+}
+function announce(key, fresh) {
+    fresh.slice(0, 3).forEach(it => {
+        toast(`🔔 <b>${esc(getAsset(key).name)}</b> · ข่าวใหม่ (${it.imp}/100)<br>${esc(it.title)}`);
+        try { if ('Notification' in window && Notification.permission === 'granted') new Notification(`${key}: ข่าวสำคัญ`, { body: it.title }); } catch (e) { /* ignore */ }
+    });
+}
+function enableNotify() {
+    if (!('Notification' in window)) { toast('เบราว์เซอร์นี้ไม่รองรับ Notification'); return; }
+    Notification.requestPermission().then(p => { toast(p === 'granted' ? '🔔 เปิดแจ้งเตือนข่าวสำคัญแล้ว' : 'ไม่ได้รับอนุญาตแจ้งเตือน'); });
+}
+function refreshNow() { S.shared.ts = 0; refreshNews(S.key, { force: true }); loadCalendar(); }
+function setNewsBusy(b) { const m = $('news-busy'); if (m) m.textContent = b ? '🟡 กำลังดึงข่าวจากทุกแหล่ง...' : ''; }
+
+/* ---------------------------------------------------------------------
+   ปฏิทินเศรษฐกิจ (ข่าว "ในตาราง")
+   --------------------------------------------------------------------- */
+/* Forex Factory แบบ XML (สำรองเมื่อ JSON ถูกจำกัดโควตา/ล่ม) → แปลงให้หน้าตาเหมือน JSON (เวลาใน XML เป็น UTC) */
+function parseFFXml(text) {
+    const doc = new DOMParser().parseFromString(text, 'text/xml');
+    if (doc.querySelector('parsererror')) return null;
+    const out = [];
+    doc.querySelectorAll('event').forEach(n => {
+        const g = t => { const e = n.querySelector(t); return e ? e.textContent.trim() : ''; };
+        const dm = g('date').match(/^(\d\d)-(\d\d)-(\d{4})$/), tm = g('time').match(/^(\d{1,2}):(\d\d)(am|pm)$/i);
+        if (!dm || !g('title')) return;
+        let h = 0, mi = 0;
+        if (tm) { h = (+tm[1]) % 12 + (/pm/i.test(tm[3]) ? 12 : 0); mi = +tm[2]; }
+        const ts = Date.UTC(+dm[3], +dm[1] - 1, +dm[2], h, mi);
+        out.push({ title: g('title'), country: g('country'), date: new Date(ts).toISOString(), impact: g('impact'), forecast: g('forecast'), previous: g('previous'), actual: '' });
+    });
+    return out.length ? out : null;
+}
+async function fetchFF() {
+    let last;
+    for (const u of FF_URLS) { try { return await fetchJSONSmart(u); } catch (e) { last = e; } }
+    for (const u of FF_XML_URLS) {
+        try { const r = await fetchT(u, 8000); if (r.ok) { const x = parseFFXml(await r.text()); if (x) return x; } } catch (e) { last = e; }
+        try { return await viaProxies(u, parseFFXml, 12000); } catch (e) { last = e; }
+    }
+    throw last || new Error('ff failed');
+}
+function loadCalCache() {   // แสดงปฏิทินรอบก่อน (ข้อมูลจริงที่เคยดึงสำเร็จ) ระหว่างรอดึงใหม่/กรณีดึงไม่สำเร็จ
+    try {
+        const c = JSON.parse(store.get('kut_cal') || 'null');
+        if (c && Array.isArray(c.events) && c.events.length && Date.now() - c.ts < 7 * 86400000) S.calendar = { events: c.events, ts: c.ts, ok: true, src: c.src, cached: true };
+    } catch (e) { /* ignore */ }
+}
+async function loadCalendar() {
+    S.nextCal = Date.now() + 60000;   // ถ้าไม่สำเร็จลองใหม่ใน 1 นาที (สำเร็จแล้วค่อยเลื่อนเป็นทุก 10 นาที)
+    const [ff, n8] = await Promise.allSettled([fetchFF(), fetchJSONSmart(N8N_URL)]);
+    let events = [], src = [];
+    if (ff.status === 'fulfilled' && Array.isArray(ff.value) && ff.value.length) { events = normFF(ff.value); src.push('Forex Factory'); }
+    const n8d = n8.status === 'fulfilled' ? n8.value : null;
+    if (Array.isArray(n8d) && n8d.length) {
+        if (events.length) { events = mergeN8n(events, n8d); src.push('Biquote n8n (Actual)'); }
+        else { events = normN8nOnly(n8d); src.push('Biquote n8n'); }
+    }
+    if (events.length) {
+        S.calendar = { events, ts: Date.now(), ok: true, src: src.join(' + ') };
+        S.nextCal = Date.now() + CAL_MS;
+        store.set('kut_cal', JSON.stringify({ ts: S.calendar.ts, src: S.calendar.src, events }));
+    } else S.calendar = Object.assign({}, S.calendar, { ok: S.calendar.events.length > 0, failedAt: Date.now() });
+    renderCalendar(); renderNews();
+}
+function evStatus(ev) {
+    if (ev.actual) return `<b style="color:var(--gold)">${esc(ev.actual)}</b>`;
+    if (!ev.ts) return '<span style="color:var(--text-dim)">รอประกาศ</span>';
+    const d = ev.ts - Date.now();
+    if (d > 0) return `<span style="color:var(--blue)">อีก ${d < 3600000 ? Math.ceil(d / 60000) + ' นาที' : (d / 3600000).toFixed(1) + ' ชม.'}</span>`;
+    if (d > -5 * 60000) return '<span style="color:var(--gold)">⏳ กำลังประกาศ</span>';
+    return '<span style="color:var(--text-dim)">ประกาศแล้ว (ดู Actual ที่ต้นทาง)</span>';
+}
+function renderCalendar() {
+    const body = $('calendar-data-body'), upd = $('calendar-last-updated'); if (!body) return;
+    const evs = relevantEvents(S.calendar.events, S.key);
+    if (!S.calendar.events.length) {
+        body.innerHTML = `<tr><td colspan="7" style="color:${S.calendar.ts || S.calendar.failedAt ? 'var(--down)' : 'var(--text-dim)'}">${S.calendar.failedAt ? '❌ ดึงปฏิทินเศรษฐกิจไม่สำเร็จ (ระบบลองใหม่อัตโนมัติทุก 1 นาที หรือกด “รีเฟรชข่าวทันที”) — ไม่แสดงข้อมูลสมมติ' : 'กำลังดึงปฏิทินเศรษฐกิจ...'}</td></tr>`;
+    } else if (!evs.length) {
+        body.innerHTML = `<tr><td colspan="7" style="color:var(--text-dim)">ไม่พบข่าวในตาราง — ${esc(getAsset(S.key).name)} (สกุลเงินที่เกี่ยวข้อง: ${esc(getAsset(S.key).ccy.join(', '))})</td></tr>`;
+    } else {
+        body.innerHTML = evs.map(ev => `<tr>
+            <td>${ev.ts ? bkkTime(ev.ts) : esc(ev.timeText || '-')}</td><td><b>${esc(ev.ccy)}</b></td><td><strong>${esc(ev.title)}</strong></td>
+            <td><span class="${ev.impact === 'High' ? 'imp-high' : 'imp-med'}">${ev.impact === 'High' ? '🔴 สูง' : '🟠 กลาง'}</span></td>
+            <td>${esc(ev.previous || '-')}</td><td>${esc(ev.forecast || '-')}</td><td>${evStatus(ev)}</td></tr>`).join('');
+    }
+    if (upd) upd.textContent = S.calendar.ts ? `${S.calendar.failedAt && S.calendar.failedAt > S.calendar.ts ? '🟠' : '🟢'} ปฏิทิน: ${esc(S.calendar.src)} · อัปเดต ${new Date(S.calendar.ts).toLocaleTimeString('th-TH', { timeZone: TZ })} (เวลาไทย)${S.calendar.failedAt && S.calendar.failedAt > S.calendar.ts ? ' · ดึงรอบล่าสุดไม่สำเร็จ ใช้ข้อมูลเดิม' : ''}` : '🔄 กำลังโหลด...';
+}
+function checkReleases() {
+    const now = Date.now(), A = getAsset(S.key);
+    S.calendar.events.forEach(ev => {
+        const id = ev.ts + ev.title;
+        if (!ev.ts || S.released.has(id) || now < ev.ts || now - ev.ts > 3 * 60000) return;
+        if (!A.ccy.includes(ev.ccy) || !(ev.impact === 'High' || ev.impact === 'Medium')) return;
+        S.released.add(id);
+        toast(`📢 <b>ข่าวประกาศแล้ว:</b> ${esc(ev.ccy)} ${esc(ev.title)}<br>กำลังดึงตัวเลขจริง/ข่าวล่าสุด...`);
+        setTimeout(() => { loadCalendar(); S.shared.ts = 0; refreshNews(S.key, { force: true }); }, 20000);   // รอให้ฟีดอัปเดต
+    });
+}
+
+/* ---------------------------------------------------------------------
+   แสดงผลระบบข่าว
+   --------------------------------------------------------------------- */
+function renderNews() {
+    renderBrief(); renderCalendar(); renderImpact(); renderPreds(); renderLayers(); renderFeed(); renderSources(); updateCountdowns();
+}
+function biasColor(b) { return b === 'BULLISH' ? 'var(--up)' : b === 'BEARISH' ? 'var(--down)' : 'var(--gold)'; }
+function biasText(b) { return b === 'BULLISH' ? 'BULLISH 🟢' : b === 'BEARISH' ? 'BEARISH 🔴' : 'NEUTRAL 🟡'; }
+function renderBrief() {
+    const el = $('brief-container'); if (!el) return;
+    el.innerHTML = S.watch.map(k => {
+        const A = getAsset(k), n = S.news[k], act = k === S.key ? ' sel' : '';
+        if (!n) return `<div class="brief-card${act}" onclick="switchAsset('${k}')"><div class="tf-name">${A.icon} ${esc(k)}</div><div style="font-size:12px;color:var(--text-dim);margin-top:6px;">${S.inflight[k] ? '🟡 กำลังดึงข่าว...' : 'รอคิวดึงข่าว'}</div></div>`;
+        const im = n.impact, top = n.items[0], th = n.items.filter(x => x.region === 'TH').length, intl = n.items.length - th;
+        return `<div class="brief-card${act}" onclick="switchAsset('${k}')">
+            <div class="tf-h"><span class="tf-name">${A.icon} ${esc(k)}</span><span class="badge ${im.bias === 'BULLISH' ? 'bullish' : im.bias === 'BEARISH' ? 'bearish' : 'neutral'}">${im.bias}</span></div>
+            <div class="tf-row"><span>Impact Score</span><b style="color:${biasColor(im.bias)}">${im.score > 0 ? '+' : ''}${im.score}/100</b></div>
+            <div class="tf-row"><span>ข่าว 🟢/🔴/⚪</span><b>${im.bull}/${im.bear}/${im.neu}</b></div>
+            <div class="tf-row"><span>ต่างประเทศ / ไทย</span><b>${intl} / ${th}</b></div>
+            ${top ? `<div class="tf-struct" style="margin-top:4px;">📰 ${esc(top.title.slice(0, 90))}${top.title.length > 90 ? '…' : ''}</div>` : ''}</div>`;
+    }).join('');
+    const b = $('brief-badge'); if (b) b.textContent = S.briefLabel || '';
+}
+function nextHighEvent() {
+    const now = Date.now();
+    return relevantEvents(S.calendar.events, S.key).filter(e => e.ts && e.impact === 'High' && e.ts > now - 5 * 60000 && e.ts - now < 60 * 60000)[0];
+}
+function renderImpact() {
+    const el = $('impact-engine-container'); if (!el) return;
+    const n = S.news[S.key], A = getAsset(S.key);
+    if (!n) { el.innerHTML = '<div class="impact-card"><div class="impact-title">News Impact</div><div class="impact-sub">กำลังรวบรวมข่าวจากทุกแหล่ง...</div></div>'; return; }
+    const im = n.impact;
+    const act = S.analysis.map(a => ({ a, v: sigView(a, S.price) })).filter(x => x.v.active && x.v.kind !== 'breaker' && x.v.kind !== 'fvg' && x.v.kind !== 'pd');
+    const buy = act.filter(x => x.v.s.dir > 0).map(x => x.a.label);
+    const sell = act.filter(x => x.v.s.dir < 0).map(x => x.a.label);
+    let strat;
+    if (im.bias === 'NEUTRAL') strat = 'ข่าวเป็นกลาง: เทรดตามโครงสร้าง SMC ของแต่ละ TF';
+    else if (im.bias === 'BULLISH') strat = buy.length >= sell.length && buy.length ? `✅ ข่าว + SMC ไปทางเดียวกัน: ให้ความสำคัญ BUY ที่ ${buy.join(', ')}` : (sell.length ? `⚠️ ข่าวหนุนขึ้น แต่ SMC ที่ ${sell.join(', ')} เป็น SELL — ลดขนาดสถานะ/รอยืนยัน` : 'ข่าวหนุนขึ้น: รอ BUY setup ที่ผ่านเงื่อนไข SMC');
+    else strat = sell.length >= buy.length && sell.length ? `✅ ข่าว + SMC ไปทางเดียวกัน: ให้ความสำคัญ SELL ที่ ${sell.join(', ')}` : (buy.length ? `⚠️ ข่าวกดดันลง แต่ SMC ที่ ${buy.join(', ')} เป็น BUY — ลดขนาดสถานะ/รอยืนยัน` : 'ข่าวกดดันลง: รอ SELL setup ที่ผ่านเงื่อนไข SMC');
+    const hev = nextHighEvent();
+    if (hev) strat += `<br>⛔ ข่าวแรง ${esc(hev.ccy)} ${esc(hev.title)} ${hev.ts > Date.now() ? 'ใน ' + Math.ceil((hev.ts - Date.now()) / 60000) + ' นาที' : 'เพิ่งประกาศ'} — เลี่ยงเปิดออเดอร์ใหม่`;
+    el.innerHTML = `
+        <div class="impact-card"><div class="impact-title">Overall News Importance</div><div class="impact-val" style="color:var(--gold)">${im.overall}/100</div><div class="impact-sub">เฉลี่ย 5 ข่าวสำคัญสุด จาก ${im.n} ข่าว</div></div>
+        <div class="impact-card"><div class="impact-title">Asset Impact (${esc(S.key)})</div><div class="impact-val" style="color:${biasColor(im.bias)}">${im.score > 0 ? '+' : ''}${im.score}/100</div><div class="impact-sub">🟢 ${im.bull} · 🔴 ${im.bear} · ⚪ ${im.neu} (ถ่วงน้ำหนักตามความสำคัญ/ความสด)</div></div>
+        <div class="impact-card"><div class="impact-title">News Bias × SMC</div><div class="impact-val" style="color:${biasColor(im.bias)}">${biasText(im.bias)}</div><div class="impact-sub">${strat}</div></div>`;
+    const t = $('news-title'); if (t) t.textContent = `📰 ศูนย์ข่าวรายวัน: ${A.name}`;
+}
+function renderPreds() {
+    const el = $('news-pred-container'); if (!el) return;
+    const now = Date.now();
+    const evs = relevantEvents(S.calendar.events, S.key).filter(e => !e.ts || e.ts > now - 30 * 60000).sort((x, y) => (y.impact === 'High') - (x.impact === 'High') || x.ts - y.ts).slice(0, 4);
+    el.innerHTML = evs.length ? evs.map(ev => `<div class="pred-box">
+        <div class="pred-title">📌 ${bkkTime(ev.ts)} ${esc(ev.ccy)} — ${esc(ev.title)} ${ev.impact === 'High' ? '🔴' : '🟠'}</div>
+        <div class="pred-val">Forecast: ${esc(ev.forecast || '-')} | Prev: ${esc(ev.previous || '-')}</div>
+        <div style="font-size:12.5px;color:var(--text);margin-top:6px;line-height:1.4;"><b>ผลกระทบต่อ ${esc(S.key)}:</b> ${esc(eventImpactText(ev, S.key))}</div></div>`).join('')
+        : '<div style="font-size:12.5px;color:var(--text-dim);">ไม่พบข่าวในตาราง</div>';
+}
+function renderLayers() {
+    const el = $('layer-matrix-container'); if (!el) return;
+    const n = S.news[S.key], A = getAsset(S.key);
+    const d = $('news-asset-desc'); if (d) d.textContent = `จัดหมวดข่าวจริงที่ดึงมาเข้า 8 มิติ สำหรับ ${A.name} (ตัวเลขในวงเล็บ = จำนวนข่าว / ผลสุทธิต่อสินทรัพย์)`;
+    if (!n) { el.innerHTML = ''; return; }
+    const cards = LAYER_TITLES.slice(0, 7).map((title, i) => {
+        const list = n.items.filter(x => x.layers.includes(i));
+        const net = list.reduce((s, x) => s + x.sent, 0);
+        const tops = list.slice(0, 2).map(x => `• ${esc(x.title.slice(0, 80))}${x.title.length > 80 ? '…' : ''}`).join('<br>');
+        const col = net > 0 ? 'var(--up)' : net < 0 ? 'var(--down)' : 'var(--text-dim)';
+        return `<div class="layer-card"><div class="layer-header">${title} <span style="color:${col}">(${list.length} / ${net > 0 ? '+' : ''}${net})</span></div>
+            <div class="layer-desc">${tops || 'ไม่มีข่าวในหมวดนี้ในรอบนี้'}</div></div>`;
+    });
+    const evs = relevantEvents(S.calendar.events, S.key);
+    const hi = evs.filter(e => e.impact === 'High');
+    const nxt = evs.filter(e => e.ts > Date.now())[0];
+    cards.push(`<div class="layer-card"><div class="layer-header">${LAYER_TITLES[7]} <span style="color:var(--gold)">(${evs.length})</span></div>
+        <div class="layer-desc">${evs.length ? `วันนี้มี ${evs.length} รายการ (🔴 สูง ${hi.length})${nxt ? `<br>ถัดไป: ${bkkTime(nxt.ts)} ${esc(nxt.ccy)} ${esc(nxt.title)}` : ''}` : 'ไม่พบข่าวในตาราง'}</div></div>`);
+    el.innerHTML = cards.join('');
+}
+function setFilter(f) { S.filter = f; renderFeed(); }
+function setSort(s) { S.sort = s; renderFeed(); }
+function reasonText(it) {
+    const A = getAsset(S.key);
+    const dir = it.sent > 0 ? 'หนุนขาขึ้น 🟢' : it.sent < 0 ? 'กดดันขาลง 🔴' : 'เป็นกลาง/ยังไม่ชัดเจน ⚪';
+    const lay = it.layers.length ? ' · หมวด: ' + it.layers.map(i => LAYER_TITLES[i].replace(/^\d\.\s*\S+\s*/, '').split('/')[0].trim()).join(', ') : '';
+    return `ผลต่อ ${A.name}: ${dir} · ความสำคัญ ${it.imp}/100${lay}`;
+}
+function renderFeed() {
+    const el = $('news-grid-container'); if (!el) return;
+    const n = S.news[S.key], today = bkkDate(Date.now());
+    const fb = $('feed-filters');
+    if (fb) {
+        const F = [['all', 'ทั้งหมด'], ['today', 'วันนี้'], ['INTL', '🌎 ต่างประเทศ'], ['TH', '🇹🇭 ในประเทศ'], ['high', '🔥 สำคัญสูง']];
+        fb.innerHTML = F.map(([k, l]) => `<button class="fbtn ${S.filter === k ? 'active' : ''}" onclick="setFilter('${k}')">${l}</button>`).join('') +
+            `<span style="flex:1"></span><button class="fbtn ${S.sort === 'important' ? 'active' : ''}" onclick="setSort('important')">เรียงตามสำคัญ</button><button class="fbtn ${S.sort === 'latest' ? 'active' : ''}" onclick="setSort('latest')">เรียงตามล่าสุด</button>`;
+    }
+    if (!n) { el.innerHTML = '<div style="font-size:13px;color:var(--text-dim);">กำลังดึงข่าวจากทุกแหล่ง (Google News ทั้งไทย/ต่างประเทศ, Fed, ECB, BBC, CNBC, FXStreet, CoinDesk ฯลฯ)...</div>'; return; }
+    let list = n.items.filter(x => S.filter === 'all' ? true : S.filter === 'today' ? (x.ts && bkkDate(x.ts) === today) : S.filter === 'high' ? x.imp >= 70 : x.region === S.filter);
+    if (S.sort === 'latest') list = [...list].sort((a, b) => b.ts - a.ts);
+    list = list.slice(0, 30);
+    if (!list.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text-dim);">ไม่มีข่าวตามตัวกรองนี้</div>'; return; }
+    el.innerHTML = list.map(it => {
+        const sc = it.sent > 0 ? 'bullish' : it.sent < 0 ? 'bearish' : 'neutral';
+        const st = it.sent > 0 ? 'Bullish 🟢' : it.sent < 0 ? 'Bearish 🔴' : 'Neutral 🟡';
+        return `<div class="news-card"><div>
+            <div class="news-header"><span class="news-source-tag">${esc(it.src)} ${it.region === 'TH' ? '🇹🇭' : '🌎'}${it.isNew ? '<span class="new-tag">NEW</span>' : ''}</span><span class="badge ${sc}">${st}</span></div>
+            <div class="news-headline">${esc(it.title)}</div>
+            <div class="news-impact-box ${sc}"><b>วิเคราะห์:</b> ${esc(reasonText(it))}</div></div>
+            <div class="news-footer-row"><a href="${esc(safeUrl(it.link))}" target="_blank" rel="noopener noreferrer" class="news-read-link">อ่านข่าวต้นฉบับ 🔗</a>
+            <span class="news-date-tag">${it.ts ? bkkTime(it.ts) + ' · ' + agoText(it.ts) : 'ไม่ระบุเวลา'}</span></div></div>`;
+    }).join('');
+}
+const REF_LINKS = [
+    { cat: '1. ปฏิทิน/ข่าวต่างประเทศ', links: [['Forex Factory Calendar', 'https://www.forexfactory.com/calendar'], ['Investing.com Calendar', 'https://www.investing.com/economic-calendar/'], ['Federal Reserve', 'https://www.federalreserve.gov/newsevents.htm'], ['ECB Press', 'https://www.ecb.europa.eu/press/html/index.en.html']] },
+    { cat: '2. ข่าว/ข้อมูลในประเทศไทย', links: [['ธนาคารแห่งประเทศไทย (ธปท.)', 'https://www.bot.or.th/th/news-and-media.html'], ['ตลาดหลักทรัพย์ฯ (SET)', 'https://www.set.or.th/th/home'], ['กระทรวงการคลัง', 'https://www.mof.go.th/th'], ['Bangkok Post Business', 'https://www.bangkokpost.com/business']] },
+    { cat: '3. ข้อมูลสถานะ/โภคภัณฑ์/คริปโท', links: [['CFTC COT Report', 'https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm'], ['EIA Petroleum', 'https://www.eia.gov/petroleum/'], ['OPEC', 'https://www.opec.org/opec_web/en/press_room/'], ['CoinDesk', 'https://www.coindesk.com/']] }
+];
+function renderSources() {
+    const g = $('sources-grid-container');
+    if (g && !g.dataset.done) {
+        g.dataset.done = '1';
+        g.innerHTML = REF_LINKS.map(c => `<div class="source-cat-box"><div class="source-cat-header">${c.cat}</div><ul class="source-list">${c.links.map(l => `<li><b>${esc(l[0])}:</b> <a href="${l[1]}" target="_blank" rel="noopener noreferrer">เปิด 🔗</a></li>`).join('')}</ul></div>`).join('');
+    }
+}
+function updateCountdowns() {
+    const now = Date.now();
+    const t = $('timer-display');
+    if (t) { const s = Math.max(0, Math.ceil((S.nextSync - now) / 1000)); t.textContent = `⏱️ Next Sync: ${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
+    const bm = $('board-meta');
+    if (bm) bm.textContent = S.lastSync ? `วิเคราะห์ล่าสุด ${new Date(S.lastSync).toLocaleTimeString('th-TH', { timeZone: TZ })} · ทุก TF ทุก 1 นาที` : 'กำลังวิเคราะห์...';
+    const nm = $('news-meta'), n = S.news[S.key];
+    if (nm && n && !S.inflight[S.key]) {
+        const s = Math.max(0, Math.ceil(((S.nextNews[S.key] || 0) - now) / 1000));
+        nm.innerHTML = `อัปเดตข่าว ${new Date(n.ts).toLocaleTimeString('th-TH', { timeZone: TZ })} · รอบถัดไป ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} · ${S.briefLabel ? esc(S.briefLabel) : ''}`;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   ตัวจับเวลา: SMC ทุก 1 นาที, ข่าว 5 นาที, ปฏิทิน 10 นาที, ข่าวตอนประกาศ, สรุปเช้า 06:00
+   --------------------------------------------------------------------- */
+function checkMorning() {
+    const today = bkkDate(Date.now());
+    if (bkkHour() >= 6 && S.briefDay !== today) {
+        S.briefDay = today; store.set('kut_brief_day', today);
+        S.briefLabel = `☀️ Morning Brief ${today}`;
+        S.shared.ts = 0;
+        S.watch.forEach((k, i) => { S.nextNews[k] = Date.now() + i * 15000; });   // ทยอยดึงข่าวทุกสินทรัพย์
+        toast('☀️ <b>สรุปข่าวเช้าวันใหม่</b> — กำลังวิเคราะห์ข่าวทุกสินทรัพย์ที่เลือก');
+    }
+}
+function tick() {
+    const now = Date.now();
+    if (now >= S.nextSync && !S.syncing) syncAll();
+    if (S.started) S.watch.forEach(k => { if (!S.inflight[k] && now >= (S.nextNews[k] || 0)) refreshNews(k); });
+    if (now >= S.nextCal) loadCalendar();
+    checkReleases();
+    if (now - S.lastMinuteCheck > 60000) { S.lastMinuteCheck = now; checkMorning(); renderCalendar(); }
+    updateCountdowns();
+}
+
+/* ---------------------------------------------------------------------
+   Widget / Controls
+   --------------------------------------------------------------------- */
+function loadTV(id, src, config) {
+    const m = $(id); if (!m) return;
     m.innerHTML = '';
-    const c = document.createElement('div');
-    c.className = 'tradingview-widget-container';
-    c.style.height = '100%'; c.style.width = '100%';
-    const w = document.createElement('div');
-    w.className = 'tradingview-widget-container__widget';
-    w.style.height = '100%'; w.style.width = '100%';
+    const c = document.createElement('div'); c.className = 'tradingview-widget-container'; c.style.height = '100%'; c.style.width = '100%';
+    const w = document.createElement('div'); w.className = 'tradingview-widget-container__widget'; w.style.height = '100%'; w.style.width = '100%';
     c.appendChild(w);
-    const s = document.createElement('script');
-    s.src = src; s.async = true; s.textContent = JSON.stringify(config);
+    const s = document.createElement('script'); s.src = src; s.async = true; s.textContent = JSON.stringify(config);
     c.appendChild(s); m.appendChild(c);
 }
-
-function refreshWidget(symbol, tvInterval = '1'){
-    currentSymbol = symbol;
-    livePrice = 0;
-
-    document.getElementById('current-asset-display').textContent = cleanAssetTitle(symbol);
-
-    loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', {
-        symbol: symbol, width: "100%", isTransparent: true, colorTheme: "dark", locale: "th"
-    });
-
+function loadChart() {
+    const tf = TFS.find(t => t.key === S.tf) || TFS[0];
     loadTV('tv-chart-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js', {
-        autosize: true, symbol: symbol, interval: tvInterval, timezone: 'Asia/Bangkok', theme: 'dark', style: '1', locale: 'th',
+        autosize: true, symbol: S.symbol, interval: tf.tv, timezone: TZ, theme: 'dark', style: '1', locale: 'th',
         backgroundColor: 'rgba(23,29,39,1)', hide_top_toolbar: false, allow_symbol_change: true,
-        studies: ["STD;Pivot%1Points%1High%1Low", "STD;EMA;50", "STD;EMA;200"]
+        studies: ['STD;Pivot%1Points%1High%1Low', 'STD;EMA;50', 'STD;EMA;200']
     });
-
-    renderAutoSRChannels(symbol);
-    renderNewsPredictions(symbol);
-    renderAssetNews(symbol);
-    startEngineLoop();
-    connectRealtimePriceAPI(symbol);
 }
-
-function changeTimeframe(tf, tvInterval){
-    currentTimeframe = tf; currentTvInterval = tvInterval;
-    document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tf === tf));
-    refreshWidget(currentSymbol, currentTvInterval);
-}
-
-function go(symbol, label){
+function go(symbol) {
+    S.symbol = symbol; S.key = biquoteSymbol(symbol);
+    if (!S.watch.includes(S.key)) { S.watch.push(S.key); S.nextNews[S.key] = 0; }
+    S.epoch++; S.flipped.clear(); S.price = 0; S.lastTick = 0; S.bars = {}; S.analysis = []; S.nextSync = 0;
     document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.symbol === symbol));
-    refreshWidget(symbol, currentTvInterval);
+    $('current-asset-display').textContent = S.key;
+    $('val-realtime-price').textContent = '$0.00';
+    loadTV('tv-symbol-mount', 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js', { symbol, width: '100%', isTransparent: true, colorTheme: 'dark', locale: 'th' });
+    loadChart(); renderBoard(); renderDetail(); renderNews(); renderCalendar();
+    connectPrice();
+    S.syncing = false; syncAll();
+    if (S.started && !S.inflight[S.key] && (!S.news[S.key] || Date.now() - S.news[S.key].ts > NEWS_MS)) refreshNews(S.key);
 }
-
-function handleSearch(){
-    const input = document.getElementById('symbol-input').value.trim();
-    if (input) {
-        let formattedSymbol = input;
-        if (!input.includes(':')) {
-            formattedSymbol = `NASDAQ:${input.toUpperCase()}`;
-        }
-        go(formattedSymbol, input.toUpperCase());
-    }
+function switchAsset(key) {
+    const chip = [...document.querySelectorAll('.chip')].find(c => biquoteSymbol(c.dataset.symbol) === key);
+    if (chip) { $('symbol-input').value = ''; go(chip.dataset.symbol); }
+    else go(key.includes(':') ? key : `NASDAQ:${key}`);
 }
-
-document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
-    document.getElementById('symbol-input').value = '';
-    go(c.dataset.symbol, c.dataset.label);
-});
-
-// เริ่มต้นโหลดคู่เงินทองคำ XAUUSD
-refreshWidget('OANDA:XAUUSD', '1');
+function handleSearch() {
+    const v = $('symbol-input').value.trim();
+    if (v) go(v.includes(':') ? v.toUpperCase() : `NASDAQ:${v.toUpperCase()}`);
+}
+function init() {
+    document.querySelectorAll('.chip').forEach(c => c.onclick = () => { $('symbol-input').value = ''; go(c.dataset.symbol); });
+    $('symbol-input').addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
+    S.briefDay = store.get('kut_brief_day') || '';
+    loadCalCache();
+    go('OANDA:XAUUSD');
+    S.watch.forEach((k, i) => { S.nextNews[k] = k === S.key ? 0 : Date.now() + 8000 + i * 12000; });  // ทยอยดึง ไม่ยิงพร้อมกัน
+    S.started = true;
+    loadCalendar();
+    S.lastMinuteCheck = Date.now(); checkMorning();
+    if (S.briefDay === bkkDate(Date.now()) && !S.briefLabel) S.briefLabel = `☀️ Morning Brief ${S.briefDay}`;
+    setInterval(tick, 1000);
+}
+if (typeof document !== 'undefined' && document.getElementById('tv-chart-mount')) init();
 </script>
 </body>
 </html>
